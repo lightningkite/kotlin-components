@@ -13,5 +13,5 @@ public interface ViewController {
 
     public fun loadState(state: Parcelable)
     public fun saveState(): Parcelable?
-    public fun dispose()
+    public fun dispose(view: View)
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList
 
 public class Bond<T>(init: T) {
     private var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
+    private var nonUiListeners: ArrayList<(v: T) -> Unit> = ArrayList()
     private var myValue: T = init
 
     public fun get(thisRef: Any?, prop: PropertyMetadata): T {
@@ -50,6 +51,23 @@ public class Bond<T>(init: T) {
 
     public fun unbind(body: (v: T) -> Unit) {
         listeners.remove(body)
+    }
+
+    public fun clearBindings() {
+        listeners.clear()
+    }
+
+    public fun bindNonUI(body: (v: T) -> Unit) {
+        nonUiListeners.add(body)
+        body(myValue)
+    }
+
+    public fun unbindNonUI(body: (v: T) -> Unit) {
+        nonUiListeners.remove(body)
+    }
+
+    public fun clearNonUIBindings() {
+        nonUiListeners.clear()
     }
 
     override fun toString(): String {

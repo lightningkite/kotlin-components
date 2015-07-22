@@ -30,9 +30,9 @@ public abstract class BaseViewController : ViewController {
         return Bundler.toBundle(this, this.javaClass)
     }
 
-    override fun dispose() {
-        context = null
-        view = null
+    override fun dispose(view: View) {
+        this.context = null
+        this.view = null
     }
 
 }

@@ -46,7 +46,9 @@ public abstract class SingleViewActivity : LifecycleActivity() {
     public fun popView() {
         if (stack.size() <= 1) return
         val oldController = stack.pop()
-        oldController.dispose()
+        if (currentView != null) {
+            oldController.dispose(currentView!!)
+        }
         val newController = stack.last()
 
         switchView(oldController, newController)//, popOutTransition, popInTransition)
@@ -61,7 +63,7 @@ public abstract class SingleViewActivity : LifecycleActivity() {
 
         if (currentView != null && oldController != null) {
             frame?.removeView(currentView)
-            oldController.dispose()
+            oldController.dispose(currentView!!)
         }
 
         frame?.addView(newView)
@@ -78,6 +80,8 @@ public abstract class SingleViewActivity : LifecycleActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stack.last().dispose()
+        if (currentView != null) {
+            stack.last().dispose(currentView!!)
+        }
     }
 }

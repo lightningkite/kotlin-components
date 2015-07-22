@@ -1,0 +1,53 @@
+package com.lightningkite.kotlincomponents.adapter
+
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+
+/**
+ * A base adapter for quickly building an adapter with a customized look.
+ * @param  The type of item to display.
+ * *
+ * @param  The view holder class for retaining references to view's components.
+ */
+public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
+(maker: () -> HOLDER, updater: (ITEM, HOLDER) -> Unit) : BaseAdapter() {
+
+    constructor(maker: () -> HOLDER, updater: (ITEM, HOLDER) -> Unit, list: List<ITEM>)
+    : this(maker, updater) {
+        this.list = list
+        notifyDataSetChanged()
+    }
+
+    public val make: () -> HOLDER = maker;
+    public val update: (ITEM, HOLDER) -> Unit = updater;
+    public var list: List<ITEM>? = null
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+        val item = list?.get(position)
+        if (convertView == null) {
+            val holder: HOLDER = make()
+            if (item != null) {
+                update(item, holder)
+            }
+            holder.view.setTag(holder)
+            return holder.view
+        } else {
+            val holder: HOLDER? = convertView.getTag() as? HOLDER
+            if (item != null && holder != null) {
+                update(item, holder)
+            }
+        }
+        return convertView
+    }
+
+    override fun getItem(position: Int): Any? = list?.get(position)
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun getCount(): Int = list?.size() ?: 0
+
+    public interface ViewHolder {
+        public val view: View;
+    }
+}

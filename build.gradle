@@ -34,11 +34,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.jetbrains.anko:anko:0.6.2-15'
-    compile 'com.github.salomonbrys.kotson:kotson:1.2.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'co.uk.rushorm:rushandroid:1.1.7'
 }
 buildscript {
     ext.kotlin_version = '0.12.1218'

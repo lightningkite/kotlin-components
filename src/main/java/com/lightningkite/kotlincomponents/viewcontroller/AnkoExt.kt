@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.layview
+package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
 import android.widget.FrameLayout

@@ -1,26 +1,39 @@
-package com.lightningkite.kotlincomponents.layview
+package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.parcel.Bundler
+import java.util.ArrayList
 
 /**
  * Created by jivie on 6/26/15.
  */
 public abstract class BaseViewController : ViewController {
+
+    override val tag: String = this.javaClass.getName()
     public var view: View? = null
     public var context: Context? = null
+    public var stack: ViewControllerStack? = null
+    public val bonds: ArrayList<Bond<*>> = ArrayList()
 
-    override fun make(context: Context): View {
+    override fun make(context: Context, stack: ViewControllerStack): View {
         this.context = context
+        this.stack = stack
         val newView = make()
         view = newView
         return newView
     }
 
     public abstract fun make(): View
+
+    protected inline fun <reified T> makeBond(initialValue: T): Bond<T> {
+        val newBond = Bond(initialValue)
+        bonds.add(newBond)
+        return newBond
+    }
 
     override fun loadState(state: Parcelable) {
         Bundler.fromBundle(state as Bundle, this, this.javaClass)
@@ -31,6 +44,10 @@ public abstract class BaseViewController : ViewController {
     }
 
     override fun dispose(view: View) {
+        for (bond in bonds) {
+            bond.clearBindings()
+        }
+        bonds.clear()
         this.context = null
         this.view = null
     }

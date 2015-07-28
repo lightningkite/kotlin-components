@@ -1,0 +1,103 @@
+package com.lightningkite.kotlincomponents.viewcontroller
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import org.jetbrains.anko.layoutParams
+import org.jetbrains.anko.orientation
+
+/**
+ * Created by jivie on 7/24/15.
+ */
+public class SplitViewController() : ViewController, ViewControllerStack {
+    override val tag: String = "com.lightningkite.kotlincomponents.viewcontroller.SplitViewController"
+
+    public constructor(left: ViewController, right: ViewController, ratio: Float) : this() {
+        this.left = left
+        this.right = right
+        this.ratio = ratio
+    }
+
+    public var left: ViewController? = null
+    public var right: ViewController? = null
+    public var leftView: View? = null
+    public var rightView: View? = null
+    public var layout: LinearLayout? = null
+    public var ratio: Float = .5f
+
+    public var stack: ViewControllerStack? = null
+
+    override fun make(context: Context, stack: ViewControllerStack): View {
+        this.stack = stack
+        if (left == null || right == null) throw IllegalStateException("A view controller is null!")
+        layout = makeLinearLayout(context) {
+            orientation = LinearLayout.HORIZONTAL
+            val leftView = left!!.make(context, this@SplitViewController)
+            val rightView = right!!.make(context, this@SplitViewController)
+            if (ratio == 0f) {
+                leftView.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                rightView.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+            } else if (ratio == 1f) {
+                leftView.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                rightView.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            } else {
+                leftView.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, ratio)
+                rightView.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f - ratio)
+            }
+            addView(leftView)
+            addView(rightView)
+        }
+        return layout!!
+    }
+
+    override fun pushView(newController: ViewController) {
+        stack?.pushView(newController)
+    }
+
+    override fun popView() {
+        stack?.popView()
+    }
+
+    override fun saveState(): Parcelable? {
+        val bundle = Bundle()
+        bundle.putString("left.className", left?.javaClass?.getName())
+        bundle.putParcelable("left.controllerData", left?.saveState())
+        bundle.putString("right.className", right?.javaClass?.getName())
+        bundle.putParcelable("right.controllerData", right?.saveState())
+        bundle.putFloat("ratio", ratio)
+        return bundle
+    }
+
+    override fun loadState(state: Parcelable) {
+        val bundle = state as Bundle
+        ratio = bundle.getFloat("ratio")
+        left = Class.forName(bundle.getString("left.className")).newInstance() as ViewController
+        left?.loadState(bundle.getParcelable("left.controllerData"))
+        right = Class.forName(bundle.getString("right.className")).newInstance() as ViewController
+        right?.loadState(bundle.getParcelable("right.controllerData"))
+    }
+
+    override fun dispose(view: View) {
+        if (leftView != null) {
+            left?.dispose(leftView!!)
+        }
+        if (rightView != null) {
+            right?.dispose(rightView!!)
+        }
+    }
+
+    override fun optView(tag: String): ViewController? {
+        if (left?.tag?.equals(tag) ?: false) return left
+        if (right?.tag?.equals(tag) ?: false) return right
+        return stack?.optView(tag)
+    }
+
+    override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {
+        stack?.startIntent(intent, onResult, options)
+    }
+
+}

@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.layview
+package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.app.Activity
 import android.os.Bundle
@@ -40,30 +40,30 @@ public open class LifecycleActivity : Activity() {
     }
 
     override fun onPause() {
-        super.onPause()
         for (listener in lifecycleListeners) {
             listener.onPause()
         }
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
         for (listener in lifecycleListeners) {
             listener.onSaveInstanceState(outState)
         }
+        super.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
-        super.onLowMemory()
         for (listener in lifecycleListeners) {
             listener.onLowMemory()
         }
+        super.onLowMemory()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         for (listener in lifecycleListeners) {
             listener.onDestroy()
         }
+        super.onDestroy()
     }
 }

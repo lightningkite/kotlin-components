@@ -27,6 +27,7 @@ repositories {
     maven {
         url "http://maven.rushorm.com"
     }
+    jcenter()
 }
 
 dependencies {

@@ -14,33 +14,29 @@ import java.util.Stack
  * Created by jivie on 6/26/15.
  */
 public abstract class ViewControllerActivity : LifecycleActivity(), ViewControllerStack {
-    public val stack: Stack<ViewController> = Stack()
+    public companion object {
+        public val stack: Stack<ViewControllerData> = Stack()
+    }
     public var currentView: View? = null
     public var frame: FrameLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<LifecycleActivity>.onCreate(savedInstanceState)
         frame = frameLayout {}
-        if(savedInstanceState != null) loadInstanceState(savedInstanceState)
-        else onFirstCreate()
+        if (stack.isEmpty()) onFirstCreate()
+        else {
+            switchView(null, stack.peek());
+        }
     }
 
     public abstract fun onFirstCreate()
+    public abstract fun popInTransition():
 
-    public fun loadInstanceState(savedInstanceState: Bundle){
-        stack.loadState(savedInstanceState, "stack")
-        currentView = stack.peek().make(this, this)
-        frame?.addView(currentView)
-    }
+            override
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super<LifecycleActivity>.onSaveInstanceState(outState)
-        stack.saveState(outState, "stack")
-    }
-
-    override fun pushView(newController: ViewController) {
+    fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
         val oldController = if (stack.size() > 0) stack.peek() else null
-        stack.push(newController)
+        stack.push(ViewControllerData(newController, onResult))
 
         switchView(oldController, newController)//, popOutTransition, popInTransition)
     }
@@ -52,13 +48,15 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
             oldController.dispose(currentView!!)
         }
         val newController = stack.last()
-
+        (oldController.onResult)(oldController.result);
         switchView(oldController, newController)//, popOutTransition, popInTransition)
     }
 
     protected fun switchView(
             oldController: ViewController?,
-            newController: ViewController) {
+            newController: ViewController,
+            oldTranisition: View.() -> Unit,
+            newTranisition: View.() -> Unit, {
 
         val newView = newController.make(this, this)
         newView.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -73,7 +71,7 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
     }
 
     override fun onBackPressed() {
-        if (stack.size() > 1) {
+        if (stack.size() > 1 && stack.peek().canLeave()) {
             popView()
         } else {
             super<LifecycleActivity>.onBackPressed()
@@ -85,14 +83,6 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
         if (currentView != null) {
             stack.last().dispose(currentView!!)
         }
-    }
-
-    override fun optView(tag: String): ViewController? {
-        var returnVal: ViewController? = null
-        for (controller in stack) {
-            if (controller.tag.equals(tag)) returnVal = controller
-        }
-        return returnVal
     }
 
     private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }

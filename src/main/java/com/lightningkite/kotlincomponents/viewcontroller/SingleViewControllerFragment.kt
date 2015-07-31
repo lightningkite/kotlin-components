@@ -31,15 +31,13 @@ public abstract class SingleViewControllerFragment() : Fragment(), ViewControlle
         super<Fragment>.onDestroyView()
     }
 
-    override fun pushView(newController: ViewController) {
+    override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
         //ignore
     }
 
     override fun popView() {
         //ignore
     }
-
-    override fun optView(tag: String): ViewController? = null
 
     private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {

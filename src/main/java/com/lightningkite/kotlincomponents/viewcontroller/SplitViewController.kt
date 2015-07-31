@@ -3,7 +3,6 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -14,7 +13,11 @@ import org.jetbrains.anko.orientation
  * Created by jivie on 7/24/15.
  */
 public class SplitViewController() : ViewController, ViewControllerStack {
-    override val tag: String = "com.lightningkite.kotlincomponents.viewcontroller.SplitViewController"
+    override val result: Any?
+        get() {
+            if (left?.result != null) return left?.result
+            else return right?.result
+        }
 
     public constructor(left: ViewController, right: ViewController, ratio: Float) : this() {
         this.left = left
@@ -54,31 +57,12 @@ public class SplitViewController() : ViewController, ViewControllerStack {
         return layout!!
     }
 
-    override fun pushView(newController: ViewController) {
-        stack?.pushView(newController)
+    override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
+        stack?.pushView(newController, onResult)
     }
 
     override fun popView() {
         stack?.popView()
-    }
-
-    override fun saveState(): Parcelable? {
-        val bundle = Bundle()
-        bundle.putString("left.className", left?.javaClass?.getName())
-        bundle.putParcelable("left.controllerData", left?.saveState())
-        bundle.putString("right.className", right?.javaClass?.getName())
-        bundle.putParcelable("right.controllerData", right?.saveState())
-        bundle.putFloat("ratio", ratio)
-        return bundle
-    }
-
-    override fun loadState(state: Parcelable) {
-        val bundle = state as Bundle
-        ratio = bundle.getFloat("ratio")
-        left = Class.forName(bundle.getString("left.className")).newInstance() as ViewController
-        left?.loadState(bundle.getParcelable("left.controllerData"))
-        right = Class.forName(bundle.getString("right.className")).newInstance() as ViewController
-        right?.loadState(bundle.getParcelable("right.controllerData"))
     }
 
     override fun dispose(view: View) {
@@ -88,12 +72,6 @@ public class SplitViewController() : ViewController, ViewControllerStack {
         if (rightView != null) {
             right?.dispose(rightView!!)
         }
-    }
-
-    override fun optView(tag: String): ViewController? {
-        if (left?.tag?.equals(tag) ?: false) return left
-        if (right?.tag?.equals(tag) ?: false) return right
-        return stack?.optView(tag)
     }
 
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {

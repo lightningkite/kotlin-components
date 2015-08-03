@@ -1,11 +1,8 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
-import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import com.lightningkite.kotlincomponents.databinding.Bond
-import com.lightningkite.kotlincomponents.parcel.Bundler
 import java.util.ArrayList
 
 /**
@@ -13,11 +10,11 @@ import java.util.ArrayList
  */
 public abstract class BaseViewController : ViewController {
 
-    override val tag: String = this.javaClass.getName()
     public var view: View? = null
     public var context: Context? = null
     public var stack: ViewControllerStack? = null
     public val bonds: ArrayList<Bond<*>> = ArrayList()
+    override var result: Any? = null
 
     override fun make(context: Context, stack: ViewControllerStack): View {
         this.context = context
@@ -33,14 +30,6 @@ public abstract class BaseViewController : ViewController {
         val newBond = Bond(initialValue)
         bonds.add(newBond)
         return newBond
-    }
-
-    override fun loadState(state: Parcelable) {
-        Bundler.fromBundle(state as Bundle, this, this.javaClass)
-    }
-
-    override fun saveState(): Parcelable? {
-        return Bundler.toBundle(this, this.javaClass)
     }
 
     override fun dispose(view: View) {

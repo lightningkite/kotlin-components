@@ -3,7 +3,6 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -16,33 +15,23 @@ import java.util.Stack
  */
 public class ViewControllerView(activity: Activity, startVC: ViewController) : FrameLayout(activity), ViewControllerStack {
 
-    public val stack: Stack<ViewController> = Stack()
+    public companion object {
+        public val stack: Stack<ViewControllerData> = Stack()
+    }
     public val activity: Activity = activity
     public var currentView: View? = null
 
     init {
-        pushView(startVC)
+        if (stack.isEmpty()) {
+            pushView(startVC)
+        } else {
+            switchView(null, stack.peek());
+        }
     }
 
-    override fun onSaveInstanceState(): Parcelable {
-        val bundle = Bundle()
-        bundle.putParcelable("superstate", super<FrameLayout>.onSaveInstanceState())
-        stack.saveState(bundle, "stack")
-        return bundle
-    }
-
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        if (state == null) return
-        val bundle = state as Bundle
-        super<FrameLayout>.onRestoreInstanceState(bundle.getParcelable<Parcelable>("superstate"))
-        stack.loadState(bundle, "stack")
-        currentView = stack.peek().make(activity, this)
-        addView(currentView)
-    }
-
-    override fun pushView(newController: ViewController) {
+    override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
         val oldController = if (stack.size() > 0) stack.peek() else null
-        stack.push(newController)
+        stack.push(ViewControllerData(newController, onResult))
 
         switchView(oldController, newController)//, popOutTransition, popInTransition)
     }
@@ -54,7 +43,7 @@ public class ViewControllerView(activity: Activity, startVC: ViewController) : F
             oldController.dispose(currentView!!)
         }
         val newController = stack.last()
-
+        (oldController.onResult)(oldController.result);
         switchView(oldController, newController)//, popOutTransition, popInTransition)
     }
 
@@ -72,14 +61,6 @@ public class ViewControllerView(activity: Activity, startVC: ViewController) : F
 
         addView(newView)
         currentView = newView
-    }
-
-    override fun optView(tag: String): ViewController? {
-        var returnVal: ViewController? = null
-        for (controller in stack) {
-            if (controller.tag.equals(tag)) returnVal = controller
-        }
-        return returnVal
     }
 
     private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }

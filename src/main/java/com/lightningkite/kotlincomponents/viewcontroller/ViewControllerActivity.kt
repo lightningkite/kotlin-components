@@ -30,11 +30,8 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
     }
 
     public abstract fun onFirstCreate()
-    public abstract fun popInTransition():
 
-            override
-
-    fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
+    override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
         val oldController = if (stack.size() > 0) stack.peek() else null
         stack.push(ViewControllerData(newController, onResult))
 
@@ -54,9 +51,7 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
 
     protected fun switchView(
             oldController: ViewController?,
-            newController: ViewController,
-            oldTranisition: View.() -> Unit,
-            newTranisition: View.() -> Unit, {
+            newController: ViewController) {
 
         val newView = newController.make(this, this)
         newView.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)

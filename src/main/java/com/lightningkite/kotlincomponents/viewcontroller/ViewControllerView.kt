@@ -6,20 +6,30 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.lightningkite.kotlincomponents.getActivity
 import org.jetbrains.anko.layoutParams
+import java.util.HashMap
 import java.util.Stack
 
 /**
  * Created by jivie on 7/24/15.
  */
-public class ViewControllerView(activity: Activity, startVC: ViewController) : FrameLayout(activity), ViewControllerStack {
+public class ViewControllerView(activity: Activity, startVC: ViewController, intentListener: ViewControllerView.IntentListener, tag: String = "default") : FrameLayout(activity), ViewControllerStack {
 
     public companion object {
-        public val stack: Stack<ViewControllerData> = Stack()
+        public val stacks: HashMap<String, Stack<ViewControllerData>> = HashMap()
+        public fun getStack(tag: String): Stack<ViewControllerData> {
+            if (stacks.containsKey(tag)) return stacks.get(tag)
+            val newStack = Stack<ViewControllerData>()
+            stacks.put(tag, newStack)
+            return newStack
+        }
     }
     public val activity: Activity = activity
     public var currentView: View? = null
+    public val tag: String = tag;
+    public val intentListener: IntentListener = intentListener
+    public var stack: Stack<ViewControllerData> = getStack(tag)
+    public var onStackChange: (ViewControllerView) -> Unit = {}
 
     init {
         if (stack.isEmpty()) {
@@ -34,6 +44,8 @@ public class ViewControllerView(activity: Activity, startVC: ViewController) : F
         stack.push(ViewControllerData(newController, onResult))
 
         switchView(oldController, newController)//, popOutTransition, popInTransition)
+
+        onStackChange(this)
     }
 
     override fun popView() {
@@ -45,6 +57,8 @@ public class ViewControllerView(activity: Activity, startVC: ViewController) : F
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController)//, popOutTransition, popInTransition)
+
+        onStackChange(this)
     }
 
     protected fun switchView(
@@ -66,11 +80,17 @@ public class ViewControllerView(activity: Activity, startVC: ViewController) : F
     private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {
         onResultLambda = onResult
-        getActivity()?.startActivityForResult(intent, 0, options)
+        intentListener.startActivityForResult(tag, intent, options)
     }
 
     //Users of the class are responsible for calling this!
-    public fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    public fun onActivityResult(resultCode: Int, data: Intent?) {
         onResultLambda(resultCode, data)
     }
+
+
+    interface IntentListener {
+        public fun startActivityForResult(tag: String, intent: Intent, options: Bundle)
+    }
 }
+

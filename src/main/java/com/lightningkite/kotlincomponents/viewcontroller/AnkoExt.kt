@@ -1,7 +1,10 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
+import android.os.Build
+import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -33,4 +36,16 @@ public inline fun ViewController.inflate(context: Context, LayoutRes layoutResou
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
     layout.init();
     return layout;
+}
+
+public DrawableRes val View.selectableItemBackground: Int
+    get() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // If we're running on Honeycomb or newer, then we can use the Theme's
+            // selectableItemBackground to ensure that the View has a pressed state
+            val outValue = TypedValue();
+            getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            return outValue.resourceId
+        }
+        return 0
 }

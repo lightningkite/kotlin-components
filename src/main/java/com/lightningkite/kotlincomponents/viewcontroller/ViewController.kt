@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.viewcontroller;
 
 import android.content.Context
+import android.content.res.Resources
 import android.view.View
 
 /**
@@ -11,4 +12,5 @@ public interface ViewController {
     public fun canLeave(): Boolean = true
     public val result: Any?
     public fun dispose(view: View)
+    public fun getTitle(resources: Resources): String = "Untitled"
 }

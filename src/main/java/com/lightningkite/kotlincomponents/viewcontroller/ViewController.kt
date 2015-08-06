@@ -9,7 +9,7 @@ import android.view.View
  */
 public interface ViewController {
     public fun make(context: Context, stack: ViewControllerStack): View
-    public fun canLeave(): Boolean = true
+    public fun canPop(): Boolean = true
     public val result: Any?
     public fun dispose(view: View)
     public fun getTitle(resources: Resources): String = "Untitled"

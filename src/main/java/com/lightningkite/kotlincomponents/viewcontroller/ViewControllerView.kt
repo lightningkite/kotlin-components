@@ -13,7 +13,13 @@ import java.util.Stack
 /**
  * Created by jivie on 7/24/15.
  */
-public class ViewControllerView(activity: Activity, startVC: ViewController, intentListener: ViewControllerView.IntentListener, tag: String = "default") : FrameLayout(activity), ViewControllerStack {
+public class ViewControllerView(activity: Activity,
+                                startVC: ViewController,
+                                intentListener: ViewControllerView.IntentListener,
+                                tag: String = "default",
+                                animationSetPush: AnimationSet? = null,
+                                animationSetPop: AnimationSet? = null
+) : FrameLayout(activity), ViewControllerStack {
 
     public companion object {
         public val stacks: HashMap<String, Stack<ViewControllerData>> = HashMap()
@@ -32,11 +38,14 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
     public var stack: Stack<ViewControllerData> = getStack(tag)
     public var onStackChange: (ViewControllerView) -> Unit = {}
 
+    public var animationSetPush: AnimationSet? = animationSetPush
+    public var animationSetPop: AnimationSet? = animationSetPop
+
     init {
         if (stack.isEmpty()) {
             pushView(startVC)
         } else {
-            switchView(null, stack.peek());
+            switchView(null, stack.peek(), null);
         }
     }
 
@@ -44,20 +53,21 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
         val oldController = if (stack.size() > 0) stack.peek() else null
         stack.push(ViewControllerData(newController, onResult))
 
-        switchView(oldController, newController)//, popOutTransition, popInTransition)
+        switchView(oldController, newController, animationSetPush)
 
         onStackChange(this)
     }
 
     override fun popView() {
         if (stack.size() <= 1) return
+        if (!stack.peek().canPop()) return
         val oldController = stack.pop()
         if (currentView != null) {
             oldController.dispose(currentView!!)
         }
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
-        switchView(oldController, newController)//, popOutTransition, popInTransition)
+        switchView(oldController, newController, animationSetPop)
 
         onStackChange(this)
     }
@@ -72,7 +82,7 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
         }
         stack.clear()
         stack.push(ViewControllerData(newController, {}))
-        switchView(oldController, newController)
+        switchView(oldController, newController, animationSetPop)
 
         onStackChange(this)
     }
@@ -81,21 +91,31 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
         if (stack.size() < 1) return
         val oldController = stack.pop().controller
         stack.push(ViewControllerData(newController, {}))
-        switchView(oldController, newController)
+        switchView(oldController, newController, animationSetPush)
 
         onStackChange(this)
     }
 
     protected fun switchView(
             oldController: ViewController?,
-            newController: ViewController) {
+            newController: ViewController,
+            animationSet: AnimationSet?) {
 
         val newView = newController.make(activity, this)
         newView.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
         if (currentView != null && oldController != null) {
-            removeView(currentView)
-            oldController.dispose(currentView!!)
+            val oldView = currentView!!
+            if (animationSet == null) {
+                removeView(oldView)
+                oldController.dispose(oldView)
+            } else {
+                oldView.(animationSet.animateOut)(this).withEndAction {
+                    this.removeView(oldView)
+                    oldController.dispose(oldView)
+                }.start()
+                newView.(animationSet.animateIn)(this).start()
+            }
         }
 
         addView(newView)

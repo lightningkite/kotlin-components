@@ -62,9 +62,6 @@ public class ViewControllerView(activity: Activity,
         if (stack.size() <= 1) return
         if (!stack.peek().canPop()) return
         val oldController = stack.pop()
-        if (currentView != null) {
-            oldController.dispose(currentView!!)
-        }
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
@@ -76,9 +73,6 @@ public class ViewControllerView(activity: Activity,
         var oldController: ViewController? = null
         if (stack.size() >= 1) {
             oldController = stack.pop()
-            if (currentView != null) {
-                oldController.dispose(currentView!!)
-            }
         }
         stack.clear()
         stack.push(ViewControllerData(newController, {}))

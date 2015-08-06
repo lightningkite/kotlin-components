@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.content.Context
 import android.view.View
 import com.lightningkite.kotlincomponents.databinding.Bond
+import org.jetbrains.anko.onClick
 import java.util.ArrayList
 
 /**
@@ -20,6 +21,7 @@ public abstract class BaseViewController : ViewController {
         this.context = context
         this.stack = stack
         val newView = make()
+        if (!newView.hasOnClickListeners()) newView.onClick {}
         view = newView
         return newView
     }

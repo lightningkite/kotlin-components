@@ -39,6 +39,14 @@ public abstract class SingleViewControllerFragment() : Fragment(), ViewControlle
         //ignore
     }
 
+    override fun resetView(newController: ViewController) {
+        //ignore
+    }
+
+    override fun replaceView(newController: ViewController) {
+        //ignore
+    }
+
     private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {
         onResultLambda = onResult

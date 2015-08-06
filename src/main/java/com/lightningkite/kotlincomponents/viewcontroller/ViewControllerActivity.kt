@@ -49,6 +49,22 @@ public abstract class ViewControllerActivity : LifecycleActivity(), ViewControll
         switchView(oldController, newController)//, popOutTransition, popInTransition)
     }
 
+    override fun resetView(newController: ViewController) {
+        val oldController = stack.pop()
+        if (currentView != null) {
+            oldController.dispose(currentView!!)
+        }
+        stack.clear()
+        stack.push(ViewControllerData(newController, {}))
+        switchView(oldController, newController)
+    }
+
+    override fun replaceView(newController: ViewController) {
+        val oldController = stack.pop().controller
+        stack.push(ViewControllerData(newController, {}))
+        switchView(oldController, newController)
+    }
+
     protected fun switchView(
             oldController: ViewController?,
             newController: ViewController) {

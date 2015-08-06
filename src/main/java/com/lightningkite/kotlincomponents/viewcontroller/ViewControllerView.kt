@@ -24,6 +24,7 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
             return newStack
         }
     }
+
     public val activity: Activity = activity
     public var currentView: View? = null
     public val tag: String = tag;
@@ -57,6 +58,30 @@ public class ViewControllerView(activity: Activity, startVC: ViewController, int
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController)//, popOutTransition, popInTransition)
+
+        onStackChange(this)
+    }
+
+    override fun resetView(newController: ViewController) {
+        var oldController: ViewController? = null
+        if (stack.size() >= 1) {
+            oldController = stack.pop()
+            if (currentView != null) {
+                oldController.dispose(currentView!!)
+            }
+        }
+        stack.clear()
+        stack.push(ViewControllerData(newController, {}))
+        switchView(oldController, newController)
+
+        onStackChange(this)
+    }
+
+    override fun replaceView(newController: ViewController) {
+        if (stack.size() < 1) return
+        val oldController = stack.pop().controller
+        stack.push(ViewControllerData(newController, {}))
+        switchView(oldController, newController)
 
         onStackChange(this)
     }

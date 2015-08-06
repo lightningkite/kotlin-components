@@ -65,6 +65,14 @@ public class SplitViewController() : ViewController, ViewControllerStack {
         stack?.popView()
     }
 
+    override fun resetView(newController: ViewController) {
+        stack?.resetView(newController)
+    }
+
+    override fun replaceView(newController: ViewController) {
+        stack?.replaceView(newController)
+    }
+
     override fun dispose(view: View) {
         if (leftView != null) {
             left?.dispose(leftView!!)

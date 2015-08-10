@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.lightningkite.kotlincomponents.animation.AnimationSet
 import org.jetbrains.anko.layoutParams
 import java.util.HashMap
 import java.util.Stack

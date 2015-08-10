@@ -10,12 +10,14 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import org.jetbrains.anko.orientation
 
 /**
  * Created by jivie on 7/16/15.
  */
 public inline fun ViewController.makeLinearLayout(context: Context, init: LinearLayout.() -> Unit): LinearLayout {
     val layout = LinearLayout(context);
+    layout.orientation = LinearLayout.VERTICAL
     layout.init();
     return layout;
 }
@@ -32,7 +34,7 @@ public inline fun ViewController.makeRelativeLayout(context: Context, init: Rela
     return layout;
 }
 
-public inline fun ViewController.inflate(context: Context, LayoutRes layoutResource: Int, init: View.() -> Unit): View {
+public fun ViewController.inflate(context: Context, LayoutRes layoutResource: Int, init: View.() -> Unit): View {
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
     layout.init();
     return layout;

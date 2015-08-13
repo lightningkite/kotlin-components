@@ -8,34 +8,29 @@ import java.util.ArrayList
  * Created by jivie on 6/25/15.
  */
 
-
-public class Bond<T>(init: T) {
-    private var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
-    private var myValue: T = init
+public open class Bond<T>(init: T) {
+    protected var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
+    protected var myValue: T = init
 
     public fun get(thisRef: Any?, prop: PropertyMetadata): T {
-        return myValue!!
+        return myValue
     }
 
     public fun get(): T {
-        return myValue!!
+        return myValue
     }
 
     public fun set(thisRef: Any?, prop: PropertyMetadata, v: T) {
         myValue = v
-        for (listener in listeners) {
-            listener(v)
-        }
+        update()
     }
 
     public fun set(v: T) {
         myValue = v
-        for (listener in listeners) {
-            listener(v)
-        }
+        update()
     }
 
-    public fun update() {
+    public open fun update() {
         for (listener in listeners) {
             listener(myValue)
         }

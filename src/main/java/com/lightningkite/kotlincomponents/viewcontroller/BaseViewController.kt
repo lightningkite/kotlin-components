@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.content.Context
 import android.view.View
 import com.lightningkite.kotlincomponents.databinding.Bond
+import com.lightningkite.kotlincomponents.databinding.PermanentBond
 import org.jetbrains.anko.onClick
 import java.util.ArrayList
 
@@ -14,7 +15,7 @@ public abstract class BaseViewController : ViewController {
     public var view: View? = null
     public var context: Context? = null
     public var stack: ViewControllerStack? = null
-    public val bonds: ArrayList<Bond<*>> = ArrayList()
+    public val disposeFunctions: ArrayList<() -> Unit> = ArrayList()
     override var result: Any? = null
 
     override fun make(context: Context, stack: ViewControllerStack): View {
@@ -30,15 +31,25 @@ public abstract class BaseViewController : ViewController {
 
     protected inline fun <reified T> makeBond(initialValue: T): Bond<T> {
         val newBond = Bond(initialValue)
-        bonds.add(newBond)
+        disposeFunctions.add {
+            newBond.clearBindings()
+        }
+        return newBond
+    }
+
+    protected inline fun <reified T> makePermanentBond(initialValue: T): PermanentBond<T> {
+        val newBond = PermanentBond(initialValue)
+        disposeFunctions.add {
+            newBond.clearBindings()
+        }
         return newBond
     }
 
     override fun dispose(view: View) {
-        for (bond in bonds) {
-            bond.clearBindings()
+        for (func in disposeFunctions) {
+            func()
         }
-        bonds.clear()
+        disposeFunctions.clear()
         this.context = null
         this.view = null
     }

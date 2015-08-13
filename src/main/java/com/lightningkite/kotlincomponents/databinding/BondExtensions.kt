@@ -80,8 +80,42 @@ public fun Switch.bind(bond: Bond<Boolean>) {
         }
     }
     bond.bind {
-        if (this.checked != bond.get()) {
+        if (checked != bond.get()) {
             checked = bond.get();
+        }
+    }
+}
+
+public fun Switch.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
+    this.onCheckedChange {
+        buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
+        Unit
+        if (isChecked != bond.get()[index]) {
+            bond.get()[index] = isChecked
+            bond.update()
+        }
+    }
+    bond.bind {
+        val value = bond.get()[index]
+        if (checked != value) {
+            checked = value;
+        }
+    }
+}
+
+public fun CheckBox.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
+    this.onCheckedChange {
+        buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
+        Unit
+        if (isChecked != bond.get()[index]) {
+            bond.get()[index] = isChecked
+            bond.update()
+        }
+    }
+    bond.bind {
+        val value = bond.get()[index]
+        if (checked != value) {
+            checked = value;
         }
     }
 }
@@ -89,6 +123,12 @@ public fun Switch.bind(bond: Bond<Boolean>) {
 public fun TextView.bindString(bond: Bond<String>) {
     bond.bind {
         this.setText(bond.get())
+    }
+}
+
+public fun TextView.bindAny(bond: Bond<Any>) {
+    bond.bind {
+        this.setText(bond.get().toString())
     }
 }
 
@@ -109,4 +149,15 @@ public fun Spinner.bindIndex(bond: Bond<Int>) {
         }
 
     })
+}
+
+public fun <T> RadioButton.bind(bond: Bond<T>, value: T) {
+    bond.bind {
+        setChecked(value == bond.get())
+    }
+    onCheckedChange { compoundButton, checked ->
+        if (checked && bond.get() != value) {
+            bond.set(value)
+        }
+    }
 }

@@ -1,6 +1,8 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.os.Build
 import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
@@ -12,6 +14,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
+import com.lightningkite.kotlincomponents.postDelayed
 import org.jetbrains.anko.*
 
 /**
@@ -46,6 +49,21 @@ public fun ViewController.inflate(context: Context, LayoutRes layoutResource: In
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
     layout.init();
     return layout;
+}
+
+public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
+    assert(milliseconds > millisecondsTransition * 2, "The time shown must be at least twice as much as the transition time")
+    val originalBackground = getBackground()
+    val transition = TransitionDrawable(arrayOf(originalBackground, ColorDrawable(color)))
+    transition.setCrossFadeEnabled(false)
+    setBackground(transition)
+    transition.startTransition(millisecondsTransition)
+    postDelayed(milliseconds - millisecondsTransition) {
+        transition.reverseTransition(millisecondsTransition)
+        postDelayed(millisecondsTransition.toLong()) {
+            setBackground(originalBackground)
+        }
+    }
 }
 
 public fun ViewGroup.MarginLayoutParams.setMarginsDip(context: Context, left: Int, top: Int, right: Int, bottom: Int) {

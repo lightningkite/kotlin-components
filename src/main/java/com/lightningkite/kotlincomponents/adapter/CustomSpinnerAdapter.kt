@@ -3,7 +3,9 @@ package com.lightningkite.kotlincomponents.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.SpinnerAdapter
 import java.util.ArrayList
+
 
 /**
  * A base adapter for quickly building an adapter with a customized look.
@@ -11,18 +13,23 @@ import java.util.ArrayList
  * *
  * @param  The view holder class for retaining references to view's components.
  */
-public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
+public class CustomSpinnerAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,
         updater: (ITEM, HOLDER) -> Unit,
-        list: List<ITEM> = ArrayList()
-) : BaseAdapter() {
+        list: List<ITEM> = ArrayList(),
+        hint: () -> View = { throw UnsupportedOperationException() }
+) : BaseAdapter(), SpinnerAdapter {
 
     public val make: () -> HOLDER = maker;
     public val update: (ITEM, HOLDER) -> Unit = updater;
     public var list: List<ITEM>? = list
+    public val hint: () -> View = hint
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+        if (position == -1) {
+            return hint()
+        }
         val item = list?.get(position)
         if (convertView == null) {
             val holder: HOLDER = make()
@@ -38,6 +45,10 @@ public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
             }
         }
         return convertView
+    }
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View? {
+        return getView(position, convertView, parent!!)
     }
 
     override fun getItem(position: Int): Any? = list?.get(position)

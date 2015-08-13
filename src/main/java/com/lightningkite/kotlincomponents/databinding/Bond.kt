@@ -11,10 +11,13 @@ import java.util.ArrayList
 
 public class Bond<T>(init: T) {
     private var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
-    private var nonUiListeners: ArrayList<(v: T) -> Unit> = ArrayList()
     private var myValue: T = init
 
     public fun get(thisRef: Any?, prop: PropertyMetadata): T {
+        return myValue!!
+    }
+
+    public fun get(): T {
         return myValue!!
     }
 
@@ -25,22 +28,16 @@ public class Bond<T>(init: T) {
         }
     }
 
-    public fun get(): T {
-        return myValue!!
-    }
-
-    public fun writeToBundle(bundle: Bundle, key: String) {
-        Bundler.writeToBundle(bundle, key, myValue)
-    }
-
-    public fun loadFromBundle(bundle: Bundle, key: String) {
-        myValue = Bundler.readFromBundle(bundle, key, myValue.javaClass, myValue) as T
-    }
-
     public fun set(v: T) {
         myValue = v
         for (listener in listeners) {
             listener(v)
+        }
+    }
+
+    public fun update() {
+        for (listener in listeners) {
+            listener(myValue)
         }
     }
 
@@ -57,20 +54,15 @@ public class Bond<T>(init: T) {
         listeners.clear()
     }
 
-    public fun bindNonUI(body: (v: T) -> Unit) {
-        nonUiListeners.add(body)
-        body(myValue)
-    }
-
-    public fun unbindNonUI(body: (v: T) -> Unit) {
-        nonUiListeners.remove(body)
-    }
-
-    public fun clearNonUIBindings() {
-        nonUiListeners.clear()
-    }
-
     override fun toString(): String {
         return "Bond(" + myValue.toString() + ")"
+    }
+
+    public fun writeToBundle(bundle: Bundle, key: String) {
+        Bundler.writeToBundle(bundle, key, myValue)
+    }
+
+    public fun loadFromBundle(bundle: Bundle, key: String) {
+        myValue = Bundler.readFromBundle(bundle, key, myValue.javaClass, myValue) as T
     }
 }

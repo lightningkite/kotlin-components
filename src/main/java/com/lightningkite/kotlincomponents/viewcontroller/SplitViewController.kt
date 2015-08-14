@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.lightningkite.kotlincomponents.makeLinearLayout
 import org.jetbrains.anko.layoutParams
 import org.jetbrains.anko.orientation
 

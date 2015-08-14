@@ -13,6 +13,7 @@ import java.util.ArrayList
  * *
  * @param  The view holder class for retaining references to view's components.
  */
+Deprecated
 public class CustomAutoCompleteAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,

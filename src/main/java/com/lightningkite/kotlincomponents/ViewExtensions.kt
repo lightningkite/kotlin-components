@@ -1,6 +1,10 @@
-package com.lightningkite.kotlincomponents.viewcontroller
+package com.lightningkite.kotlincomponents
 
+import android.R
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
@@ -14,7 +18,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
-import com.lightningkite.kotlincomponents.postDelayed
+import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
 
 /**
@@ -50,6 +54,9 @@ public fun ViewController.inflate(context: Context, LayoutRes layoutResource: In
     layout.init();
     return layout;
 }
+
+public fun View.dip(value: Int): Int = getContext().dip(value)
+public val View.context: Context get() = getContext()
 
 public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
     assert(milliseconds > millisecondsTransition * 2, "The time shown must be at least twice as much as the transition time")
@@ -91,8 +98,50 @@ public DrawableRes val View.selectableItemBackground: Int
             // If we're running on Honeycomb or newer, then we can use the Theme's
             // selectableItemBackground to ensure that the View has a pressed state
             val outValue = TypedValue();
-            getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            getContext().getTheme().resolveAttribute(R.attr.selectableItemBackground, outValue, true);
             return outValue.resourceId
         }
         return 0
     }
+
+public fun View.getActivity(): Activity? {
+    return getContext().getActivity()
+}
+
+public fun Context.getActivity(): Activity? {
+    if (this is Activity) {
+        return this
+    } else if (this is ContextWrapper) {
+        return getBaseContext().getActivity()
+    } else {
+        return null
+    }
+}
+
+public fun View.postDelayed(milliseconds: Long, action: () -> Unit) {
+    postDelayed(object : Runnable {
+        override fun run() = action()
+    }, milliseconds)
+}
+
+public inline fun <T : View> ViewGroup.add(view: T, setup: T.() -> Unit): T {
+    view.setup();
+    addView(view)
+    return view
+}
+
+public inline fun <reified T : View> ViewGroup.add(setup: T.() -> Unit): T {
+    val view = javaClass<T>().getConstructor(javaClass<Context>()).newInstance(getContext())
+    view.setup();
+    addView(view)
+    return view
+}
+
+private val cachedPoint: Point = Point()
+public val View.screenSize: Point get() {
+    getContext().windowManager.getDefaultDisplay().getSize(cachedPoint)
+    return cachedPoint
+}
+public val View.parentView: View get() {
+    return getParent() as? View ?: throw IllegalStateException("Parent is not a ViewGroup!")
+}

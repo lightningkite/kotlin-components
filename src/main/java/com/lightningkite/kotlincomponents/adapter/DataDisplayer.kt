@@ -59,7 +59,8 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: () 
 public class DataDisplayerFilterableAdapter<ITEM>(
         var fullList: List<ITEM>,
         val predicate: (ITEM, CharSequence) -> Boolean,
-        make: () -> DataDisplayer<ITEM>
+        make: () -> DataDisplayer<ITEM>,
+        stringifier: (ITEM) -> String
 ) : DataDisplayerAdapter<ITEM>(ArrayList(), make), Filterable {
 
 

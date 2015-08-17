@@ -12,7 +12,7 @@ import java.util.ArrayList
  */
 
 public interface DataDisplayer<ITEM> {
-    public val view: View
+    public fun create():View
     public fun update(item: ITEM)
 }
 
@@ -21,9 +21,10 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: () 
         val item = list.get(position)
         if (convertView == null) {
             val holder: DataDisplayer<ITEM> = make()
+            val view = holder.create()
             holder.update(item)
-            holder.view.setTag(holder)
-            return holder.view
+            view.setTag(holder)
+            return view
         } else {
             (convertView.getTag() as? DataDisplayer<ITEM>)?.update(item)
         }

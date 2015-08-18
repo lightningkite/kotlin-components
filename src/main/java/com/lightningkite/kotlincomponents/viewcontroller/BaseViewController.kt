@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.databinding.PermanentBond
 import org.jetbrains.anko.onClick
@@ -29,7 +30,7 @@ public abstract class BaseViewController : ViewController {
 
     public abstract fun make(): View
 
-    protected inline fun <reified T> makeBond(initialValue: T): Bond<T> {
+    public inline fun <reified T> makeBond(initialValue: T): Bond<T> {
         val newBond = Bond(initialValue)
         disposeFunctions.add {
             newBond.clearBindings()
@@ -37,12 +38,35 @@ public abstract class BaseViewController : ViewController {
         return newBond
     }
 
-    protected inline fun <reified T> makePermanentBond(initialValue: T): PermanentBond<T> {
+    public inline fun <reified T> makePermanentBond(initialValue: T): PermanentBond<T> {
         val newBond = PermanentBond(initialValue)
         disposeFunctions.add {
             newBond.clearBindings()
         }
         return newBond
+    }
+
+    public fun makeViewController(vc: ViewController): View {
+        if (context == null || stack == null) throw IllegalStateException()
+        val view = vc.make(context!!, stack!!)
+        disposeFunctions.add {
+            vc.dispose(view)
+        }
+        return view
+    }
+
+    public fun ViewGroup.addViewController(vc: ViewController): View {
+        if (context == null || stack == null) throw IllegalStateException()
+        val view = vc.make(context!!, stack!!)
+        disposeFunctions.add {
+            vc.dispose(view)
+        }
+        addView(view)
+        return view
+    }
+
+    public fun addDisposeFunc(func: () -> Unit) {
+        disposeFunctions.add(func)
     }
 
     override fun dispose(view: View) {

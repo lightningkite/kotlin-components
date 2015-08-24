@@ -2,9 +2,11 @@ package com.lightningkite.kotlincomponents.animation
 
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ListAdapter
 import android.widget.ListView
+import com.lightningkite.kotlincomponents.context
 import org.jetbrains.anko.layoutParams
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.visibility
@@ -66,4 +68,11 @@ public class AnimatedListView(context: Context) : FrameLayout(context) {
         front.visibility = View.VISIBLE
         front.(animationSet.animateIn)(this).start()
     }
+}
+
+public fun ViewGroup.animatedListView(initFunc: AnimatedListView.() -> Unit): AnimatedListView {
+    val view = AnimatedListView(context)
+    view.initFunc()
+    addView(view)
+    return view
 }

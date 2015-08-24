@@ -31,6 +31,10 @@ public class AnimatedListView(context: Context) : FrameLayout(context) {
             front.setOnItemLongClickListener(value)
         }
 
+    public fun onItemClick(func: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit) {
+        onItemClick = func
+    }
+
     init {
         back.layoutParams = FrameLayout.LayoutParams(matchParent, matchParent)
         back.visibility = View.GONE
@@ -38,6 +42,10 @@ public class AnimatedListView(context: Context) : FrameLayout(context) {
         addView(back)
         addView(front)
     }
+
+    public var adapter: ListAdapter?
+        get() = front.getAdapter()
+        set(value) = setAdapter(value)
 
     public fun setAdapter(adapter: ListAdapter?, animationSet: AnimationSet = AnimationSet.fade) {
         val temp = front
@@ -58,6 +66,4 @@ public class AnimatedListView(context: Context) : FrameLayout(context) {
         front.visibility = View.VISIBLE
         front.(animationSet.animateIn)(this).start()
     }
-
-    public fun getAdapter(): ListAdapter = front.getAdapter()
 }

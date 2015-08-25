@@ -14,6 +14,11 @@ import java.util.ArrayList
 public interface DataDisplayer<ITEM> {
     public fun create():View
     public fun update(item: ITEM)
+    public fun create(item: ITEM): View {
+        val v = create()
+        update(item)
+        return v
+    }
 }
 
 public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: () -> DataDisplayer<ITEM>) : BaseAdapter() {

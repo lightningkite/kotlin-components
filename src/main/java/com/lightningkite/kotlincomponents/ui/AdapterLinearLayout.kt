@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.adapter
+package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
 import android.database.DataSetObserver

@@ -48,6 +48,30 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
         else super.setSelection(position)
     }
 
+    override fun getSelectedItemPosition(): Int {
+        val superResult = super.getSelectedItemPosition()
+        return if (superResult == getCount()) -1
+        else superResult
+    }
+
+    /*private var selectedItemPositionTopFlag = false
+    override fun getSelectedItemPosition(): Int {
+        // this toggle is required because this method will get called in other
+        // places too, the most important being called for the
+        // OnItemSelectedListener
+        if (!selectedItemPositionTopFlag) {
+            return 0; // get us to the first element
+        }
+        return super.getSelectedItemPosition();
+    }
+
+    override fun performClick(): Boolean {
+        selectedItemPositionTopFlag = getSelectedItemPosition() == getCount()
+        val result = super.performClick()
+        selectedItemPositionTopFlag = false
+        return result
+    }*/
+
     private inner class AdapterWrapper(val innerAdapter: SpinnerAdapter) : BaseAdapter() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
             if (position == getCount()) {

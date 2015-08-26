@@ -21,7 +21,7 @@ public interface DataDisplayer<ITEM> {
     }
 }
 
-public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: () -> DataDisplayer<ITEM>) : BaseAdapter() {
+public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: DataDisplayerAdapter<ITEM>.() -> DataDisplayer<ITEM>) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val item = list.get(position)
         if (convertView == null) {
@@ -65,7 +65,7 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: () 
 public class DataDisplayerFilterableAdapter<ITEM>(
         var fullList: List<ITEM>,
         val predicate: (ITEM, CharSequence) -> Boolean,
-        make: () -> DataDisplayer<ITEM>,
+        make: DataDisplayerAdapter<ITEM>.() -> DataDisplayer<ITEM>,
         stringifier: (ITEM) -> String
 ) : DataDisplayerAdapter<ITEM>(ArrayList(), make), Filterable {
 

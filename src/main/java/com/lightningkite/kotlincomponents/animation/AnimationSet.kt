@@ -12,6 +12,9 @@ public interface AnimationSet {
     public val animateIn: View.(ViewGroup) -> ViewPropertyAnimator
     public val animateOut: View.(ViewGroup) -> ViewPropertyAnimator
 
+    public fun component1(): View.(ViewGroup) -> ViewPropertyAnimator = animateIn
+    public fun component2(): View.(ViewGroup) -> ViewPropertyAnimator = animateOut
+
     public companion object {
         public val fade: AnimationSet = object : AnimationSet {
             override val animateIn: View.(ViewGroup) -> ViewPropertyAnimator = {

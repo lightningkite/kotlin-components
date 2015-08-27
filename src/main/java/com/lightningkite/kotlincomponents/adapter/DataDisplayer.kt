@@ -69,15 +69,21 @@ public class DataDisplayerFilterableAdapter<ITEM>(
         stringifier: (ITEM) -> String
 ) : DataDisplayerAdapter<ITEM>(ArrayList(), make), Filterable {
 
+    public constructor(
+            fullList: List<ITEM>,
+            stringifier: (ITEM) -> String,
+            make: DataDisplayerAdapter<ITEM>.() -> DataDisplayer<ITEM>
+    ) : this(fullList, { item, search -> stringifier(item).startsWith(search.toString(), true) }, make, stringifier)
+
 
     private val myFilter = object : Filter() {
         private val suggestions: ArrayList<ITEM> = ArrayList()
         override fun convertResultToString(resultValue: Any?): CharSequence = stringifier(resultValue as ITEM)
         override fun performFiltering(constraint: CharSequence?): Filter.FilterResults {
-            if (constraint != null) return Filter.FilterResults()
+            if (constraint == null) return Filter.FilterResults()
             suggestions.clear()
-            for (item in list) {
-                if (predicate(item, constraint!!)) {
+            for (item in fullList) {
+                if (predicate(item, constraint)) {
                     suggestions.add(item)
                 }
             }

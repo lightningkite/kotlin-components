@@ -16,7 +16,7 @@ public fun <E> Collection<E>.toJsonArray(): JsonArray {
     return array;
 }
 
-private fun Any?.toJsonElement(): JsonElement {
+public fun Any?.toJsonElement(): JsonElement {
     if (this == null)
         return JsonNull.INSTANCE
 

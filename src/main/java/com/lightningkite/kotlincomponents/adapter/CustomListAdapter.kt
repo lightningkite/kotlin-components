@@ -11,7 +11,7 @@ import java.util.ArrayList
  * *
  * @param  The view holder class for retaining references to view's components.
  */
-Deprecated
+@deprecated("Use AdaptableViewControllers instead.")
 public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,

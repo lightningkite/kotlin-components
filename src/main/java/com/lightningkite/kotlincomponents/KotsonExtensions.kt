@@ -1,6 +1,8 @@
 package com.lightningkite.kotlincomponents
 
+import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.toJson
+import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
@@ -8,6 +10,10 @@ import com.google.gson.JsonNull
 /**
  * Created by jivie on 8/13/15.
  */
+
+public object BasicGson {
+    public val gson: Gson = Gson()
+}
 
 public fun <E> Collection<E>.toJsonArray(): JsonArray {
     val array = JsonArray()
@@ -28,4 +34,12 @@ public fun Any?.toJsonElement(): JsonElement {
         is JsonElement -> this
         else -> throw IllegalArgumentException("${this} cannot be converted to JSON")
     }
+}
+
+public fun Any.gsonTo(gson: Gson = BasicGson.gson): String {
+    return gson.toJson(this)
+}
+
+public inline fun <reified T> String.gsonFrom(gson: Gson = BasicGson.gson): T? {
+    return gson.fromJson<T>(this)
 }

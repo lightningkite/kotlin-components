@@ -11,6 +11,7 @@ import java.util.ArrayList
  * Created by jivie on 8/14/15.
  */
 
+@deprecated("Use AdaptableViewControllers instead.")
 public interface DataDisplayer<ITEM> {
     public fun create():View
     public fun update(item: ITEM)
@@ -21,6 +22,7 @@ public interface DataDisplayer<ITEM> {
     }
 }
 
+@deprecated("Use AdaptableViewControllers instead.")
 public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: DataDisplayerAdapter<ITEM>.() -> DataDisplayer<ITEM>) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val item = list.get(position)
@@ -62,6 +64,7 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: Dat
     }
 }
 
+@deprecated("Use AdaptableViewControllers instead.")
 public class DataDisplayerFilterableAdapter<ITEM>(
         var fullList: List<ITEM>,
         val predicate: (ITEM, CharSequence) -> Boolean,

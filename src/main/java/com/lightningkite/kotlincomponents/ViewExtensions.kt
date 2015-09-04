@@ -14,40 +14,13 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.ScrollView
+import android.widget.*
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
 
 /**
  * Created by jivie on 7/16/15.
  */
-public inline fun ViewController.makeLinearLayout(context: Context, init: _LinearLayout.() -> Unit): LinearLayout {
-    val layout = _LinearLayout(context);
-    layout.orientation = LinearLayout.VERTICAL
-    layout.init();
-    return layout;
-}
-
-public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameLayout.() -> Unit): FrameLayout {
-    val layout = _FrameLayout(context);
-    layout.init();
-    return layout;
-}
-
-public inline fun ViewController.makeRelativeLayout(context: Context, init: _RelativeLayout.() -> Unit): RelativeLayout {
-    val layout = _RelativeLayout(context);
-    layout.init();
-    return layout;
-}
-
-public fun ViewController.makeScrollView(context: Context, content: View): ScrollView {
-    val layout = ScrollView(context)
-    layout.addView(content)
-    return layout
-}
 
 public fun ViewController.inflate(context: Context, LayoutRes layoutResource: Int, init: View.() -> Unit): View {
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
@@ -92,6 +65,9 @@ public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int,
     layoutParams = params
 }
 
+public val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
+public val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
+
 public DrawableRes val View.selectableItemBackground: Int
     get() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -124,13 +100,13 @@ public fun View.postDelayed(milliseconds: Long, action: () -> Unit) {
     }, milliseconds)
 }
 
-public inline fun <T : View> ViewGroup.add(view: T, setup: T.() -> Unit): T {
+public inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T {
     view.setup();
     addView(view)
     return view
 }
 
-public inline fun <reified T : View> ViewGroup.add(setup: T.() -> Unit): T {
+public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
     val view = javaClass<T>().getConstructor(javaClass<Context>()).newInstance(getContext())
     view.setup();
     addView(view)
@@ -144,4 +120,65 @@ public val View.screenSize: Point get() {
 }
 public val View.parentView: View get() {
     return getParent() as? View ?: throw IllegalStateException("Parent is not a ViewGroup!")
+}
+
+public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction: (T) -> Unit) {
+    this.setAdapter(adapter)
+    this.setOnItemClickListener(object : AdapterView.OnItemClickListener {
+        @suppress("UNCHECKED_CAST")
+        override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            onClickAction(adapter.getItem(position) as T)
+        }
+    })
+}
+
+//////////////////////////////DEPRECATED///////////////////////////////
+
+@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+        ReplaceWith(
+                "_LinearLayout(context).run{ orientation = LinearLayout.VERTICAL; /*init stuff*/ }",
+                "org.jetbrains.anko._LinearLayout"
+        )
+)
+public inline fun ViewController.makeLinearLayout(context: Context, init: _LinearLayout.() -> Unit): LinearLayout {
+    val layout = _LinearLayout(context);
+    layout.orientation = LinearLayout.VERTICAL
+    layout.init();
+    return layout;
+}
+
+@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+        ReplaceWith(
+                "_FrameLayout(context).run{ /*init stuff*/ }",
+                "org.jetbrains.anko._FrameLayout"
+        )
+)
+public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameLayout.() -> Unit): FrameLayout {
+    val layout = _FrameLayout(context);
+    layout.init();
+    return layout;
+}
+
+@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+        ReplaceWith(
+                "_RelativeLayout(context).run{ /*init stuff*/ }",
+                "org.jetbrains.anko._RelativeLayout"
+        )
+)
+public inline fun ViewController.makeRelativeLayout(context: Context, init: _RelativeLayout.() -> Unit): RelativeLayout {
+    val layout = _RelativeLayout(context);
+    layout.init();
+    return layout;
+}
+
+@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+        ReplaceWith(
+                "ScrollView(context).run{addView(content)}",
+                "android.widget.ScrollView"
+        )
+)
+public fun ViewController.makeScrollView(context: Context, content: View): ScrollView {
+    val layout = ScrollView(context)
+    layout.addView(content)
+    return layout
 }

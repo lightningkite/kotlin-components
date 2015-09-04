@@ -12,6 +12,7 @@ import java.util.ArrayList
 /**
  * Created by jivie on 6/26/15.
  */
+@deprecated("ViewController has been simplified to make this unnecessary.", ReplaceWith("", ""))
 public abstract class BaseViewController : ViewController {
 
     public var view: View? = null

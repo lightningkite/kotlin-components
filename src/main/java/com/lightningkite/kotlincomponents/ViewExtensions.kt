@@ -136,7 +136,7 @@ public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction:
 
 @deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
-                "_LinearLayout(context).run{ orientation = LinearLayout.VERTICAL; /*init stuff*/ }",
+                "_LinearLayout(@property).run{ orientation = LinearLayout.VERTICAL; init() }",
                 "org.jetbrains.anko._LinearLayout"
         )
 )
@@ -149,7 +149,7 @@ public inline fun ViewController.makeLinearLayout(context: Context, init: _Linea
 
 @deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
-                "_FrameLayout(context).run{ /*init stuff*/ }",
+                "_FrameLayout(context).run{ init() }",
                 "org.jetbrains.anko._FrameLayout"
         )
 )
@@ -161,7 +161,7 @@ public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameL
 
 @deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
-                "_RelativeLayout(context).run{ /*init stuff*/ }",
+                "_RelativeLayout(context).run{ init() }",
                 "org.jetbrains.anko._RelativeLayout"
         )
 )

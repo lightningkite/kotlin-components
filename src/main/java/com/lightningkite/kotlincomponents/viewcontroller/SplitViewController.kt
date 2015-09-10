@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.lightningkite.kotlincomponents.makeLinearLayout
+import com.lightningkite.kotlincomponents.run
+import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.layoutParams
 import org.jetbrains.anko.orientation
 
@@ -27,7 +28,7 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
 
     override fun make(context: Context, stack: ViewControllerStack): View {
         this.stack = stack
-        layout = makeLinearLayout(context) {
+        layout = _LinearLayout(context).run {
             orientation = LinearLayout.HORIZONTAL
             val leftView = left.make(context, this@SplitViewController)
             val rightView = right.make(context, this@SplitViewController)

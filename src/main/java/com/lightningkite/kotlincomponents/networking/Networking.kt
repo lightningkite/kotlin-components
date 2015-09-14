@@ -9,6 +9,10 @@ import kotlin.properties.Delegates
  */
 
 public object Networking {
+
+    public val JSON: MediaType = MediaType.parse("application/json; charset=utf-8");
+    public val HEADERS_EMPTY = Headers.Builder().build()
+
     public val client: OkHttpClient by Delegates.lazy { OkHttpClient() }
 
     public fun syncGet(headers: Headers, url: String): Response {
@@ -83,11 +87,10 @@ public object Networking {
     public fun delete(headers: Headers, url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncDelete(headers, url, body) }, onResult)
     public fun delete(headers: Headers, url: String, onResult: (Response) -> Unit): Unit = async({ syncDelete(headers, url) }, onResult)
 
-    val emptyHeaders = Headers.Builder().build()
-    public fun get(url: String, onResult: (Response) -> Unit): Unit = async({ syncGet(emptyHeaders, url) }, onResult)
-    public fun post(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPost(emptyHeaders, url, body) }, onResult)
-    public fun put(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPut(emptyHeaders, url, body) }, onResult)
-    public fun patch(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPatch(emptyHeaders, url, body) }, onResult)
-    public fun delete(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncDelete(emptyHeaders, url, body) }, onResult)
-    public fun delete(url: String, onResult: (Response) -> Unit): Unit = async({ syncDelete(emptyHeaders, url) }, onResult)
+    public fun get(url: String, onResult: (Response) -> Unit): Unit = async({ syncGet(HEADERS_EMPTY, url) }, onResult)
+    public fun post(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPost(HEADERS_EMPTY, url, body) }, onResult)
+    public fun put(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPut(HEADERS_EMPTY, url, body) }, onResult)
+    public fun patch(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncPatch(HEADERS_EMPTY, url, body) }, onResult)
+    public fun delete(url: String, body: RequestBody, onResult: (Response) -> Unit): Unit = async({ syncDelete(HEADERS_EMPTY, url, body) }, onResult)
+    public fun delete(url: String, onResult: (Response) -> Unit): Unit = async({ syncDelete(HEADERS_EMPTY, url) }, onResult)
 }

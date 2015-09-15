@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.image
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -45,7 +46,8 @@ public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (B
 
     val folder = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    if (folder == null || intent.resolveActivity(context!!.getPackageManager()) != null) {
+    val pm :PackageManager = context!!.getPackageManager();
+    if (folder == null) {
         onResult(null)
         return;
     }

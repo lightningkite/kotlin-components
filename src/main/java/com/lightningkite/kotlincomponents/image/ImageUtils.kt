@@ -46,7 +46,6 @@ public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (B
 
     val folder = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    val pm :PackageManager = context!!.getPackageManager();
     if (folder == null) {
         onResult(null)
         return;

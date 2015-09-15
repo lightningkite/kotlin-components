@@ -42,10 +42,9 @@ public fun BaseViewController.getImageFromGallery(maxDimension: Int, onResult: (
 
 public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
     if (context == null) return;
-
     val folder = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    if (folder == null || intent.resolveActivity(context!!.getPackageManager()) != null) {
+    if (folder == null) {
         onResult(null)
         return;
     }

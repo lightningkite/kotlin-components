@@ -7,6 +7,7 @@ import android.widget.FrameLayout
 import android.widget.ListAdapter
 import android.widget.ListView
 import com.lightningkite.kotlincomponents.context
+import org.jetbrains.anko._FrameLayout
 import org.jetbrains.anko.layoutParams
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.visibility
@@ -14,7 +15,7 @@ import org.jetbrains.anko.visibility
 /**
  * Created by jivie on 8/7/15.
  */
-public class AnimatedListView(context: Context) : FrameLayout(context) {
+public class AnimatedListView(context: Context) : _FrameLayout(context) {
     private var front: ListView = ListView(context)
     private var back: ListView = ListView(context)
 
@@ -38,9 +39,9 @@ public class AnimatedListView(context: Context) : FrameLayout(context) {
     }
 
     init {
-        back.layoutParams = FrameLayout.LayoutParams(matchParent, matchParent)
+        back.layoutParams(matchParent, matchParent)
         back.visibility = View.GONE
-        front.layoutParams = FrameLayout.LayoutParams(matchParent, matchParent)
+        front.layoutParams(matchParent, matchParent)
         addView(back)
         addView(front)
     }

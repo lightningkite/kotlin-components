@@ -13,6 +13,25 @@ public interface ViewControllerStack {
     public fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit = { resultCode, data -> }) {
         startIntent(intent, onResult, Bundle.EMPTY)
     }
+
+    public companion object {
+        public val dummy: ViewControllerStack = object : ViewControllerStack {
+            override fun pushView(newController: ViewController, onResult: (Any?) -> Unit) {
+            }
+
+            override fun popView() {
+            }
+
+            override fun resetView(newController: ViewController) {
+            }
+
+            override fun replaceView(newController: ViewController) {
+            }
+
+            override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
+            }
+        }
+    }
 }
 
 public data class ViewControllerData(val controller: ViewController, var onResult: (result: Any?) -> Unit = {}) : ViewController by controller

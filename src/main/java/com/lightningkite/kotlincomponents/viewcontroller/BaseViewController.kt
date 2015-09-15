@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.databinding.PermanentBond
 import org.jetbrains.anko.onClick
@@ -11,6 +12,7 @@ import java.util.ArrayList
 /**
  * Created by jivie on 6/26/15.
  */
+@deprecated("ViewController has been simplified to make this unnecessary.", ReplaceWith("", ""))
 public abstract class BaseViewController : ViewController {
 
     public var view: View? = null
@@ -23,7 +25,7 @@ public abstract class BaseViewController : ViewController {
         this.context = context
         this.stack = stack
         val newView = make()
-        if (!newView.hasOnClickListeners()) newView.onClick {}
+        if (newView !is AdapterView<*> && !newView.hasOnClickListeners()) newView.onClick {}
         view = newView
         return newView
     }

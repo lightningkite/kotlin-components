@@ -214,7 +214,7 @@ public var Notification.Builder.vibrate: LongArray
         setVibrate(value)
     }
 
-public var Notification.Builder.: Int
+public var Notification.Builder.visibility: Int
     get() = throw Exception("This is not accessible publicly.")
     set(value) {
         setVisibility(value)

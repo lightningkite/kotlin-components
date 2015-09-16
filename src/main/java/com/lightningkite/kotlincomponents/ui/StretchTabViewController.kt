@@ -4,15 +4,10 @@ import android.content.Context
 import android.view.Gravity
 import android.view.View
 import android.widget.ListAdapter
-import com.lightningkite.kotlincomponents.addView
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.databinding.BondSet
-import com.lightningkite.kotlincomponents.horizontal
-import com.lightningkite.kotlincomponents.run
-import com.lightningkite.kotlincomponents.vertical
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
-import org.jetbrains.anko.*
 
 /**
  * Created by jivie on 9/4/15.
@@ -44,6 +39,8 @@ public class StretchTabViewController(val tabAdapter: ListAdapter, val initialTa
             var frameVc: ViewController? = null
 
             currentVcBond.bind {
+                //TODO: Add animations to the change.
+
                 //Remove the previous view if it exists
                 removeAllViews()
                 frameVc?.dispose(frameView!!)

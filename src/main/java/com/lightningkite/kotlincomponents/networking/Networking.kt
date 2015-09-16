@@ -2,7 +2,6 @@ package com.lightningkite.kotlincomponents.networking
 
 import com.lightningkite.kotlincomponents.async.async
 import com.squareup.okhttp.*
-import kotlin.properties.Delegates
 
 /**
  * Created by jivie on 9/2/15.
@@ -11,7 +10,7 @@ import kotlin.properties.Delegates
 public object Networking {
 
     public val JSON: MediaType = MediaType.parse("application/json; charset=utf-8");
-    public val HEADERS_EMPTY = Headers.Builder().build()
+    public val HEADERS_EMPTY: Headers = Headers.Builder().build()
 
     public val client: OkHttpClient by Delegates.lazy { OkHttpClient() }
 

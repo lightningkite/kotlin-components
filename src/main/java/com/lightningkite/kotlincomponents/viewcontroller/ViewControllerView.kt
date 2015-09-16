@@ -30,6 +30,7 @@ public class ViewControllerView(activity: Activity,
             stacks.put(tag, newStack)
             return newStack
         }
+        private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }
     }
 
     public val activity: Activity = activity
@@ -117,7 +118,6 @@ public class ViewControllerView(activity: Activity,
         currentView = newView
     }
 
-    private var onResultLambda: (result: Int, data: Intent?) -> Unit = { result, data -> }
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {
         onResultLambda = onResult
         intentListener.startActivityForResult(tag, intent, options)

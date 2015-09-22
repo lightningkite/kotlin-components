@@ -3,7 +3,10 @@ package com.lightningkite.kotlincomponents.databinding
 import android.text.InputType
 import android.view.View
 import android.widget.*
-import org.jetbrains.anko.*
+import org.jetbrains.anko.onCheckedChange
+import org.jetbrains.anko.opaque
+import org.jetbrains.anko.textChangedListener
+import org.jetbrains.anko.textColor
 import java.text.NumberFormat
 
 /**
@@ -13,7 +16,7 @@ import java.text.NumberFormat
 
 
 public fun EditText.bindString(bond: Bond<String>) {
-    text = bond.get()
+    setText(bond.get())
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
             if (!bond.get().equals(charSequence)) {
@@ -30,7 +33,7 @@ public fun EditText.bindString(bond: Bond<String>) {
 
 public fun EditText.bindInt(bond: Bond<Int>) {
     inputType = (inputType and 0xFFFFFFF0.toInt()) or InputType.TYPE_CLASS_NUMBER
-    text = bond.get().toString()
+    setText(bond.get().toString())
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
             if (!bond.get().toString().equals(charSequence)) {
@@ -47,7 +50,6 @@ public fun EditText.bindInt(bond: Bond<Int>) {
 
 public fun EditText.bindFloat(bond: Bond<Float>, format: NumberFormat) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-    text = bond.get().toString()
     val originalTextColor = this.getTextColors().getDefaultColor()
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
@@ -80,8 +82,8 @@ public fun Switch.bind(bond: Bond<Boolean>) {
         }
     }
     bond.bind {
-        if (checked != bond.get()) {
-            checked = bond.get();
+        if (isChecked != bond.get()) {
+            isChecked = bond.get();
         }
     }
 }
@@ -97,8 +99,8 @@ public fun Switch.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
     }
     bond.bind {
         val value = bond.get()[index]
-        if (checked != value) {
-            checked = value;
+        if (isChecked != value) {
+            isChecked = value;
         }
     }
 }
@@ -114,8 +116,8 @@ public fun CheckBox.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
     }
     bond.bind {
         val value = bond.get()[index]
-        if (checked != value) {
-            checked = value;
+        if (isChecked != value) {
+            isChecked = value;
         }
     }
 }
@@ -138,7 +140,7 @@ public fun Spinner.bindIndex(bond: Bond<Int>) {
             setSelection(it)
         }
     }
-    setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+    onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         override fun onNothingSelected(parent: AdapterView<*>?) {
         }
 
@@ -148,12 +150,12 @@ public fun Spinner.bindIndex(bond: Bond<Int>) {
             }
         }
 
-    })
+    }
 }
 
 public fun <T> RadioButton.bind(bond: Bond<T>, value: T) {
     bond.bind {
-        setChecked(value == bond.get())
+        isChecked = value == bond.get()
     }
     onCheckedChange { compoundButton, checked ->
         if (checked && bond.get() != value) {

@@ -9,7 +9,7 @@ import com.squareup.okhttp.Response
 /**
  * Created by jivie on 9/3/15.
  */
-public inline fun <reified T> Response.gsonFrom(gson: Gson = BasicGson.gson): T? {
+public inline fun <reified T : Any> Response.gsonFrom(gson: Gson = BasicGson.gson): T? {
     return gson.fromJson<T>(body().string())
 }
 

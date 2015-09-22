@@ -2,12 +2,12 @@ package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
 import android.database.DataSetObserver
-import android.view.ViewGroup
+import android.view.ViewManager
 import android.widget.LinearLayout
 import android.widget.ListAdapter
+import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.onClick
 import org.jetbrains.anko.onLongClick
-import org.jetbrains.anko.orientation
 
 /**
  * Created by jivie on 8/12/15.
@@ -79,9 +79,7 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
     }
 }
 
-public fun ViewGroup.adapterLinearLayout(setup: AdapterLinearLayout.() -> Unit): AdapterLinearLayout {
-    val layout = AdapterLinearLayout(getContext())
-    layout.setup();
-    addView(layout)
-    return layout
+@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.adapterLinearLayout() = adapterLinearLayout {}
+public inline fun ViewManager.adapterLinearLayout(init: AdapterLinearLayout.() -> Unit): AdapterLinearLayout {
+    return ankoView({ AdapterLinearLayout(it) }, init)
 }

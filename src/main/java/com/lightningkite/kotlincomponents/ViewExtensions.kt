@@ -33,15 +33,15 @@ public val View.context: Context get() = getContext()
 
 public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
     assert(milliseconds > millisecondsTransition * 2, "The time shown must be at least twice as much as the transition time")
-    val originalBackground = getBackground()
+    val originalBackground = background
     val transition = TransitionDrawable(arrayOf(originalBackground, ColorDrawable(color)))
-    transition.setCrossFadeEnabled(false)
-    setBackground(transition)
+    transition.isCrossFadeEnabled = false
+    background = transition
     transition.startTransition(millisecondsTransition)
     postDelayed(milliseconds - millisecondsTransition) {
         transition.reverseTransition(millisecondsTransition)
         postDelayed(millisecondsTransition.toLong()) {
-            setBackground(originalBackground)
+            background = originalBackground
         }
     }
 }
@@ -68,13 +68,13 @@ public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int,
 public val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
 public val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
 
-public DrawableRes val View.selectableItemBackground: Int
+public @DrawableRes val View.selectableItemBackground: Int
     get() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // If we're running on Honeycomb or newer, then we can use the Theme's
             // selectableItemBackground to ensure that the View has a pressed state
             val outValue = TypedValue();
-            getContext().getTheme().resolveAttribute(R.attr.selectableItemBackground, outValue, true);
+            getContext().theme.resolveAttribute(R.attr.selectableItemBackground, outValue, true);
             return outValue.resourceId
         }
         return 0
@@ -88,7 +88,7 @@ public fun Context.getActivity(): Activity? {
     if (this is Activity) {
         return this
     } else if (this is ContextWrapper) {
-        return getBaseContext().getActivity()
+        return baseContext.getActivity()
     } else {
         return null
     }
@@ -107,7 +107,7 @@ public inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T 
 }
 
 public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
-    val view = javaClass<T>().getConstructor(javaClass<Context>()).newInstance(getContext())
+    val view = T::class.java.getConstructor(Context::class.java).newInstance(getContext())
     view.setup();
     addView(view)
     return view
@@ -115,26 +115,26 @@ public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
 
 private val cachedPoint: Point = Point()
 public val View.screenSize: Point get() {
-    getContext().windowManager.getDefaultDisplay().getSize(cachedPoint)
+    getContext().windowManager.defaultDisplay.getSize(cachedPoint)
     return cachedPoint
 }
 public val View.parentView: View get() {
-    return getParent() as? View ?: throw IllegalStateException("Parent is not a ViewGroup!")
+    return parent as? View ?: throw IllegalStateException("Parent is not a ViewGroup!")
 }
 
 public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction: (T) -> Unit) {
-    this.setAdapter(adapter)
-    this.setOnItemClickListener(object : AdapterView.OnItemClickListener {
-        @suppress("UNCHECKED_CAST")
+    this.adapter = adapter
+    this.onItemClickListener = object : AdapterView.OnItemClickListener {
+        @Suppress("UNCHECKED_CAST")
         override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
             onClickAction(adapter.getItem(position) as T)
         }
-    })
+    }
 }
 
 //////////////////////////////DEPRECATED///////////////////////////////
 
-@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+@Deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
                 "_LinearLayout(@property).run{ orientation = LinearLayout.VERTICAL; init() }",
                 "org.jetbrains.anko._LinearLayout"
@@ -147,7 +147,7 @@ public inline fun ViewController.makeLinearLayout(context: Context, init: _Linea
     return layout;
 }
 
-@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+@Deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
                 "_FrameLayout(context).run{ init() }",
                 "org.jetbrains.anko._FrameLayout"
@@ -159,7 +159,7 @@ public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameL
     return layout;
 }
 
-@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+@Deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
                 "_RelativeLayout(context).run{ init() }",
                 "org.jetbrains.anko._RelativeLayout"
@@ -171,7 +171,7 @@ public inline fun ViewController.makeRelativeLayout(context: Context, init: _Rel
     return layout;
 }
 
-@deprecated("This function is unnecessary abstraction and is therefore deprecated.",
+@Deprecated("This function is unnecessary abstraction and is therefore deprecated.",
         ReplaceWith(
                 "ScrollView(context).run{addView(content)}",
                 "android.widget.ScrollView"

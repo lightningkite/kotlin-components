@@ -2,11 +2,10 @@ package com.lightningkite.kotlincomponents.animation
 
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
-import com.lightningkite.kotlincomponents.context
+import android.view.ViewManager
 import org.jetbrains.anko._FrameLayout
-import org.jetbrains.anko.visibility
-import java.util.HashMap
+import org.jetbrains.anko.custom.ankoView
+import java.util.*
 
 /**
  * Created by jivie on 8/26/15.
@@ -47,14 +46,12 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
 
     public fun jump(tag: String) {
         currentView.visibility = View.INVISIBLE
-        currentView = views.get(tag)
+        currentView = views.get(tag)!!
         currentView.visibility = View.VISIBLE
     }
 }
 
-public fun ViewGroup.transitionView(initFunc: TransitionView.() -> Unit): TransitionView {
-    val view = TransitionView(context)
-    view.initFunc()
-    addView(view)
-    return view
+@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.transitionView() = transitionView {}
+public inline fun ViewManager.transitionView(init: TransitionView.() -> Unit): TransitionView {
+    return ankoView({ TransitionView(it) }, init)
 }

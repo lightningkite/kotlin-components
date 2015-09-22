@@ -7,9 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
-import org.jetbrains.anko.layoutParams
-import java.util.HashMap
-import java.util.Stack
+import java.util.*
 
 /**
  * Created by jivie on 7/24/15.
@@ -25,7 +23,7 @@ public class ViewControllerView(activity: Activity,
     public companion object {
         public val stacks: HashMap<String, Stack<ViewControllerData>> = HashMap()
         public fun getStack(tag: String): Stack<ViewControllerData> {
-            if (stacks.containsKey(tag)) return stacks.get(tag)
+            if (stacks.containsKey(tag)) return stacks.get(tag)!!
             val newStack = Stack<ViewControllerData>()
             stacks.put(tag, newStack)
             return newStack

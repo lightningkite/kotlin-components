@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import org.jetbrains.anko.frameLayout
-import org.jetbrains.anko.layoutParams
-import java.util.Stack
+import java.util.*
 
 /**
  * Created by jivie on 6/26/15.

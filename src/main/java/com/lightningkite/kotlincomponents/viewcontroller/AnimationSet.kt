@@ -3,7 +3,6 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
-import org.jetbrains.anko.width
 
 /**
  * Created by jivie on 8/6/15.

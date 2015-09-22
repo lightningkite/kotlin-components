@@ -3,8 +3,7 @@ package com.lightningkite.kotlincomponents.parcel
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
-import com.lightningkite.kotlincomponents.databinding.Bond
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 6/25/15.
@@ -14,16 +13,16 @@ public annotation class bundled
 
 public object Bundler {
 
-    public inline fun toBundle<reified T>(toBundleObj: T): Bundle {
-        return toBundle(toBundleObj, javaClass<T>())
+    public inline fun toBundle<reified T : Any>(toBundleObj: T): Bundle {
+        return toBundle(toBundleObj, T::class.java)
     }
 
     public fun toBundle(toBundleObj: Any, javaCl: Class<*>): Bundle {
         val bundle = Bundle()
-        for (field in javaCl.getDeclaredFields()) {
-            if (field.getAnnotation(javaClass<bundled>()) == null) continue
-            val name = field.getName()
-            field.setAccessible(true)
+        for (field in javaCl.declaredFields) {
+            if (field.getAnnotation(bundled::class.java) == null) continue
+            val name = field.name
+            field.isAccessible = true
             val value: Any? = field.get(toBundleObj)
             if (value != null) {
                 writeToBundle(bundle, name, value)
@@ -32,19 +31,19 @@ public object Bundler {
         return bundle
     }
 
-    public inline fun fromBundle<reified T>(bundle: Bundle, fromBundleObj: T): T {
-        fromBundle(bundle, fromBundleObj, javaClass<T>())
+    public inline fun fromBundle<reified T : Any>(bundle: Bundle, fromBundleObj: T): T {
+        fromBundle(bundle, fromBundleObj, T::class.java)
         return fromBundleObj
     }
 
     public fun fromBundle(bundle: Bundle, fromBundleObj: Any?, javaCl: Class<*>): Any? {
         if (fromBundleObj == null) return fromBundleObj
-        for (field in javaCl.getDeclaredFields()) {
-            if (field.getAnnotation(javaClass<bundled>()) == null) continue
-            val name = field.getName()
-            field.setAccessible(true)
+        for (field in javaCl.declaredFields) {
+            if (field.getAnnotation(bundled::class.java) == null) continue
+            val name = field.name
+            field.isAccessible = true
             if (bundle.get(name) == null) continue
-            field.set(fromBundleObj, readFromBundle(bundle, name, field.getType(), field.get(fromBundleObj)));
+            field.set(fromBundleObj, readFromBundle(bundle, name, field.type, field.get(fromBundleObj)));
         }
         return fromBundleObj
     }
@@ -79,7 +78,7 @@ public object Bundler {
                     }
                 }
             }
-            is Bond<*> -> value.writeToBundle(bundle, name)
+        //is Bond<*> -> value.writeToBundle(bundle, name)
             else -> {
                 try {
                     bundle.putParcelable(name, toBundle(value, value.javaClass))
@@ -92,37 +91,37 @@ public object Bundler {
 
     public fun readFromBundle(bundle: Bundle, name: String, type: Class<*>, inputObj: Any?): Any? {
         when (type) {
-            javaClass<Int>() -> return (bundle.getInt(name))
-            javaClass<Short>() -> return (bundle.getShort(name))
-            javaClass<Byte>() -> return (bundle.getByte(name))
-            javaClass<Char>() -> return (bundle.getChar(name))
-            javaClass<Long>() -> return (bundle.getLong(name))
-            javaClass<Boolean>() -> return (bundle.getBoolean(name))
+            Int::class.java -> return (bundle.getInt(name))
+            Short::class.java -> return (bundle.getShort(name))
+            Byte::class.java -> return (bundle.getByte(name))
+            Char::class.java -> return (bundle.getChar(name))
+            Long::class.java -> return (bundle.getLong(name))
+            Boolean::class.java -> return (bundle.getBoolean(name))
 
-            javaClass<java.lang.Integer>() -> return (bundle.getInt(name))
-            javaClass<java.lang.Short>() -> return (bundle.getShort(name))
-            javaClass<java.lang.Byte>() -> return (bundle.getByte(name))
-            javaClass<java.lang.Character>() -> return (bundle.getChar(name))
-            javaClass<java.lang.Long>() -> return (bundle.getLong(name))
-            javaClass<java.lang.Boolean>() -> return (bundle.getBoolean(name))
+            java.lang.Integer::class.java -> return (bundle.getInt(name))
+            java.lang.Short::class.java -> return (bundle.getShort(name))
+            java.lang.Byte::class.java -> return (bundle.getByte(name))
+            java.lang.Character::class.java -> return (bundle.getChar(name))
+            java.lang.Long::class.java -> return (bundle.getLong(name))
+            java.lang.Boolean::class.java -> return (bundle.getBoolean(name))
 
-            javaClass<IntArray>() -> return (bundle.getIntArray(name))
-            javaClass<ShortArray>() -> return (bundle.getShortArray(name))
-            javaClass<ByteArray>() -> return (bundle.getByteArray(name))
-            javaClass<CharArray>() -> return (bundle.getCharArray(name))
-            javaClass<LongArray>() -> return (bundle.getLongArray(name))
-            javaClass<BooleanArray>() -> return (bundle.getBooleanArray(name))
+            IntArray::class.java -> return (bundle.getIntArray(name))
+            ShortArray::class.java -> return (bundle.getShortArray(name))
+            ByteArray::class.java -> return (bundle.getByteArray(name))
+            CharArray::class.java -> return (bundle.getCharArray(name))
+            LongArray::class.java -> return (bundle.getLongArray(name))
+            BooleanArray::class.java -> return (bundle.getBooleanArray(name))
 
-            javaClass<String>() -> return (bundle.getString(name))
-            javaClass<Array<String>>() -> return (bundle.getStringArray(name))
-            javaClass<Parcelable>() -> return (bundle.getParcelable(name))
-            javaClass<Array<Parcelable>>() -> return (bundle.getParcelableArray(name))
+            String::class.java -> return (bundle.getString(name))
+            Array<String>::class.java -> return (bundle.getStringArray(name))
+            Parcelable::class.java -> return (bundle.getParcelable(name))
+            Array<Parcelable>::class.java -> return (bundle.getParcelableArray(name))
 
-            javaClass<Bond<*>>() -> {
-                (inputObj as Bond<*>).loadFromBundle(bundle, name)
-                return inputObj
-            }
-            javaClass<ArrayList<*>>() -> {
+        /*Bond::class.java -> {
+            (inputObj as Bond<*>).loadFromBundle(bundle, name)
+            return inputObj
+        }*/
+            ArrayList::class.java -> {
                 try {
                     return (bundle.getIntegerArrayList(name))
                 } catch(e: Exception) {

@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.lightningkite.kotlincomponents.run
 import org.jetbrains.anko._LinearLayout
-import org.jetbrains.anko.layoutParams
-import org.jetbrains.anko.orientation
 
 /**
  * Created by jivie on 7/24/15.

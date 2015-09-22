@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 8/14/15.
  */
 
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public interface DataDisplayer<ITEM> {
     public fun create():View
     public fun update(item: ITEM)
@@ -22,7 +22,7 @@ public interface DataDisplayer<ITEM> {
     }
 }
 
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: DataDisplayerAdapter<ITEM>.() -> DataDisplayer<ITEM>) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val item = list.get(position)

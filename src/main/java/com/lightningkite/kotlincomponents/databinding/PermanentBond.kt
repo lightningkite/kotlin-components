@@ -1,12 +1,12 @@
 package com.lightningkite.kotlincomponents.databinding
 
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 6/25/15.
  */
 
-public class PermanentBond<T>(init: T) : Bond<T>(init) {
+public class PermanentBond<T : Any?>(init: T) : Bond<T>(init) {
     private var permanentListeners: ArrayList<(v: T) -> Unit> = ArrayList()
 
     override fun update() {

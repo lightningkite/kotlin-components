@@ -2,15 +2,12 @@ package com.lightningkite.kotlincomponents.animation
 
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.view.ViewManager
 import android.widget.ListAdapter
 import android.widget.ListView
-import com.lightningkite.kotlincomponents.context
 import org.jetbrains.anko._FrameLayout
-import org.jetbrains.anko.layoutParams
+import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.visibility
 
 /**
  * Created by jivie on 8/7/15.
@@ -39,15 +36,15 @@ public class AnimatedListView(context: Context) : _FrameLayout(context) {
     }
 
     init {
-        back.layoutParams(matchParent, matchParent)
+        back.lparams(matchParent, matchParent)
         back.visibility = View.GONE
-        front.layoutParams(matchParent, matchParent)
+        front.lparams(matchParent, matchParent)
         addView(back)
         addView(front)
     }
 
     public var adapter: ListAdapter?
-        get() = front.getAdapter()
+        get() = front.adapter
         set(value) = setAdapter(value)
 
     public fun setAdapter(adapter: ListAdapter?, animationSet: AnimationSet = AnimationSet.fade) {
@@ -55,25 +52,23 @@ public class AnimatedListView(context: Context) : _FrameLayout(context) {
         front = back
         back = temp
 
-        back.setOnItemClickListener(null)
+        back.onItemClickListener = null
         front.setOnItemClickListener(_onItemClick)
 
-        back.setOnItemLongClickListener(null)
+        back.onItemLongClickListener = null
         front.setOnItemLongClickListener(_onItemLongClick)
 
         back.(animationSet.animateOut)(this).withEndAction {
             back.visibility = View.GONE
         }.start()
 
-        front.setAdapter(adapter)
+        front.adapter = adapter
         front.visibility = View.VISIBLE
         front.(animationSet.animateIn)(this).start()
     }
 }
 
-public fun ViewGroup.animatedListView(initFunc: AnimatedListView.() -> Unit): AnimatedListView {
-    val view = AnimatedListView(context)
-    view.initFunc()
-    addView(view)
-    return view
+@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.animatedListView() = animatedListView {}
+public inline fun ViewManager.animatedListView(init: AnimatedListView.() -> Unit): AnimatedListView {
+    return ankoView({ AnimatedListView(it) }, init)
 }

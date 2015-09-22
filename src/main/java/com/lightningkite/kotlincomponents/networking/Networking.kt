@@ -12,7 +12,7 @@ public object Networking {
     public val JSON: MediaType = MediaType.parse("application/json; charset=utf-8");
     public val HEADERS_EMPTY: Headers = Headers.Builder().build()
 
-    public val client: OkHttpClient by Delegates.lazy { OkHttpClient() }
+    public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 
     public fun syncGet(headers: Headers, url: String): Response {
         val response = client.newCall(

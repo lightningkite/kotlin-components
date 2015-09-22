@@ -4,10 +4,14 @@ import android.content.Context
 import android.view.Gravity
 import android.view.View
 import android.widget.ListAdapter
+import com.lightningkite.kotlincomponents.addView
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.databinding.BondSet
+import com.lightningkite.kotlincomponents.horizontal
+import com.lightningkite.kotlincomponents.vertical
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
+import org.jetbrains.anko.*
 
 /**
  * Created by jivie on 9/4/15.
@@ -25,14 +29,14 @@ public class StretchTabViewController(val tabAdapter: ListAdapter, val initialTa
         linearLayout {
             orientation = horizontal
             gravity = Gravity.BOTTOM
-            for (i in 0..tabAdapter.getCount() - 1) {
+            for (i in 0..tabAdapter.count - 1) {
                 addView(tabAdapter.getView(i, null, this)) {
                     onClick {
                         currentVc = tabMaker(i)
                     }
-                }.layoutParams(0, wrapContent, 1f)
+                }.lparams(0, wrapContent, 1f)
             }
-        }.layoutParams(matchParent, wrapContent)
+        }.lparams(matchParent, wrapContent)
 
         frameLayout {
             var frameView: View? = null
@@ -49,8 +53,8 @@ public class StretchTabViewController(val tabAdapter: ListAdapter, val initialTa
                 frameVc = it
                 frameView = it.make(context, stack)
                 addView(frameView)
-                frameView!!.layoutParams(matchParent, matchParent)
+                frameView!!.lparams(matchParent, matchParent)
             }
-        }.layoutParams(matchParent, 0, 1f)
+        }.lparams(matchParent, 0, 1f)
     }
 }

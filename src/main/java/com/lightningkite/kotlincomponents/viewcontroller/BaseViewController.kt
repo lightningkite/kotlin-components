@@ -7,7 +7,7 @@ import android.widget.AdapterView
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.databinding.PermanentBond
 import org.jetbrains.anko.onClick
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 6/26/15.
@@ -32,7 +32,7 @@ public abstract class BaseViewController : ViewController {
 
     public abstract fun make(): View
 
-    public inline fun <reified T> makeBond(initialValue: T): Bond<T> {
+    public inline fun <reified T : Any?> makeBond(initialValue: T): Bond<T> {
         val newBond = Bond(initialValue)
         disposeFunctions.add {
             newBond.clearBindings()
@@ -40,7 +40,7 @@ public abstract class BaseViewController : ViewController {
         return newBond
     }
 
-    public inline fun <reified T> makePermanentBond(initialValue: T): PermanentBond<T> {
+    public inline fun <reified T : Any?> makePermanentBond(initialValue: T): PermanentBond<T> {
         val newBond = PermanentBond(initialValue)
         disposeFunctions.add {
             newBond.clearBindings()

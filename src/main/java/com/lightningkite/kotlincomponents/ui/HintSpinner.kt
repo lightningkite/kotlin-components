@@ -3,9 +3,10 @@ package com.lightningkite.kotlincomponents.ui
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewManager
 import android.widget.*
 import com.lightningkite.kotlincomponents.run
-import org.jetbrains.anko.text
+import org.jetbrains.anko.custom.ankoView
 
 /**
  * Created by jivie on 8/25/15.
@@ -102,13 +103,6 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
     }
 }
 
-public fun ViewGroup.hintSpinner(mode: Int, hint: View, setup: HintSpinner.() -> Unit): HintSpinner {
-    val layout = HintSpinner(getContext(), mode, hint)
-    layout.setup();
-    addView(layout)
-    return layout
+public inline fun ViewManager.hintSpinner(mode: Int, hint: View, init: HintSpinner.() -> Unit): HintSpinner {
+    return ankoView({ HintSpinner(it, mode, hint) }, init)
 }
-
-public var HintSpinner.adapter: SpinnerAdapter?
-    get() = this.getAdapter()
-    set(value) = this.setAdapter(value)

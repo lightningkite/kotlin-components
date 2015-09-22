@@ -31,17 +31,15 @@ import android.content.Context
 import android.database.DataSetObserver
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ListAdapter
 import android.widget.Scroller
-import java.util.LinkedList
+import org.jetbrains.anko.custom.ankoView
+import java.util.*
 import kotlin.properties.Delegates
 
-public class HorizontalListView(context: Context, attrs: AttributeSet) : AdapterView<ListAdapter>(context, attrs) {
+public class HorizontalListView(context: Context, attrs: AttributeSet? = null) : AdapterView<ListAdapter>(context, attrs) {
 
 
     public var mAlwaysOverrideTouch: Boolean = true
@@ -65,15 +63,15 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         initView()
     }
 
-    synchronized private fun initView() {
+    @Synchronized private fun initView() {
         mLeftViewIndex = -1
         mRightViewIndex = 0
         mDisplayOffset = 0
         mCurrentX = 0
         mNextX = 0
         mMaxX = Integer.MAX_VALUE
-        mScroller = Scroller(getContext())
-        mGesture = GestureDetector(getContext(), mOnGesture)
+        mScroller = Scroller(context)
+        mGesture = GestureDetector(context, mOnGesture)
     }
 
     override fun setOnItemSelectedListener(listener: AdapterView.OnItemSelectedListener?) {
@@ -124,7 +122,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         reset()
     }
 
-    synchronized private fun reset() {
+    @Synchronized private fun reset() {
         initView()
         removeAllViewsInLayout()
         requestLayout()
@@ -135,17 +133,17 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
     }
 
     private fun addAndMeasureChild(child: View, viewPos: Int) {
-        var params: ViewGroup.LayoutParams? = child.getLayoutParams()
+        var params: ViewGroup.LayoutParams? = child.layoutParams
         if (params == null) {
             params = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
 
         addViewInLayout(child, viewPos, params, true)
-        child.measure(View.MeasureSpec.makeMeasureSpec(getWidth(), View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.AT_MOST))
+        child.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST))
     }
 
 
-    synchronized override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    @Synchronized override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
         if (mAdapter == null) {
@@ -161,7 +159,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         }
 
         if (mScroller.computeScrollOffset()) {
-            val scrollx = mScroller.getCurrX()
+            val scrollx = mScroller.currX
             mNextX = scrollx
         }
 
@@ -182,7 +180,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
 
         mCurrentX = mNextX
 
-        if (!mScroller.isFinished()) {
+        if (!mScroller.isFinished) {
             post(object : Runnable {
                 override fun run() {
                     requestLayout()
@@ -194,16 +192,16 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
 
     private fun fillList(dx: Int) {
         var edge = 0
-        var child: View? = getChildAt(getChildCount() - 1)
+        var child: View? = getChildAt(childCount - 1)
         if (child != null) {
-            edge = child.getRight()
+            edge = child.right
         }
         fillListRight(edge, dx)
 
         edge = 0
         child = getChildAt(0)
         if (child != null) {
-            edge = child.getLeft()
+            edge = child.left
         }
         fillListLeft(edge, dx)
 
@@ -212,14 +210,14 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
 
     private fun fillListRight(rightEdge: Int, dx: Int) {
         var rightEdge = rightEdge
-        while (rightEdge + dx < getWidth() && mRightViewIndex < mAdapter!!.getCount()) {
+        while (rightEdge + dx < width && mRightViewIndex < mAdapter!!.count) {
 
             val child = mAdapter!!.getView(mRightViewIndex, mRemovedViewQueue.poll(), this)
             addAndMeasureChild(child, -1)
-            rightEdge += child.getMeasuredWidth()
+            rightEdge += child.measuredWidth
 
-            if (mRightViewIndex == mAdapter!!.getCount() - 1) {
-                mMaxX = mCurrentX + rightEdge - getWidth()
+            if (mRightViewIndex == mAdapter!!.count - 1) {
+                mMaxX = mCurrentX + rightEdge - width
             }
 
             if (mMaxX < 0) {
@@ -235,16 +233,16 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         while (leftEdge + dx > 0 && mLeftViewIndex >= 0) {
             val child = mAdapter!!.getView(mLeftViewIndex, mRemovedViewQueue.poll(), this)
             addAndMeasureChild(child, 0)
-            leftEdge -= child.getMeasuredWidth()
+            leftEdge -= child.measuredWidth
             mLeftViewIndex--
-            mDisplayOffset -= child.getMeasuredWidth()
+            mDisplayOffset -= child.measuredWidth
         }
     }
 
     private fun removeNonVisibleItems(dx: Int) {
         var child: View? = getChildAt(0)
-        while (child != null && child.getRight() + dx <= 0) {
-            mDisplayOffset += child.getMeasuredWidth()
+        while (child != null && child.right + dx <= 0) {
+            mDisplayOffset += child.measuredWidth
             mRemovedViewQueue.offer(child)
             removeViewInLayout(child)
             mLeftViewIndex++
@@ -252,29 +250,29 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
 
         }
 
-        child = getChildAt(getChildCount() - 1)
-        while (child != null && child.getLeft() + dx >= getWidth()) {
+        child = getChildAt(childCount - 1)
+        while (child != null && child.left + dx >= width) {
             mRemovedViewQueue.offer(child)
             removeViewInLayout(child)
             mRightViewIndex--
-            child = getChildAt(getChildCount() - 1)
+            child = getChildAt(childCount - 1)
         }
     }
 
     private fun positionItems(dx: Int) {
-        if (getChildCount() > 0) {
+        if (childCount > 0) {
             mDisplayOffset += dx
             var left = mDisplayOffset
-            for (i in 0..getChildCount() - 1) {
+            for (i in 0..childCount - 1) {
                 val child = getChildAt(i)
-                val childWidth = child.getMeasuredWidth()
-                child.layout(left, 0, left + childWidth, child.getMeasuredHeight())
-                left += childWidth + child.getPaddingRight()
+                val childWidth = child.measuredWidth
+                child.layout(left, 0, left + childWidth, child.measuredHeight)
+                left += childWidth + child.paddingRight
             }
         }
     }
 
-    synchronized public fun scrollTo(x: Int) {
+    @Synchronized public fun scrollTo(x: Int) {
         mScroller.startScroll(mNextX, 0, x - mNextX, 0)
         requestLayout()
     }
@@ -320,7 +318,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            for (i in 0..getChildCount() - 1) {
+            for (i in 0..childCount - 1) {
                 val child = getChildAt(i)
                 if (isEventWithinView(e, child)) {
                     if (mOnItemClicked != null) {
@@ -337,7 +335,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
         }
 
         override fun onLongPress(e: MotionEvent) {
-            val childCount = getChildCount()
+            val childCount = childCount
             for (i in 0..childCount - 1) {
                 val child = getChildAt(i)
                 if (isEventWithinView(e, child)) {
@@ -355,20 +353,18 @@ public class HorizontalListView(context: Context, attrs: AttributeSet) : Adapter
             val childPosition = IntArray(2)
             child.getLocationOnScreen(childPosition)
             val left = childPosition[0]
-            val right = left + child.getWidth()
+            val right = left + child.width
             val top = childPosition[1]
-            val bottom = top + child.getHeight()
+            val bottom = top + child.height
             viewRect.set(left, top, right, bottom)
-            return viewRect.contains(e.getRawX().toInt(), e.getRawY().toInt())
+            return viewRect.contains(e.rawX.toInt(), e.rawY.toInt())
         }
     }
 
 
 }
 
-
-public var HorizontalListView.adapter: ListAdapter?
-    get() = getAdapter()
-    set(value) {
-        setAdapter(value)
-    }
+@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.horizontalListView() = horizontalListView {}
+public inline fun ViewManager.horizontalListView(init: HorizontalListView.() -> Unit): HorizontalListView {
+    return ankoView({ HorizontalListView(it, null) }, init)
+}

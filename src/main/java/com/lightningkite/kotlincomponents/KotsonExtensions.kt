@@ -40,6 +40,6 @@ public fun Any.gsonTo(gson: Gson = BasicGson.gson): String {
     return gson.toJson(this)
 }
 
-public inline fun <reified T> String.gsonFrom(gson: Gson = BasicGson.gson): T? {
+public inline fun <reified T : Any> String.gsonFrom(gson: Gson = BasicGson.gson): T? {
     return gson.fromJson<T>(this)
 }

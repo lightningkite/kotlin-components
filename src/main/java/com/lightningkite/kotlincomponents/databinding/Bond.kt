@@ -1,14 +1,12 @@
 package com.lightningkite.kotlincomponents.databinding
 
-import android.os.Bundle
-import com.lightningkite.kotlincomponents.parcel.Bundler
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 6/25/15.
  */
 
-public open class Bond<T>(init: T) {
+public open class Bond<T : Any?>(init: T) {
     protected var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
     protected var myValue: T = init
 
@@ -51,13 +49,5 @@ public open class Bond<T>(init: T) {
 
     override fun toString(): String {
         return "Bond(" + myValue.toString() + ")"
-    }
-
-    public fun writeToBundle(bundle: Bundle, key: String) {
-        Bundler.writeToBundle(bundle, key, myValue)
-    }
-
-    public fun loadFromBundle(bundle: Bundle, key: String) {
-        myValue = Bundler.readFromBundle(bundle, key, myValue.javaClass, myValue) as T
     }
 }

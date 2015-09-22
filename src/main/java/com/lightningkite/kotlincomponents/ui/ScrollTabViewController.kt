@@ -33,7 +33,7 @@ public class ScrollTabViewController(val tabAdapter: ListAdapter, val initialTab
                     currentVc = tabMaker(p)
                 }
             }
-        }.layoutParams(matchParent, wrapContent)
+        }.lparams(matchParent, wrapContent)
 
         frameLayout {
             var frameView: View? = null
@@ -48,8 +48,8 @@ public class ScrollTabViewController(val tabAdapter: ListAdapter, val initialTab
                 frameVc = it
                 frameView = it.make(context, stack)
                 addView(frameView)
-                frameView!!.layoutParams(matchParent, matchParent)
+                frameView!!.lparams(matchParent, matchParent)
             }
-        }.layoutParams(matchParent, 0, 1f)
+        }.lparams(matchParent, 0, 1f)
     }
 }

@@ -8,6 +8,7 @@ import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
+import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
 import android.util.TypedValue
@@ -67,6 +68,17 @@ public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int,
 
 public val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
 public val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
+
+public @ColorRes var TextView.textColorResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        setTextColor(resources.getColor(value))
+    }
+public @ColorRes var TextView.hintTextColorResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        setHintTextColor(resources.getColor(value))
+    }
 
 public @DrawableRes val View.selectableItemBackground: Int
     get() {

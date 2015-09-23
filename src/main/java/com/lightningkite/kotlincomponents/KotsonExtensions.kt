@@ -2,17 +2,16 @@ package com.lightningkite.kotlincomponents
 
 import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.toJson
-import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonNull
+import com.google.gson.*
 
 /**
  * Created by jivie on 8/13/15.
  */
 
 public object BasicGson {
-    public val gson: Gson = Gson()
+    public val gson: Gson = GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create()
 }
 
 public fun <E> Collection<E>.toJsonArray(): JsonArray {

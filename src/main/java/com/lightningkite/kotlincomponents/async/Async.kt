@@ -25,16 +25,16 @@ public object Async {
     val handler: Handler = Handler(Looper.getMainLooper())
 }
 
-public fun <T> async(action: () -> T) {
-    Async.runnableQueue.add(object : Runnable {
+public fun <T> doAsync(action: () -> T) {
+    Async.threadPool.execute(object : Runnable {
         override fun run() {
             val result = action()
         }
     })
 }
 
-public fun <T> async(action: () -> T, uiThread: (T) -> Unit) {
-    Async.runnableQueue.add(object : Runnable {
+public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
+    Async.threadPool.execute(object : Runnable {
         override fun run() {
             val result = action()
             Async.handler.post {

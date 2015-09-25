@@ -6,7 +6,7 @@ import android.os.Bundle
 public interface ViewControllerStack {
     public fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit): Unit
     public fun pushView(newController: ViewController): Unit = pushView(newController, {})
-    public fun popView()
+    public fun popView(): Boolean //returns true if there was something to pop off the stack.
     public fun resetView(newController: ViewController)
     public fun replaceView(newController: ViewController)
     public fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle)
@@ -19,8 +19,7 @@ public interface ViewControllerStack {
             override fun pushView(newController: ViewController, onResult: (Any?) -> Unit) {
             }
 
-            override fun popView() {
-            }
+            override fun popView() = false
 
             override fun resetView(newController: ViewController) {
             }

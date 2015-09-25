@@ -35,9 +35,7 @@ public abstract class SingleViewControllerFragment() : Fragment(), ViewControlle
         //ignore
     }
 
-    override fun popView() {
-        //ignore
-    }
+    override fun popView(): Boolean = false
 
     override fun resetView(newController: ViewController) {
         //ignore

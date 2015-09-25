@@ -41,9 +41,8 @@ public abstract class ViewControllerActivity : Activity(), ViewControllerStack {
         switchView(oldController, newController, animationSetPush)
     }
 
-    override fun popView() {
-        if (stack.size() <= 1) return
-        if (!stack.peek().canPop()) return
+    override fun popView(): Boolean {
+        if (stack.size() <= 1) return false
         val oldController = stack.pop()
         if (currentView != null) {
             oldController.dispose(currentView!!)
@@ -51,6 +50,7 @@ public abstract class ViewControllerActivity : Activity(), ViewControllerStack {
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
+        return true
     }
 
     override fun resetView(newController: ViewController) {

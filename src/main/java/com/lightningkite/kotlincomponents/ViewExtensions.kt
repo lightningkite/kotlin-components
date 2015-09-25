@@ -12,9 +12,11 @@ import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
 import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
@@ -123,6 +125,25 @@ public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
     view.setup();
     addView(view)
     return view
+}
+
+public fun EditText.onDone(action: (text: String) -> Unit) {
+    imeOptions = EditorInfo.IME_ACTION_DONE
+    setOnKeyListener(object : View.OnKeyListener {
+        override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+            if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                action(text.toString())
+                return true;
+            }
+            return false
+        }
+    })
+    setOnEditorActionListener(object : TextView.OnEditorActionListener {
+        override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+            action(text.toString())
+            return true;
+        }
+    })
 }
 
 private val cachedPoint: Point = Point()

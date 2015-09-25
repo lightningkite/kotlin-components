@@ -58,15 +58,15 @@ public class ViewControllerView(activity: Activity,
         onStackChange(this)
     }
 
-    override fun popView() {
-        if (stack.size() <= 1) return
-        if (!stack.peek().canPop()) return
+    override fun popView(): Boolean {
+        if (stack.size() <= 1) return false
         val oldController = stack.pop()
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
 
         onStackChange(this)
+        return true
     }
 
     override fun resetView(newController: ViewController) {

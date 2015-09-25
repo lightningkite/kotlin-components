@@ -50,9 +50,7 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
         stack?.pushView(newController, onResult)
     }
 
-    override fun popView() {
-        stack?.popView()
-    }
+    override fun popView(): Boolean = stack?.popView() ?: false
 
     override fun resetView(newController: ViewController) {
         stack?.resetView(newController)

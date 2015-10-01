@@ -7,7 +7,7 @@ import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
 import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by jivie on 9/2/15.
@@ -34,7 +34,7 @@ public class FilterableViewControllerAdapter<T>(
 
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View) {
-                    (v.getTag() as? AdaptableViewController<T>)?.dispose(v)
+                    (v.getTag() as? AdaptableViewController<T>)?.unmake(v)
                 }
 
                 override fun onViewAttachedToWindow(v: View?) {

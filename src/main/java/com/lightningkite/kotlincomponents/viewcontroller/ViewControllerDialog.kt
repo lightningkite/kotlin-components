@@ -27,6 +27,7 @@ public fun Context.dialogSingleScreen(
             dialog?.dismiss()
             dismissed = true
             onResult(vc.result)
+            vc.dispose()
             return false
         }
 
@@ -67,11 +68,12 @@ public fun Activity.dialogMultiScreen(
     val stackInterface: ViewControllerStack = object : ViewControllerStack {
         override fun pushView(newController: ViewController, onResult: (Any?) -> Unit) = vcv.pushView(newController, onResult)
         override fun popView(): Boolean {
-            val result = vcv.stack.firstOrNull()?.result
             if (!vcv.popView()) {
+                val result = vcv.stack.firstOrNull()?.result
                 dismissed = true
                 dialog?.dismiss()
                 onResult(result)
+                vcv.stack.firstOrNull()?.dispose()
             }
             return true
         }

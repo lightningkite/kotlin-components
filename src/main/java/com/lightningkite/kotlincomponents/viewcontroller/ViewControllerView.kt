@@ -64,7 +64,7 @@ public class ViewControllerView(activity: Activity,
         val newController = stack.last()
         (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
-
+        oldController.dispose()
         onStackChange(this)
         return true
     }
@@ -74,7 +74,9 @@ public class ViewControllerView(activity: Activity,
         if (stack.size() >= 1) {
             oldController = stack.pop()
         }
-        stack.clear()
+        while (stack.isNotEmpty()) {
+            stack.pop().dispose()
+        }
         stack.push(ViewControllerData(newController, {}))
         switchView(oldController, newController, animationSetPop)
 
@@ -86,7 +88,7 @@ public class ViewControllerView(activity: Activity,
         val oldController = stack.pop().controller
         stack.push(ViewControllerData(newController, {}))
         switchView(oldController, newController, animationSetPush)
-
+        oldController.dispose()
         onStackChange(this)
     }
 
@@ -102,11 +104,11 @@ public class ViewControllerView(activity: Activity,
             val oldView = currentView!!
             if (animationSet == null) {
                 removeView(oldView)
-                oldController.dispose(oldView)
+                oldController.unmake(oldView)
             } else {
                 oldView.(animationSet.animateOut)(this).withEndAction {
                     this.removeView(oldView)
-                    oldController.dispose(oldView)
+                    oldController.unmake(oldView)
                 }.start()
                 newView.(animationSet.animateIn)(this).start()
             }
@@ -124,6 +126,15 @@ public class ViewControllerView(activity: Activity,
     //Users of the class are responsible for calling this!
     public fun onActivityResult(resultCode: Int, data: Intent?) {
         onResultLambda(resultCode, data)
+    }
+
+    public fun dispose() {
+        if (currentView != null) {
+            stack.last().unmake(currentView!!)
+        }
+        while (stack.isNotEmpty()) {
+            stack.pop().dispose()
+        }
     }
 
 

@@ -13,7 +13,7 @@ public interface AdaptableViewController<T> : ViewController {
         get() = itemBond.get()
         set(value) = itemBond.set(value)
 
-    override fun dispose(view: View) {
-        itemBond.clearBindings()
+    override fun unmake(view: View) {
+        itemBond.dispose()
     }
 }

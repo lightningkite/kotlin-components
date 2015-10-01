@@ -47,7 +47,7 @@ public class StretchTabViewController(val tabAdapter: ListAdapter, val initialTa
 
                 //Remove the previous view if it exists
                 removeAllViews()
-                frameVc?.dispose(frameView!!)
+                frameVc?.unmake(frameView!!)
 
                 //Add the new view
                 frameVc = it

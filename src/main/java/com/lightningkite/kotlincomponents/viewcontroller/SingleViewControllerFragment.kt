@@ -11,7 +11,7 @@ import android.view.ViewGroup
  * Created by jivie on 7/22/15.
  */
 
-public abstract class SingleViewControllerFragment() : Fragment(), ViewControllerStack {
+@Deprecated("Out of date, may not work!") public abstract class SingleViewControllerFragment() : Fragment(), ViewControllerStack {
 
     private var viewController: ViewController? = null
 
@@ -27,7 +27,7 @@ public abstract class SingleViewControllerFragment() : Fragment(), ViewControlle
     }
 
     override fun onDestroyView() {
-        viewController?.dispose(getView())
+        viewController?.unmake(getView())
         super<Fragment>.onDestroyView()
     }
 

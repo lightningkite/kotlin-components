@@ -70,13 +70,18 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
         return left.canPop() && right.canPop()
     }
 
-    override fun dispose(view: View) {
+    override fun unmake(view: View) {
         if (leftView != null) {
-            left.dispose(leftView!!)
+            left.unmake(leftView!!)
         }
         if (rightView != null) {
-            right.dispose(rightView!!)
+            right.unmake(rightView!!)
         }
+    }
+
+    override fun dispose() {
+        left.dispose()
+        right.dispose()
     }
 
     override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {

@@ -42,7 +42,7 @@ public class ScrollTabViewController(val tabAdapter: ListAdapter, val initialTab
             currentVcBond.bind {
                 //Remove the previous view if it exists
                 removeAllViews()
-                frameVc?.dispose(frameView!!)
+                frameVc?.unmake(frameView!!)
 
                 //Add the new view
                 frameVc = it

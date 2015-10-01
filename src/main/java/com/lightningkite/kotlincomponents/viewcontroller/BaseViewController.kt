@@ -35,7 +35,7 @@ public abstract class BaseViewController : ViewController {
     public inline fun <reified T : Any?> makeBond(initialValue: T): Bond<T> {
         val newBond = Bond(initialValue)
         disposeFunctions.add {
-            newBond.clearBindings()
+            newBond.dispose()
         }
         return newBond
     }
@@ -43,7 +43,7 @@ public abstract class BaseViewController : ViewController {
     public inline fun <reified T : Any?> makePermanentBond(initialValue: T): PermanentBond<T> {
         val newBond = PermanentBond(initialValue)
         disposeFunctions.add {
-            newBond.clearBindings()
+            newBond.dispose()
         }
         return newBond
     }
@@ -52,7 +52,7 @@ public abstract class BaseViewController : ViewController {
         if (context == null || stack == null) throw IllegalStateException()
         val view = vc.make(context!!, stack!!)
         disposeFunctions.add {
-            vc.dispose(view)
+            vc.unmake(view)
         }
         return view
     }
@@ -61,7 +61,7 @@ public abstract class BaseViewController : ViewController {
         if (context == null || stack == null) throw IllegalStateException()
         val view = vc.make(context!!, stack!!)
         disposeFunctions.add {
-            vc.dispose(view)
+            vc.unmake(view)
         }
         addView(view)
         return view
@@ -71,7 +71,7 @@ public abstract class BaseViewController : ViewController {
         disposeFunctions.add(func)
     }
 
-    override fun dispose(view: View) {
+    override fun unmake(view: View) {
         for (func in disposeFunctions) {
             func()
         }

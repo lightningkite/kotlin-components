@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Point
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
@@ -81,6 +82,11 @@ public @ColorRes var TextView.hintTextColorResource: Int
     set(value) {
         setHintTextColor(resources.getColor(value))
     }
+
+public fun TextView.setFont(context: Context, fileName: String) {
+    val font = Typeface.createFromAsset(context.getAssets(), fileName)
+    typeface = font
+}
 
 public @DrawableRes val View.selectableItemBackground: Int
     get() {

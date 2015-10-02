@@ -84,7 +84,7 @@ public @ColorRes var TextView.hintTextColorResource: Int
     }
 
 public fun TextView.setFont(context: Context, fileName: String) {
-    val font = Typeface.createFromAsset(context.getAssets(), fileName)
+    val font = Typeface.createFromAsset(context.assets, fileName)
     typeface = font
 }
 

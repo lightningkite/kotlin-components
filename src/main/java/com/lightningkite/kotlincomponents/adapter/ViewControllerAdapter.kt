@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
-import java.util.ArrayList
+import java.util.*
 
 /**
  */
@@ -27,7 +27,7 @@ public class ViewControllerAdapter<T>(
 
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View) {
-                    (v.getTag() as? AdaptableViewController<T>)?.dispose(v)
+                    (v.getTag() as? AdaptableViewController<T>)?.unmake(v)
                 }
 
                 override fun onViewAttachedToWindow(v: View?) {

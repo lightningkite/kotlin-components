@@ -62,7 +62,7 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
         onItemLongClick = func
     }
 
-    suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     public fun <T> onItemClick(func: (item: T) -> Unit) {
         onItemClick { parent, view, position, id ->
             val item = adapter?.getItem(position) as T
@@ -70,7 +70,7 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
         }
     }
 
-    suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     public fun <T> onItemLongClick(func: (item: T) -> Boolean) {
         onItemLongClick { parent, view, position, id ->
             val item = adapter?.getItem(position) as T

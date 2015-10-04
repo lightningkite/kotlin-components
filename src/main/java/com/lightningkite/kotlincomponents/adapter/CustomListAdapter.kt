@@ -3,7 +3,7 @@ package com.lightningkite.kotlincomponents.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import java.util.ArrayList
+import java.util.*
 
 /**
  * A base adapter for quickly building an adapter with a customized look.
@@ -11,7 +11,7 @@ import java.util.ArrayList
  * *
  * @param  The view holder class for retaining references to view's components.
  */
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,

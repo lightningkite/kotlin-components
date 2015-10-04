@@ -64,7 +64,7 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: Dat
     }
 }
 
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public class DataDisplayerFilterableAdapter<ITEM>(
         var fullList: List<ITEM>,
         val predicate: (ITEM, CharSequence) -> Boolean,

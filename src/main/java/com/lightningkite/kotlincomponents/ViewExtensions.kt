@@ -26,7 +26,7 @@ import org.jetbrains.anko.*
  * Created by jivie on 7/16/15.
  */
 
-public fun ViewController.inflate(context: Context, LayoutRes layoutResource: Int, init: View.() -> Unit): View {
+public fun ViewController.inflate(context: Context, @LayoutRes layoutResource: Int, init: View.() -> Unit): View {
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
     layout.init();
     return layout;

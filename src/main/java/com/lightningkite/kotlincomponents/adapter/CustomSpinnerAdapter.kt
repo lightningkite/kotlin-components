@@ -4,7 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.SpinnerAdapter
-import java.util.ArrayList
+import java.util.*
 
 
 /**
@@ -13,7 +13,7 @@ import java.util.ArrayList
  * *
  * @param  The view holder class for retaining references to view's components.
  */
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public class CustomSpinnerAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,

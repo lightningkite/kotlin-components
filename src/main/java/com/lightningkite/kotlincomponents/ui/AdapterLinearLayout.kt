@@ -30,7 +30,7 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
     private fun notifyDataSetChanged() {
         removeAllViews()
         val _adapter = _adapter ?: return
-        for (i in 0.._adapter.getCount() - 1) {
+        for (i in 0.._adapter.count - 1) {
             val view = _adapter.getView(i, null, this)
             view.onClick {
                 onItemClick.invoke(this, view, i, _adapter.getItemId(i))

@@ -22,11 +22,11 @@ public class LinearLayoutHeightAnimation(private val mView: View?, duration: Int
             throw IllegalArgumentException("duration must be a positive number.")
         if (mView == null)
             throw IllegalArgumentException("view must not be null.")
-        if (mView.getLayoutParams() !is LinearLayout.LayoutParams)
+        if (mView.layoutParams !is LinearLayout.LayoutParams)
             throw IllegalArgumentException("view must be in a linear layout with linear layout parameters.")
-        mLayoutParams = mView.getLayoutParams() as LinearLayout.LayoutParams
+        mLayoutParams = mView.layoutParams as LinearLayout.LayoutParams
         mLayoutParams.height = mStartHeight
-        mView.setVisibility(View.VISIBLE)
+        mView.visibility = View.VISIBLE
     }
 
     override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
@@ -36,7 +36,7 @@ public class LinearLayoutHeightAnimation(private val mView: View?, duration: Int
             mView!!.requestLayout()
         } else {
             if (mEndHeight == 0)
-                mView!!.setVisibility(View.GONE)
+                mView!!.visibility = View.GONE
         }
     }
 

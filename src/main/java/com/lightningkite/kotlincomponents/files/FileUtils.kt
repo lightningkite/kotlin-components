@@ -56,10 +56,10 @@ public fun Uri.getRealPath(context: Context): String? {
             return context.getDataColumn(contentUri, selection, selectionArgs)
         }// MediaProvider
         // DownloadsProvider
-    } else if ("content".equals(getScheme(), ignoreCase = true)) {
+    } else if ("content".equals(scheme, ignoreCase = true)) {
         return context.getDataColumn(this, null, null)
-    } else if ("file".equals(getScheme(), ignoreCase = true)) {
-        return getPath()
+    } else if ("file".equals(scheme, ignoreCase = true)) {
+        return path
     }// File
     // MediaStore (and general)
 
@@ -85,7 +85,7 @@ public fun Context.getDataColumn(uri: Uri, selection: String?, selectionArgs: Ar
     val projection = arrayOf(column)
 
     try {
-        cursor = this.getContentResolver().query(uri, projection, selection, selectionArgs, null)
+        cursor = this.contentResolver.query(uri, projection, selection, selectionArgs, null)
         if (cursor != null && cursor.moveToFirst()) {
             val column_index = cursor.getColumnIndexOrThrow(column)
             return cursor.getString(column_index)
@@ -102,19 +102,19 @@ public fun Context.getDataColumn(uri: Uri, selection: String?, selectionArgs: Ar
  * @return Whether the Uri authority is ExternalStorageProvider.
  */
 public fun Uri.isExternalStorageDocument(): Boolean {
-    return "com.android.externalstorage.documents" == getAuthority()
+    return "com.android.externalstorage.documents" == authority
 }
 
 /**
  * @return Whether the Uri authority is DownloadsProvider.
  */
 public fun Uri.isDownloadsDocument(): Boolean {
-    return "com.android.providers.downloads.documents" == getAuthority()
+    return "com.android.providers.downloads.documents" == authority
 }
 
 /**
  * @return Whether the Uri authority is MediaProvider.
  */
 public fun Uri.isMediaDocument(): Boolean {
-    return "com.android.providers.media.documents" == getAuthority()
+    return "com.android.providers.media.documents" == authority
 }

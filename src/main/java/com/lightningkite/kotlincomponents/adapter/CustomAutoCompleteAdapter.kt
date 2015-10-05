@@ -34,10 +34,10 @@ public class CustomAutoCompleteAdapter<ITEM, HOLDER : CustomListAdapter.ViewHold
             if (item != null) {
                 update(item, holder)
             }
-            holder.view.setTag(holder)
+            holder.view.tag = holder
             return holder.view
         } else {
-            val holder: HOLDER? = convertView.getTag() as? HOLDER
+            val holder: HOLDER? = convertView.tag as? HOLDER
             if (item != null && holder != null) {
                 update(item, holder)
             }
@@ -61,7 +61,7 @@ public class CustomAutoCompleteAdapter<ITEM, HOLDER : CustomListAdapter.ViewHold
         override fun performFiltering(constraint: CharSequence?): Filter.FilterResults {
             if (list == null && constraint != null) return Filter.FilterResults()
             suggestions.clear()
-            for (item in list!!) {
+            for (item in list) {
                 if (stringifier(item).startsWith(constraint.toString())) {
                     suggestions.add(item)
                 }

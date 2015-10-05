@@ -32,11 +32,10 @@ public fun ViewController.inflate(context: Context, @LayoutRes layoutResource: I
     return layout;
 }
 
-public fun View.dip(value: Int): Int = getContext().dip(value)
-public val View.context: Context get() = getContext()
+public fun View.dip(value: Int): Int = context.dip(value)
 
 public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
-    assert(milliseconds > millisecondsTransition * 2, "The time shown must be at least twice as much as the transition time")
+    assert(milliseconds > millisecondsTransition * 2) { "The time shown must be at least twice as much as the transition time" }
     val originalBackground = background
     val transition = TransitionDrawable(arrayOf(originalBackground, ColorDrawable(color)))
     transition.isCrossFadeEnabled = false
@@ -94,14 +93,14 @@ public @DrawableRes val View.selectableItemBackground: Int
             // If we're running on Honeycomb or newer, then we can use the Theme's
             // selectableItemBackground to ensure that the View has a pressed state
             val outValue = TypedValue();
-            getContext().theme.resolveAttribute(R.attr.selectableItemBackground, outValue, true);
+            context.theme.resolveAttribute(R.attr.selectableItemBackground, outValue, true);
             return outValue.resourceId
         }
         return 0
     }
 
 public fun View.getActivity(): Activity? {
-    return getContext().getActivity()
+    return context.getActivity()
 }
 
 public fun Context.getActivity(): Activity? {
@@ -127,7 +126,7 @@ public inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T 
 }
 
 public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
-    val view = T::class.java.getConstructor(Context::class.java).newInstance(getContext())
+    val view = T::class.java.getConstructor(Context::class.java).newInstance(context)
     view.setup();
     addView(view)
     return view
@@ -154,7 +153,7 @@ public fun EditText.onDone(action: (text: String) -> Unit) {
 
 private val cachedPoint: Point = Point()
 public val View.screenSize: Point get() {
-    getContext().windowManager.defaultDisplay.getSize(cachedPoint)
+    context.windowManager.defaultDisplay.getSize(cachedPoint)
     return cachedPoint
 }
 public val View.parentView: View get() {

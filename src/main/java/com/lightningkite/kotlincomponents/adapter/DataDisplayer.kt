@@ -30,10 +30,10 @@ public open class DataDisplayerAdapter<ITEM>(var list: List<ITEM>, val make: Dat
             val holder: DataDisplayer<ITEM> = make()
             val view = holder.create()
             holder.update(item)
-            view.setTag(holder)
+            view.tag = holder
             return view
         } else {
-            (convertView.getTag() as? DataDisplayer<ITEM>)?.update(item)
+            (convertView.tag as? DataDisplayer<ITEM>)?.update(item)
         }
         return convertView
     }

@@ -34,17 +34,17 @@ public class FilterableViewControllerAdapter<T>(
 
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View) {
-                    (v.getTag() as? AdaptableViewController<T>)?.unmake(v)
+                    (v.tag as? AdaptableViewController<T>)?.unmake(v)
                 }
 
                 override fun onViewAttachedToWindow(v: View?) {
                 }
             })
 
-            view.setTag(holder)
+            view.tag = holder
             return view
         } else {
-            (convertView.getTag() as? AdaptableViewController<T>)?.item = item
+            (convertView.tag as? AdaptableViewController<T>)?.item = item
         }
         return convertView
     }

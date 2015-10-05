@@ -38,20 +38,20 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val newPosition = if (position == getCount()) -1 else position
+                val newPosition = if (position == count) -1 else position
                 listener.onItemSelected(parent, view, newPosition, id)
             }
         })
     }
 
     override fun setSelection(position: Int) {
-        if (position == -1) super.setSelection(getCount())
+        if (position == -1) super.setSelection(count)
         else super.setSelection(position)
     }
 
     override fun getSelectedItemPosition(): Int {
         val superResult = super.getSelectedItemPosition()
-        return if (superResult == getCount()) -1
+        return if (superResult == count) -1
         else superResult
     }
 
@@ -75,7 +75,7 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
 
     private inner class AdapterWrapper(val innerAdapter: SpinnerAdapter) : BaseAdapter() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-            if (position == getCount()) {
+            if (position == count) {
                 return hint
             } else {
                 val oldView = if (convertView != hint) convertView else null
@@ -88,17 +88,17 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
         }
 
         override fun getItem(position: Int): Any? {
-            if (position < getCount()) return innerAdapter.getItem(position)
+            if (position < count) return innerAdapter.getItem(position)
             else return null
         }
 
         override fun getItemId(position: Int): Long {
-            if (position < getCount()) return innerAdapter.getItemId(position)
+            if (position < count) return innerAdapter.getItemId(position)
             else return -1
         }
 
         override fun getCount(): Int {
-            return innerAdapter.getCount()
+            return innerAdapter.count
         }
     }
 }

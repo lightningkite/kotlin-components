@@ -30,10 +30,10 @@ public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
             if (item != null) {
                 update(item, holder)
             }
-            holder.view.setTag(holder)
+            holder.view.tag = holder
             return holder.view
         } else {
-            val holder: HOLDER? = convertView.getTag() as? HOLDER
+            val holder: HOLDER? = convertView.tag as? HOLDER
             if (item != null && holder != null) {
                 update(item, holder)
             }

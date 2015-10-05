@@ -12,7 +12,7 @@ import java.util.*
 /**
  * Created by jivie on 7/24/15.
  */
-public class ViewControllerView(activity: Activity,
+public open class ViewControllerView(activity: Activity,
                                 startVC: ViewController,
                                 intentListener: ViewControllerView.IntentListener,
                                 tag: String = "default",
@@ -62,8 +62,8 @@ public class ViewControllerView(activity: Activity,
         if (stack.size() <= 1) return false
         val oldController = stack.pop()
         val newController = stack.last()
-        (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
+        (oldController.onResult)(oldController.result);
         oldController.dispose()
         onStackChange(this)
         return true
@@ -130,7 +130,7 @@ public class ViewControllerView(activity: Activity,
 
     public fun dispose() {
         if (currentView != null) {
-            stack.last().unmake(currentView!!)
+            stack.lastOrNull()?.unmake(currentView!!)
         }
         while (stack.isNotEmpty()) {
             stack.pop().dispose()

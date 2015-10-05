@@ -16,6 +16,23 @@ public class ViewControllerAdapter<T>(
         private val maker: (T) -> AdaptableViewController<T>
 ) : BaseAdapter() {
 
+    public companion object {
+        public fun <T> quick(
+                context: Context,
+                stack: ViewControllerStack,
+                list: List<T>,
+                makeFunction: AdaptableViewController<T>.() -> View
+        ): ViewControllerAdapter<T> {
+            return ViewControllerAdapter(context, stack, list, fun(it: T): AdaptableViewController<T> {
+                return object : AdaptableViewControllerImpl<T>(it) {
+                    override fun make(context: Context, stack: ViewControllerStack): View {
+                        return this.makeFunction()
+                    }
+                }
+            })
+        }
+    }
+
     private val viewControllers: ArrayList<AdaptableViewController<T>> = ArrayList()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {

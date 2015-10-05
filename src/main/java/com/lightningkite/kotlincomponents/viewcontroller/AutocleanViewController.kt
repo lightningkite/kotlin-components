@@ -11,6 +11,7 @@ import java.util.*
  */
 public abstract class AutocleanViewController : ViewController {
 
+
     private val autoDispose: ArrayList<Disposable> = ArrayList()
     private val listeners: ArrayList<Listener> = ArrayList()
     private val innerViews: MutableMap<ViewController, View> = HashMap()

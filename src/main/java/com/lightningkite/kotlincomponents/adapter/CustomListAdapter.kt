@@ -11,7 +11,7 @@ import java.util.*
  * *
  * @param  The view holder class for retaining references to view's components.
  */
-@deprecated("Use AdaptableViewControllers instead.")
+@Deprecated("Use AdaptableViewControllers instead.")
 public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
 (
         maker: () -> HOLDER,

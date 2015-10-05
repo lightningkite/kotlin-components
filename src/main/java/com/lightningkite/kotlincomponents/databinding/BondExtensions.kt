@@ -25,7 +25,7 @@ public fun EditText.bindString(bond: Bond<String>) {
         }
     }
     bond.bind {
-        if (!bond.get().equals(getText().toString())) {
+        if (!bond.get().equals(text.toString())) {
             this.setText(bond.get())
         }
     }
@@ -42,7 +42,7 @@ public fun EditText.bindInt(bond: Bond<Int>) {
         }
     }
     bond.bind {
-        if (!bond.get().toString().equals(getText().toString())) {
+        if (!bond.get().toString().equals(text.toString())) {
             this.setText(bond.get())
         }
     }
@@ -50,7 +50,7 @@ public fun EditText.bindInt(bond: Bond<Int>) {
 
 public fun EditText.bindFloat(bond: Bond<Float>, format: NumberFormat) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-    val originalTextColor = this.getTextColors().getDefaultColor()
+    val originalTextColor = this.textColors.defaultColor
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
             try {
@@ -66,7 +66,7 @@ public fun EditText.bindFloat(bond: Bond<Float>, format: NumberFormat) {
         }
     }
     bond.bind {
-        val value = getText().toString().toFloat()
+        val value = text.toString().toFloat()
         if (bond.get() != value) {
             this.setText(format.format(bond.get()))
         }
@@ -124,19 +124,19 @@ public fun CheckBox.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
 
 public fun TextView.bindString(bond: Bond<String>) {
     bond.bind {
-        this.setText(bond.get())
+        this.text = bond.get()
     }
 }
 
 public fun TextView.bindAny(bond: Bond<Any>) {
     bond.bind {
-        this.setText(bond.get().toString())
+        this.text = bond.get().toString()
     }
 }
 
 public fun Spinner.bindIndex(bond: Bond<Int>) {
     bond.bind {
-        if (getSelectedItemPosition() != it) {
+        if (selectedItemPosition != it) {
             setSelection(it)
         }
     }

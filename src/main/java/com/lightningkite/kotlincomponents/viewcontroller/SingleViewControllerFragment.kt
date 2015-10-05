@@ -18,17 +18,17 @@ import android.view.ViewGroup
     abstract protected fun make(arguments: Bundle?): ViewController;
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return viewController?.make(getActivity(), this)
+        return viewController?.make(activity, this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super<Fragment>.onCreate(savedInstanceState)
-        viewController = make(getArguments())
+        super.onCreate(savedInstanceState)
+        viewController = make(arguments)
     }
 
     override fun onDestroyView() {
-        viewController?.unmake(getView())
-        super<Fragment>.onDestroyView()
+        viewController?.unmake(view)
+        super.onDestroyView()
     }
 
     override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {

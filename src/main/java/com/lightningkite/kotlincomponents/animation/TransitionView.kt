@@ -31,7 +31,9 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
     }
 
     public fun animate(tag: String, set: AnimationSet = AnimationSet.fade) {
-        val (animateIn, animateOut) = set
+        //val (animateIn, animateOut) = set
+        val animateIn = set.animateIn
+        val animateOut = set.animateOut
         val oldView = currentView
         val newView = views.get(tag) ?: return
 

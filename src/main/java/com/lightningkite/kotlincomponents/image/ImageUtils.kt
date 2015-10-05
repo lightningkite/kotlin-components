@@ -2,7 +2,6 @@ package com.lightningkite.kotlincomponents.image
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -18,7 +17,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 /**
  * Created by jivie on 8/14/15.
@@ -36,7 +35,7 @@ public fun BaseViewController.getImageFromGallery(maxDimension: Int, onResult: (
 
     stack?.startIntent(chooserIntent) { code, data ->
         if (data == null) return@startIntent
-        val imageUri = data.getData()
+        val imageUri = data.data
         onResult(context?.getBitmapFromUri(imageUri, maxDimension))
     }
 }
@@ -65,8 +64,8 @@ public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (B
 
 public fun Bitmap.rotate(degrees: Int): Bitmap {
     val matrix = Matrix()
-    val w = getWidth()
-    val h = getHeight()
+    val w = width
+    val h = height
 
     matrix.postRotate(degrees.toFloat())
 
@@ -136,7 +135,7 @@ private fun lessResolution(context: Context, fileUri: Uri, width: Int, height: I
         // First decode with inJustDecodeBounds=true to check dimensions
         options.inJustDecodeBounds = true
 
-        inputStream = context.getContentResolver().openInputStream(fileUri)
+        inputStream = context.contentResolver.openInputStream(fileUri)
         BitmapFactory.decodeStream(inputStream, null, options)
         inputStream!!.close()
 
@@ -146,7 +145,7 @@ private fun lessResolution(context: Context, fileUri: Uri, width: Int, height: I
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false
 
-        inputStream = context.getContentResolver().openInputStream(fileUri)
+        inputStream = context.contentResolver.openInputStream(fileUri)
         val returnValue = BitmapFactory.decodeStream(inputStream, null, options)
         inputStream!!.close()
 

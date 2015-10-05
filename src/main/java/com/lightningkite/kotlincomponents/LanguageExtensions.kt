@@ -1,8 +1,6 @@
 package com.lightningkite.kotlincomponents
 
-import java.util.ArrayList
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 
 /**
  * Created by jivie on 8/7/15.
@@ -35,7 +33,7 @@ fun <A, B> Collection<A>.mapOptional(toOtherFunc: (A) -> B?): ArrayList<B> {
 
 public fun Date.toCalendar(): Calendar {
     val cal = Calendar.getInstance()
-    cal.setTime(this)
+    cal.time = this
     return cal
 }
 

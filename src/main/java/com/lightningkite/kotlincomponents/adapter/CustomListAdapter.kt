@@ -3,7 +3,7 @@ package com.lightningkite.kotlincomponents.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import java.util.ArrayList
+import java.util.*
 
 /**
  * A base adapter for quickly building an adapter with a customized look.
@@ -30,10 +30,10 @@ public class CustomListAdapter<ITEM, HOLDER : CustomListAdapter.ViewHolder>
             if (item != null) {
                 update(item, holder)
             }
-            holder.view.setTag(holder)
+            holder.view.tag = holder
             return holder.view
         } else {
-            val holder: HOLDER? = convertView.getTag() as? HOLDER
+            val holder: HOLDER? = convertView.tag as? HOLDER
             if (item != null && holder != null) {
                 update(item, holder)
             }

@@ -18,12 +18,12 @@ public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
         return get()
     }
 
-    open public fun get(): T {
-        return myValue
-    }
-
     public fun set(thisRef: Any?, prop: PropertyMetadata, v: T) {
         set(v)
+    }
+
+    open public fun get(): T {
+        return myValue
     }
 
     open public fun set(v: T) {

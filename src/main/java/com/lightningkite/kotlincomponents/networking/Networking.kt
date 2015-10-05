@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.networking
 
 import com.lightningkite.kotlincomponents.async.doAsync
 import com.squareup.okhttp.*
+import java.nio.charset.Charset
 
 /**
  * Created by jivie on 9/2/15.
@@ -15,86 +16,110 @@ public object Networking {
     public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 
     public fun syncGet(headers: Headers, url: String): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "There was an exception.".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun syncPost(headers: Headers, url: String, body: RequestBody): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .post(body)
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .post(body)
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun syncPut(headers: Headers, url: String, body: RequestBody): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .put(body)
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .put(body)
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun syncPatch(headers: Headers, url: String, body: RequestBody): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .patch(body)
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .patch(body)
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun syncDelete(headers: Headers, url: String): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .delete()
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .delete()
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun syncDelete(headers: Headers, url: String, body: RequestBody): NetResponse {
-        val response = client.newCall(
-                Request.Builder()
-                        .headers(headers)
-                        .url(url)
-                        .delete(body)
-                        .build()
-        ).execute()
-        val responseBody = response.body()
-        val netResponse = NetResponse(response.code(), responseBody.bytes())
-        responseBody.close()
-        return netResponse
+        try {
+            val response = client.newCall(
+                    Request.Builder()
+                            .headers(headers)
+                            .url(url)
+                            .delete(body)
+                            .build()
+            ).execute()
+            val responseBody = response.body()
+            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            responseBody.close()
+            return netResponse
+        } catch(e: Exception) {
+            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+        }
     }
 
     public fun get(headers: Headers, url: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncGet(headers, url) }, onResult)

@@ -28,7 +28,13 @@ public object Async {
 public fun <T> doAsync(action: () -> T) {
     Async.threadPool.execute(object : Runnable {
         override fun run() {
-            val result = action()
+            try {
+                val result = action()
+            } catch(e: Exception) {
+                Async.handler.post {
+                    throw e
+                }
+            }
         }
     })
 }
@@ -36,9 +42,15 @@ public fun <T> doAsync(action: () -> T) {
 public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
     Async.threadPool.execute(object : Runnable {
         override fun run() {
-            val result = action()
-            Async.handler.post {
-                uiThread(result)
+            try {
+                val result = action()
+                Async.handler.post {
+                    uiThread(result)
+                }
+            } catch(e: Exception) {
+                Async.handler.post {
+                    throw e
+                }
             }
         }
     })

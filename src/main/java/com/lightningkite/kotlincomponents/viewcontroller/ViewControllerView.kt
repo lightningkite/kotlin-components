@@ -62,8 +62,8 @@ public class ViewControllerView(activity: Activity,
         if (stack.size() <= 1) return false
         val oldController = stack.pop()
         val newController = stack.last()
-        (oldController.onResult)(oldController.result);
         switchView(oldController, newController, animationSetPop)
+        (oldController.onResult)(oldController.result);
         oldController.dispose()
         onStackChange(this)
         return true

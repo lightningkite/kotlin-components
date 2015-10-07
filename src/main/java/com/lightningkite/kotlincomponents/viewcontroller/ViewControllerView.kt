@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.logging.logD
 import java.util.*
 
 /**
@@ -42,6 +43,7 @@ public open class ViewControllerView(activity: Activity,
     public var animationSetPop: AnimationSet? = animationSetPop
 
     init {
+        logD(stack.size())
         if (stack.isEmpty()) {
             pushView(startVC)
         } else {

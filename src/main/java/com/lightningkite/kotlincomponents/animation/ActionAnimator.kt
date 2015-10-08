@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
  */
 public class ActionAnimator<T, V>(
         target: T,
-        public var startValue: V,
+        public var startValue: V? = null,
         public val action: T.(value: V) -> Unit,
         public var interpolator: ((startVal: V, progress: Float, endVal: V) -> V)
 ) {
@@ -26,10 +26,10 @@ public class ActionAnimator<T, V>(
 
     private val runnable: Runnable = object : Runnable {
         override fun run() {
-            if (!shouldRun || endValue == null) return
+            if (!shouldRun || endValue == null || startValue == null) return
 
             timeElapsed = Math.min(timeElapsed + delta, duration)
-            val currentVal = interpolator(startValue, timeElapsed.toFloat() / duration, endValue!!)
+            val currentVal = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
             weak.get()?.action(currentVal)
 
             if (timeElapsed < duration && weak.get() != null) {
@@ -46,17 +46,23 @@ public class ActionAnimator<T, V>(
             newDelta: Long = 20L
     ) {
         stop()
-        delta = newDelta
-        duration = newDuration
-        timeElapsed = 0
-        endValue = to
-        shouldRun = true
-        handler.postDelayed(runnable, delta)
+        if (startValue == null) {
+            //jump
+            weak.get()?.action(to)
+            startValue = to
+        } else {
+            delta = newDelta
+            duration = newDuration
+            timeElapsed = 0
+            endValue = to
+            shouldRun = true
+            handler.postDelayed(runnable, delta)
+        }
     }
 
     public fun stop() {
-        if (endValue != null) {
-            startValue = interpolator(startValue, timeElapsed.toFloat() / duration, endValue!!)
+        if (endValue != null && startValue != null) {
+            startValue = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
         }
         shouldRun = false
     }

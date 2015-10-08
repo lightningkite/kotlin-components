@@ -134,8 +134,8 @@ public open class ViewControllerView(activity: Activity,
         if (currentView != null) {
             stack.lastOrNull()?.unmake(currentView!!)
         }
-        while (stack.isNotEmpty()) {
-            stack.pop().dispose()
+        for(vc in stack){
+            vc.dispose()
         }
     }
 

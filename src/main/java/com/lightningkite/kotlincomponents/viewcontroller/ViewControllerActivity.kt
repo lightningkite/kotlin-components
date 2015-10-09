@@ -8,15 +8,19 @@ import android.view.View
  */
 abstract class ViewControllerActivity(id: String) : IntentSenderActivity() {
 
-    abstract val defaultVC: ViewController
+    abstract val startViewController: ViewController
 
-    val frame: FrameViewControllerStack = FrameViewControllerStack(ViewControllerStack.get(id) { defaultVC }, this)
+    val frame: FrameViewControllerStack = FrameViewControllerStack(ViewControllerStack.get(id) { startViewController }, this)
     var view: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupBeforeCreate()
         view = frame.make(this, ViewControllerStack.dummy)
         setContentView(view)
+    }
+
+    open fun setupBeforeCreate() {
     }
 
     override fun onBackPressed() {

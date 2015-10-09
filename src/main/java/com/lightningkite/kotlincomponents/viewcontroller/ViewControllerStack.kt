@@ -26,7 +26,7 @@ public interface ViewControllerStack {
     public fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle)
             = intentSender.startIntent(intent, onResult, options)
 
-    public fun pushView(newController: ViewController, animationSet: AnimationSet?, onResult: (Any?) -> Unit) {
+    public fun pushView(newController: ViewController, animationSet: AnimationSet? = null, onResult: (Any?) -> Unit) {
         stack.push(ViewControllerData(newController, onResult))
         swap(newController, animationSet ?: defaultAnimationSetPush)
     }

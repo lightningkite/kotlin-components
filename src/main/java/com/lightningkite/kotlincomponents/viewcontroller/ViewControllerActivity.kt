@@ -1,57 +1,35 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import com.lightningkite.kotlincomponents.animation.AnimationSet
+import android.view.View
 
 /**
  * Created by jivie on 6/26/15.
  */
-public abstract class ViewControllerActivity() : Activity(), ViewControllerView.IntentListener {
+abstract class ViewControllerActivity(id: String) : IntentSenderActivity() {
 
-    public companion object {
-        public val REQUEST_CODE: Int = 127891
-    }
+    abstract val defaultVC: ViewController
 
-    lateinit var viewControllerView: ViewControllerView
-    public abstract val startViewController: ViewController
-    public open val animationSetPush: AnimationSet? get() = AnimationSet.slidePush
-    public open val animationSetPop: AnimationSet? get() = AnimationSet.slidePop
-    public open val tag: String get() = "activity"
-
-    override fun startActivityForResult(tag: String, intent: Intent, options: Bundle) {
-        startActivityForResult(intent, REQUEST_CODE, options)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CODE) {
-            viewControllerView.onActivityResult(resultCode, data)
-        }
-    }
-
-    public open fun setupBeforeCreate() {
-    }
+    val frame: FrameViewControllerStack = FrameViewControllerStack(ViewControllerStack.get(id) { defaultVC }, this)
+    var view: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBeforeCreate()
-        viewControllerView = object : ViewControllerView(this, startViewController, this, tag, animationSetPush, animationSetPop) {
-            override fun popView(): Boolean {
-                val result = super.popView()
-                if (result == false) finish()
-                return result
-            }
-        }
-        setContentView(viewControllerView)
+        view = frame.make(this, ViewControllerStack.dummy)
+        setContentView(view)
     }
 
     override fun onBackPressed() {
-        viewControllerView.popView()
+        if (!frame.popView()) {
+            super.onBackPressed()
+        }
     }
 
     override fun onDestroy() {
-        viewControllerView.dispose()
+        if (view != null) {
+            frame.unmake(view!!)
+        }
+        frame.dispose()
         super.onDestroy()
     }
 }

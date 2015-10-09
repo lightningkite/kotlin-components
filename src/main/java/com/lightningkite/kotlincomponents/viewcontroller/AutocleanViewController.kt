@@ -28,6 +28,7 @@ public abstract class AutocleanViewController : ViewController {
     }
 
     public fun <T : ViewController> ViewGroup.viewController(viewController: T, stack: ViewControllerStack = ViewControllerStack.dummy, initCode: T.() -> Unit): View {
+        viewController.initCode()
         val view = viewController.make(context, stack)
         innerViews.put(viewController, view)
         addView(view)

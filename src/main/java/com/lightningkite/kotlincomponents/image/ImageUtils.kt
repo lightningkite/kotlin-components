@@ -11,7 +11,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import com.lightningkite.kotlincomponents.files.getRealPath
-import com.lightningkite.kotlincomponents.viewcontroller.BaseViewController
+import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -23,7 +23,7 @@ import java.util.*
  * Created by jivie on 8/14/15.
  */
 
-public fun BaseViewController.getImageFromGallery(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
+public fun ViewControllerStack.getImageFromGallery(context: Context, maxDimension: Int, onResult: (Bitmap?) -> Unit) {
     val getIntent = Intent(Intent.ACTION_GET_CONTENT)
     getIntent.setType("image/*")
 
@@ -33,17 +33,15 @@ public fun BaseViewController.getImageFromGallery(maxDimension: Int, onResult: (
     val chooserIntent = Intent.createChooser(getIntent, "Select Image")
     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
 
-    stack?.startIntent(chooserIntent) { code, data ->
+    this.startIntent(chooserIntent) { code, data ->
         if (data == null) return@startIntent
         val imageUri = data.data
-        onResult(context?.getBitmapFromUri(imageUri, maxDimension))
+        onResult(context.getBitmapFromUri(imageUri, maxDimension))
     }
 }
 
-public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
-    if (context == null) return;
-
-    val folder = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+public fun ViewControllerStack.getImageFromCamera(context: Context, maxDimension: Int, onResult: (Bitmap?) -> Unit) {
+    val folder = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     if (folder == null) {
         onResult(null)
@@ -57,8 +55,8 @@ public fun BaseViewController.getImageFromCamera(maxDimension: Int, onResult: (B
     val potentialFile: Uri = Uri.fromFile(file)
 
     intent.putExtra(MediaStore.EXTRA_OUTPUT, potentialFile)
-    stack?.startIntent(intent) { code, data ->
-        onResult(context?.getBitmapFromUri(potentialFile, maxDimension))
+    this.startIntent(intent) { code, data ->
+        onResult(context.getBitmapFromUri(potentialFile, maxDimension))
     }
 }
 

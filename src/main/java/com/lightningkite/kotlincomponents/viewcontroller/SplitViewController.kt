@@ -6,13 +6,27 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.run
 import org.jetbrains.anko._LinearLayout
+import java.util.*
 
 /**
+ * Shows two view controllers side by side.
+ * Navigation just accesses the parent stack.
+ * Untested.
  * Created by jivie on 7/24/15.
  */
 public class SplitViewController(left: ViewController, right: ViewController, ratio: Float) : ViewController, ViewControllerStack {
+    override fun swap(newViewController: ViewController, animationSet: AnimationSet?) {
+    }
+
+    override val intentSender: IntentSender get() = myStack?.intentSender ?: object : IntentSender {
+        override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
+            throw UnsupportedOperationException()
+        }
+    }
+    override val stack: Stack<ViewControllerData> = ViewControllerStack.dummy.stack
 
 
     public val left: ViewController = left
@@ -22,10 +36,10 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
     public var layout: LinearLayout? = null
     public var ratio: Float = ratio
 
-    public var stack: ViewControllerStack? = null
+    public var myStack: ViewControllerStack? = null
 
     override fun make(context: Context, stack: ViewControllerStack): View {
-        this.stack = stack
+        this.myStack = stack
         layout = _LinearLayout(context).run {
             orientation = LinearLayout.HORIZONTAL
             val leftView = left.make(context, this@SplitViewController)
@@ -46,18 +60,24 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
         return layout!!
     }
 
-    override fun pushView(newController: ViewController, onResult: (result: Any?) -> Unit) {
-        stack?.pushView(newController, onResult)
+    override fun pushView(newController: ViewController, animationSet: AnimationSet?, onResult: (Any?) -> Unit) {
+        myStack?.pushView(newController, animationSet, onResult)
     }
 
-    override fun popView(): Boolean = stack?.popView() ?: false
-
-    override fun resetView(newController: ViewController) {
-        stack?.resetView(newController)
+    override fun popView(animationSet: AnimationSet?): Boolean {
+        return myStack?.popView(animationSet) ?: true
     }
 
-    override fun replaceView(newController: ViewController) {
-        stack?.replaceView(newController)
+    override fun resetView(newController: ViewController, animationSet: AnimationSet?) {
+        myStack?.resetView(newController, animationSet)
+    }
+
+    override fun replaceView(newController: ViewController, animationSet: AnimationSet?) {
+        myStack?.replaceView(newController, animationSet)
+    }
+
+    override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
+        myStack?.startIntent(intent, onResult, options)
     }
 
     override val result: Any?
@@ -82,10 +102,6 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
     override fun dispose() {
         left.dispose()
         right.dispose()
-    }
-
-    override fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit, options: Bundle) {
-        stack?.startIntent(intent, onResult, options)
     }
 
 }

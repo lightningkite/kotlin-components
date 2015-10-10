@@ -17,3 +17,21 @@ public fun Any.logI(obj: Any?) = Log.i(javaClass.simpleName, obj.toString())
 public fun Any.logW(obj: Any?) = Log.w(javaClass.simpleName, obj.toString())
 public fun Any.logE(obj: Any?) = Log.e(javaClass.simpleName, obj.toString())
 public fun Any.logWTF(obj: Any?) = Log.wtf(javaClass.simpleName, obj.toString())
+
+private fun buildDisplayList(vararg objs: Any?): String {
+    val builder = StringBuilder()
+    for (obj in objs) {
+        builder.append(obj.toString())
+        builder.append(", ")
+    }
+    if (builder.length() > 2) {
+        builder.setLength(builder.length() - 2)
+    }
+    return builder.toString()
+}
+
+public fun Any.logD(vararg objs: Any?) = Log.d(javaClass.simpleName, buildDisplayList(objs))
+public fun Any.logI(vararg objs: Any?) = Log.i(javaClass.simpleName, buildDisplayList(objs))
+public fun Any.logW(vararg objs: Any?) = Log.w(javaClass.simpleName, buildDisplayList(objs))
+public fun Any.logE(vararg objs: Any?) = Log.e(javaClass.simpleName, buildDisplayList(objs))
+public fun Any.logWTF(vararg objs: Any?) = Log.wtf(javaClass.simpleName, buildDisplayList(objs))

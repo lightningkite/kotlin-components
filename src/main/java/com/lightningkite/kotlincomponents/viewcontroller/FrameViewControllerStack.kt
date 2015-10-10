@@ -90,6 +90,7 @@ open class FrameViewControllerStack(
                 newView.animateIn(frame)
             }
         }
+        currentView = newView
         currentViewController = newViewController
     }
 }

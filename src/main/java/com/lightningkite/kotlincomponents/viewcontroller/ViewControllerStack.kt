@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.logging.logD
 import java.util.*
 
 public interface ViewControllerStack {
@@ -29,6 +30,8 @@ public interface ViewControllerStack {
     public fun pushView(newController: ViewController, animationSet: AnimationSet? = null, onResult: (Any?) -> Unit) {
         stack.push(ViewControllerData(newController, onResult))
         swap(newController, animationSet ?: defaultAnimationSetPush)
+        logD(stack)
+        logD(stack.size())
     }
 
     public fun pushView(newController: ViewController, animationSet: AnimationSet? = null): Unit
@@ -40,6 +43,8 @@ public interface ViewControllerStack {
         val newController = stack.peek()
         swap(newController, animationSet ?: defaultAnimationSetPop)
         newController.onResult(result)
+        logD(stack)
+        logD(stack.size())
         return true
     }
 
@@ -80,6 +85,7 @@ public interface ViewControllerStack {
         fun get(name: String, default: () -> ViewController): Stack<ViewControllerData> {
             return stacks.get(name) ?: Stack<ViewControllerData>().apply {
                 add(ViewControllerData(default()))
+                stacks.put(name, this)
             }
         }
 

@@ -27,10 +27,10 @@ public fun Context.dialogSingleScreen(
             }
         }
 
-        override fun popView(animationSet: AnimationSet?): Boolean {
+        override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
             dialog?.dismiss()
             dismissed = true
-            onResult(vc.result)
+            onResult(result)
             vc.dispose()
             return false
         }
@@ -62,7 +62,7 @@ public fun Activity.dialogMultiScreen(
     }
 
     fvcs = object : FrameViewControllerStack(stack, intentSender, animationSetPush, animationSetPop) {
-        override fun popView(animationSet: AnimationSet?): Boolean {
+        override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
             if (!super.popView(animationSet)) {
                 dialog?.dismiss()
                 dismissed = true

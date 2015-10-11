@@ -7,6 +7,7 @@ import android.view.View
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.logging.logD
 import java.util.*
+import kotlin.reflect.KClass
 
 public interface ViewControllerStack {
 
@@ -14,6 +15,15 @@ public interface ViewControllerStack {
     public val stack: Stack<ViewControllerData>
     public val defaultAnimationSetPush: AnimationSet? get() = AnimationSet.slidePush
     public val defaultAnimationSetPop: AnimationSet? get() = AnimationSet.slidePop
+
+    public fun logStack() {
+        val builder = StringBuilder()
+        for (data in stack) {
+            builder.append(data.controller.javaClass.simpleName)
+            builder.append(" ")
+        }
+        logD("(" + builder.toString() + ")")
+    }
 
     public fun swap(
             newViewController: ViewController,
@@ -28,31 +38,47 @@ public interface ViewControllerStack {
             = intentSender.startIntent(intent, onResult, options)
 
     public fun pushView(newController: ViewController, animationSet: AnimationSet? = null, onResult: (Any?) -> Unit) {
-        stack.push(ViewControllerData(newController, onResult))
+        stack.peek().onResult = onResult
+        stack.push(ViewControllerData(newController))
         swap(newController, animationSet ?: defaultAnimationSetPush)
-        logD(stack)
-        logD(stack.size())
     }
 
     public fun pushView(newController: ViewController, animationSet: AnimationSet? = null): Unit
             = pushView(newController, animationSet, {})
 
-    public fun popView(animationSet: AnimationSet? = null): Boolean {
-        if (stack.size() == 1) return false
-        val result = stack.pop().result
+    public fun popView(result: Any? = null, animationSet: AnimationSet? = null): Boolean {
+        if (stack.size() <= 1) return false
+        val oldController = stack.pop()
         val newController = stack.peek()
         swap(newController, animationSet ?: defaultAnimationSetPop)
         newController.onResult(result)
-        logD(stack)
-        logD(stack.size())
         return true
     }
 
-    public fun resetView(newController: ViewController, animationSet: AnimationSet? = null) {
+    public fun resetView(result: Any? = null, newController: ViewController, animationSet: AnimationSet? = null) {
+        val oldController = stack.pop()
         stack.clear()
         stack.push(ViewControllerData(newController))
         swap(newController, animationSet ?: defaultAnimationSetPush)
     }
+
+    public fun backToView(predicate: (ViewController) -> Boolean, result: Any? = null, animationSet: AnimationSet? = null) {
+        val oldController = stack.peek()
+        while (!predicate(stack.peek().controller)) {
+            stack.pop()
+            //TODO: Custom error here when predicate fails.
+        }
+        val newController = stack.peek()
+        stack.push(ViewControllerData(newController))
+        swap(newController, animationSet ?: defaultAnimationSetPop)
+        newController.onResult(result)
+    }
+
+    public fun backToView(ofType: Class<*>, result: Any? = null, animationSet: AnimationSet? = null)
+            = backToView({ it.javaClass == ofType }, result, animationSet)
+
+    public fun backToView(ofType: KClass<*>, result: Any? = null, animationSet: AnimationSet? = null)
+            = backToView(ofType.java, result, animationSet)
 
     public fun replaceView(newController: ViewController, animationSet: AnimationSet? = null) {
         stack.pop()
@@ -65,7 +91,15 @@ public interface ViewControllerStack {
             override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
             }
         }
-        override val stack: Stack<ViewControllerData> = Stack()
+        override val stack: Stack<ViewControllerData> = object : Stack<ViewControllerData>() {
+            override fun push(`object`: ViewControllerData?): ViewControllerData? {
+                return null
+            }
+
+            override fun pop(): ViewControllerData? {
+                return null
+            }
+        }
 
         init {
             stack.add(ViewControllerData(object : ViewController {
@@ -73,6 +107,10 @@ public interface ViewControllerStack {
                     return View(context)
                 }
             }))
+        }
+
+        override fun backToView(predicate: (ViewController) -> Boolean, result: Any?, animationSet: AnimationSet?) {
+
         }
 
         override fun swap(newViewController: ViewController, animationSet: AnimationSet?) {

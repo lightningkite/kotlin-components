@@ -64,12 +64,16 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
         myStack?.pushView(newController, animationSet, onResult)
     }
 
-    override fun popView(animationSet: AnimationSet?): Boolean {
-        return myStack?.popView(animationSet) ?: true
+    override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
+        return myStack?.popView(result, animationSet) ?: true
     }
 
-    override fun resetView(newController: ViewController, animationSet: AnimationSet?) {
-        myStack?.resetView(newController, animationSet)
+    override fun resetView(result: Any?, newController: ViewController, animationSet: AnimationSet?) {
+        myStack?.resetView(result, newController, animationSet)
+    }
+
+    override fun backToView(predicate: (ViewController) -> Boolean, result: Any?, animationSet: AnimationSet?) {
+        myStack?.backToView(predicate, result, animationSet)
     }
 
     override fun replaceView(newController: ViewController, animationSet: AnimationSet?) {
@@ -79,12 +83,6 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
     override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
         myStack?.startIntent(intent, onResult, options)
     }
-
-    override val result: Any?
-        get() {
-            if (left.result != null) return left.result
-            else return right.result
-        }
 
     override fun canPop(): Boolean {
         return left.canPop() && right.canPop()

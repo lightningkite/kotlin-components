@@ -22,7 +22,6 @@ open class FrameViewControllerStack(
     private var frame: FrameLayout? = null
     private var currentViewController: ViewController? = null
     private var currentView: View? = null
-    override var result: Any? = null
 
     override fun make(context: Context, stack: ViewControllerStack): View {
         frame = FrameLayout(context)
@@ -48,10 +47,8 @@ open class FrameViewControllerStack(
     }
 
 
-    override fun popView(animationSet: AnimationSet?): Boolean {
-        if (!super.popView(animationSet)) {
-            val tempResult = stack.lastOrNull()?.result
-            if (tempResult != null) result = tempResult
+    override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
+        if (!super.popView(result, animationSet)) {
             return false
         }
         return true

@@ -69,7 +69,6 @@ public interface ViewControllerStack {
             //TODO: Custom error here when predicate fails.
         }
         val newController = stack.peek()
-        stack.push(ViewControllerData(newController))
         swap(newController, animationSet ?: defaultAnimationSetPop)
         newController.onResult(result)
     }

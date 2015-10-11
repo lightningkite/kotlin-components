@@ -15,7 +15,8 @@ open class FrameViewControllerStack(
         override val stack: Stack<ViewControllerData>,
         override val intentSender: IntentSender,
         override var defaultAnimationSetPush: AnimationSet? = AnimationSet.slidePush,
-        override var defaultAnimationSetPop: AnimationSet? = AnimationSet.slidePop
+        override var defaultAnimationSetPop: AnimationSet? = AnimationSet.slidePop,
+        public var onNothingLeftToPop: () -> kotlin.Unit = {}
 ) : ViewController, ViewControllerStack {
 
 
@@ -49,6 +50,7 @@ open class FrameViewControllerStack(
 
     override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
         if (!super.popView(result, animationSet)) {
+            onNothingLeftToPop()
             return false
         }
         return true

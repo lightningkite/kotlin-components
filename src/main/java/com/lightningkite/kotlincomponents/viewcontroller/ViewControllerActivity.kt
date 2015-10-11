@@ -20,18 +20,19 @@ abstract class ViewControllerActivity() : IntentSenderActivity() {
         setupBeforeCreate()
         val stack = ViewControllerStack.get(tag) { startViewController }
         logD(stack.size())
-        frame = FrameViewControllerStack(stack, this)
+        frame = FrameViewControllerStack(stack, this) {
+            //When there is nothing left to pop, just exit.
+            finish()
+        }
         view = frame.make(this, ViewControllerStack.dummy)
         setContentView(view)
     }
 
-    open fun setupBeforeCreate() {
+    override fun onBackPressed() {
+        frame.popView()
     }
 
-    override fun onBackPressed() {
-        if (!frame.popView()) {
-            super.onBackPressed()
-        }
+    open fun setupBeforeCreate() {
     }
 
     override fun onDestroy() {

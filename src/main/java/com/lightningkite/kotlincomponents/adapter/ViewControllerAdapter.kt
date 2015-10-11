@@ -12,9 +12,18 @@ import java.util.*
 public class ViewControllerAdapter<T>(
         public val context: Context,
         public val stack: ViewControllerStack,
-        public val list: List<T>,
+        list: List<T>,
         private val maker: (T) -> AdaptableViewController<T>
 ) : BaseAdapter() {
+
+    public var list: List<T> = list
+        get() {
+            return field
+        }
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     public companion object {
         public fun <T> quick(
@@ -35,6 +44,7 @@ public class ViewControllerAdapter<T>(
 
     private val viewControllers: ArrayList<AdaptableViewController<T>> = ArrayList()
 
+    @Suppress("UNCHECKED_CAST")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val item = list.get(position)
         if (convertView == null) {

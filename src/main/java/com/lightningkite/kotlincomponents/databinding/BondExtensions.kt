@@ -1,13 +1,18 @@
 package com.lightningkite.kotlincomponents.databinding
 
+import android.content.Context
 import android.text.InputType
 import android.view.View
 import android.widget.*
+import com.lightningkite.kotlincomponents.adapter.AdaptableViewController
+import com.lightningkite.kotlincomponents.adapter.ViewControllerAdapter
+import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
 import org.jetbrains.anko.onCheckedChange
 import org.jetbrains.anko.opaque
 import org.jetbrains.anko.textChangedListener
 import org.jetbrains.anko.textColor
 import java.text.NumberFormat
+import java.util.*
 
 /**
  * Various extension functions to support bonds.
@@ -161,5 +166,13 @@ public fun <T> RadioButton.bind(bond: Bond<T>, value: T) {
         if (checked && bond.get() != value) {
             bond.set(value)
         }
+    }
+}
+
+public fun <T> ListView.bind(context: Context, bond: Bond<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
+    val thisAdapter = ViewControllerAdapter.quick(context, ViewControllerStack.dummy, ArrayList(), makeView)
+    adapter = thisAdapter
+    bond.bind {
+        thisAdapter.list = it.toArrayList()
     }
 }

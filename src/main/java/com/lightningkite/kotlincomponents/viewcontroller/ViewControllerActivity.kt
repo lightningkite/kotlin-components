@@ -1,13 +1,15 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
 import android.os.Bundle
+import android.support.annotation.DrawableRes
 import android.view.View
 import com.lightningkite.kotlincomponents.logging.logD
+import org.jetbrains.anko.backgroundResource
 
 /**
  * Created by jivie on 6/26/15.
  */
-abstract class ViewControllerActivity() : IntentSenderActivity() {
+abstract class ViewControllerActivity(@DrawableRes val backgroundResource: Int = 0) : IntentSenderActivity() {
 
     abstract val startViewController: ViewController
     abstract val tag: String
@@ -25,6 +27,7 @@ abstract class ViewControllerActivity() : IntentSenderActivity() {
             finish()
         }
         view = frame.make(this, ViewControllerStack.dummy)
+        view!!.backgroundResource = backgroundResource
         setContentView(view)
     }
 

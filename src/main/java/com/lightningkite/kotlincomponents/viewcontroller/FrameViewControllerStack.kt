@@ -19,6 +19,18 @@ open class FrameViewControllerStack(
         public var onNothingLeftToPop: () -> kotlin.Unit = {}
 ) : ViewController, ViewControllerStack {
 
+    public val onAnimationFinishListeners: LinkedList<() -> Unit> = LinkedList()
+    override fun onAnimationComplete(action: () -> Unit) {
+        if (!isAnimating) action()
+        else onAnimationFinishListeners.add(action)
+    }
+
+    private var isAnimating: Boolean = false
+    private fun onFinishAnimating() {
+        if (onAnimationFinishListeners.isEmpty()) return
+        onAnimationFinishListeners.remove(0)()
+        if (!isAnimating) onFinishAnimating()
+    }
 
     private var frame: FrameLayout? = null
     private var currentViewController: ViewController? = null
@@ -74,9 +86,12 @@ open class FrameViewControllerStack(
 
             val animateOut = animationSet?.animateOut
             if (animateOut != null) {
+                isAnimating = true
                 oldView.animateOut(frame).withEndAction {
                     oldViewController.unmake(oldView)
                     frame.removeView(oldView)
+                    isAnimating = false
+                    onFinishAnimating()
                 }.start()
             } else {
                 oldViewController.unmake(oldView)

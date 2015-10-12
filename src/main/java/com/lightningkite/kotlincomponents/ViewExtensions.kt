@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
@@ -82,9 +83,17 @@ public @ColorRes var TextView.hintTextColorResource: Int
         setHintTextColor(resources.getColor(value))
     }
 
-public fun TextView.setFont(context: Context, fileName: String) {
+public fun TextView.setFont(fileName: String) {
     val font = Typeface.createFromAsset(context.assets, fileName)
     typeface = font
+}
+
+public fun TextView.showSoftInput() {
+    context.inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+}
+
+public fun TextView.hideSoftInput() {
+    context.inputMethodManager.hideSoftInputFromWindow(this.applicationWindowToken, 0)
 }
 
 public @DrawableRes val View.selectableItemBackground: Int

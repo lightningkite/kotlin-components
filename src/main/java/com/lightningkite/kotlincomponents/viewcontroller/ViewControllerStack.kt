@@ -16,6 +16,8 @@ public interface ViewControllerStack {
     public val defaultAnimationSetPush: AnimationSet? get() = AnimationSet.slidePush
     public val defaultAnimationSetPop: AnimationSet? get() = AnimationSet.slidePop
 
+    public fun onAnimationComplete(action: () -> Unit) = action()
+
     public fun logStack() {
         val builder = StringBuilder()
         for (data in stack) {
@@ -86,6 +88,7 @@ public interface ViewControllerStack {
     }
 
     public open class DummyStack : ViewControllerStack {
+
         override val intentSender: IntentSender = object : IntentSender {
             override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
             }

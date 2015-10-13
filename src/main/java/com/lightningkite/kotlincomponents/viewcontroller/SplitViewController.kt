@@ -64,6 +64,10 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
         myStack?.pushView(newController, animationSet, onResult)
     }
 
+    override fun popViewForce(result: Any?, animationSet: AnimationSet?) {
+        myStack?.popViewForce(result, animationSet)
+    }
+
     override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
         return myStack?.popView(result, animationSet) ?: true
     }
@@ -82,10 +86,6 @@ public class SplitViewController(left: ViewController, right: ViewController, ra
 
     override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
         myStack?.startIntent(intent, onResult, options)
-    }
-
-    override fun canPop(): Boolean {
-        return left.canPop() && right.canPop()
     }
 
     override fun unmake(view: View) {

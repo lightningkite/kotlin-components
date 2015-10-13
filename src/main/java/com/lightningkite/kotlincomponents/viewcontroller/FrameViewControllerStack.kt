@@ -16,7 +16,7 @@ open class FrameViewControllerStack(
         override val intentSender: IntentSender,
         override var defaultAnimationSetPush: AnimationSet? = AnimationSet.slidePush,
         override var defaultAnimationSetPop: AnimationSet? = AnimationSet.slidePop,
-        public var onNothingLeftToPop: () -> kotlin.Unit = {}
+        public var onStackEmptiedListener: () -> kotlin.Unit = {}
 ) : ViewController, ViewControllerStack {
 
     public val onAnimationFinishListeners: LinkedList<() -> Unit> = LinkedList()
@@ -59,13 +59,8 @@ open class FrameViewControllerStack(
         super.dispose()
     }
 
-
-    override fun popView(result: Any?, animationSet: AnimationSet?): Boolean {
-        if (!super.popView(result, animationSet)) {
-            onNothingLeftToPop()
-            return false
-        }
-        return true
+    override fun onStackEmptied() {
+        onStackEmptiedListener()
     }
 
     override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {

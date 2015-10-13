@@ -32,6 +32,8 @@ public interface ViewControllerStack {
             animationSet: AnimationSet? = null
     )
 
+    public fun onStackEmptied()
+
     public fun startIntent(intent: Intent, onResult: (result: Int, data: Intent?) -> Unit = { resultCode, data -> }) {
         startIntent(intent, onResult, Bundle.EMPTY)
     }
@@ -48,13 +50,16 @@ public interface ViewControllerStack {
     public fun pushView(newController: ViewController, animationSet: AnimationSet? = null): Unit
             = pushView(newController, animationSet, {})
 
-    public fun popView(result: Any? = null, animationSet: AnimationSet? = null): Boolean {
-        if (stack.size() <= 1) return false
+    public fun popViewForce(result: Any? = null, animationSet: AnimationSet? = null) {
+        if (stack.size() <= 1) onStackEmptied()
         val oldController = stack.pop()
         val newController = stack.peek()
         swap(newController, animationSet ?: defaultAnimationSetPop)
         newController.onResult(result)
-        return true
+    }
+
+    public fun popView(result: Any? = null, animationSet: AnimationSet? = null): Boolean{
+        return stack.peek().finish(this)
     }
 
     public fun resetView(result: Any? = null, newController: ViewController, animationSet: AnimationSet? = null) {

@@ -9,11 +9,9 @@ import com.lightningkite.kotlincomponents.Disposable
  * Created by jivie on 6/26/15.
  */
 public interface ViewController : Disposable {
-    public fun make(context: Context, stack: ViewControllerStack): View
-    public fun canPop(): Boolean = true
+    public fun make(context: Context): View
     public fun unmake(view: View) {
     }
-
     override fun dispose() {
     }
     public fun getTitle(resources: Resources): String = "Untitled"

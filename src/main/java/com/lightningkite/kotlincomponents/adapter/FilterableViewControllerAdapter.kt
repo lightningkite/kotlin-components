@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
-import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
 
 /**
@@ -14,8 +14,7 @@ import java.util.*
  */
 
 public class FilterableViewControllerAdapter<T>(
-        public val context: Context,
-        public val stack: ViewControllerStack,
+        public val activity: VCActivity,
         public val fullList: List<T>,
         public val matches: T.(String) -> Boolean,
         private val maker: (T) -> AdaptableViewController<T>
@@ -29,7 +28,7 @@ public class FilterableViewControllerAdapter<T>(
         val item = list.get(position)
         if (convertView == null) {
             val holder: AdaptableViewController<T> = maker(item)
-            val view = holder.make(context, stack)
+            val view = holder.make(activity)
             viewControllers.add(holder)
 
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {

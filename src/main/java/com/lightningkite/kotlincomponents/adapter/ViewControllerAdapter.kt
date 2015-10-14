@@ -4,14 +4,13 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
 
 /**
  */
 public class ViewControllerAdapter<T>(
-        public val context: Context,
-        public val stack: ViewControllerStack,
+        public val activity: VCActivity,
         list: List<T>,
         private val maker: (T) -> AdaptableViewController<T>
 ) : BaseAdapter() {
@@ -27,14 +26,13 @@ public class ViewControllerAdapter<T>(
 
     public companion object {
         public fun <T> quick(
-                context: Context,
-                stack: ViewControllerStack,
+                activity: VCActivity,
                 list: List<T>,
                 makeFunction: AdaptableViewController<T>.() -> View
         ): ViewControllerAdapter<T> {
-            return ViewControllerAdapter(context, stack, list, fun(it: T): AdaptableViewController<T> {
+            return ViewControllerAdapter(activity, list, fun(it: T): AdaptableViewController<T> {
                 return object : AdaptableViewControllerImpl<T>(it) {
-                    override fun make(context: Context, stack: ViewControllerStack): View {
+                    override fun make(activity: VCActivity): View {
                         return this.makeFunction()
                     }
                 }
@@ -49,7 +47,7 @@ public class ViewControllerAdapter<T>(
         val item = list.get(position)
         if (convertView == null) {
             val holder: AdaptableViewController<T> = maker(item)
-            val view = holder.make(context, stack)
+            val view = holder.make(activity)
             viewControllers.add(holder)
 
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {

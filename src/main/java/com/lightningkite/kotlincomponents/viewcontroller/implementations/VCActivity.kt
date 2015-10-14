@@ -7,22 +7,22 @@ import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
-import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContext
 import org.jetbrains.anko.frameLayout
 import java.util.*
 
 /**
  * Created by jivie on 10/12/15.
  */
-abstract class VCContainerActivity: Activity(), VCContext {
+abstract class VCActivity : Activity() {
 
     companion object {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
 
-    override fun startIntent(intent: Intent, onResult: (Int, Intent?) -> Unit, options: Bundle) {
+    fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit) {
         val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
         returns[generated] = onResult
         startActivityForResult(intent, generated, options)
@@ -38,10 +38,14 @@ abstract class VCContainerActivity: Activity(), VCContext {
 
     open val defaultAnimation: AnimationSet? = AnimationSet.fade
 
+    var disposeOnComplete:Boolean = false
     var container:VCContainer? = null
-    fun attach(newContainer: VCContainer){
+    fun attach(newContainer: VCContainer, newDisposeOnComplete:Boolean = false){
+        if(disposeOnComplete) container?.dispose()
+        disposeOnComplete = newDisposeOnComplete
         container = newContainer
         newContainer.swapListener = swap
+        swap(newContainer.current, null)
     }
 
     var current:ViewController? = null
@@ -56,30 +60,33 @@ abstract class VCContainerActivity: Activity(), VCContext {
         if(old != null && oldView != null){
             if(animation == null){
                 old.unmake(oldView)
+                container?.swapComplete()
             } else {
                 val animateOut = animation.animateOut
                 oldView.animateOut(frame).withEndAction {
                     old.unmake(oldView)
+                    container?.swapComplete()
                 }.start()
                 val animateIn = animation.animateIn
                 currentView!!.animateIn(frame).start()
             }
+        } else{
+            container?.swapComplete()
         }
     }
 
     lateinit var frame:FrameLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        frame = frameLayout()
+        frame = FrameLayout(this)
+        setContentView(frame)
     }
 
     override fun onDestroy() {
+        if(disposeOnComplete) container?.dispose()
         current?.unmake(currentView!!)
-        container?.swapListener = {a, b ->}
+        container?.swapListener = null
         super.onDestroy()
     }
-
-    override val context: Context
-        get() = this
 
 }

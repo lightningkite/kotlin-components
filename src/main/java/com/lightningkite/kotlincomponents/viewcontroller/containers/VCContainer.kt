@@ -1,0 +1,20 @@
+package com.lightningkite.kotlincomponents.viewcontroller.containers
+
+import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.viewcontroller.ViewController
+import java.util.*
+
+/**
+ * Created by jivie on 10/12/15.
+ */
+abstract class VCContainer: Disposable {
+    var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
+    fun swapComplete(){
+        onSwapCompleteListeners.forEach{it()}
+        onSwapCompleteListeners.clear()
+    }
+    var swapListener:((newVC: ViewController, AnimationSet?)->Unit)? = null
+
+    abstract val current: ViewController
+}

@@ -3,7 +3,7 @@ package com.lightningkite.kotlincomponents.databinding
 import android.content.Context
 import android.view.View
 import com.lightningkite.kotlincomponents.viewcontroller.AutocleanViewController
-import com.lightningkite.kotlincomponents.viewcontroller.ViewControllerStack
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
 
 /**
@@ -50,7 +50,7 @@ public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
         listeners.clear()
     }
 
-    override fun make(context: Context, stack: ViewControllerStack) {
+    override fun make(activity: VCActivity) {
     }
 
     override fun unmake(view: View) {

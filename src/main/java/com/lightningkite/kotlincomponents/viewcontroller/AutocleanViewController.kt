@@ -4,13 +4,13 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
 
 /**
  * Created by jivie on 9/30/15.
  */
 public abstract class AutocleanViewController : ViewController {
-
 
     private val autoDispose: ArrayList<Disposable> = ArrayList()
     private val listeners: ArrayList<Listener> = ArrayList()
@@ -27,19 +27,20 @@ public abstract class AutocleanViewController : ViewController {
         return l
     }
 
-    public fun <T : ViewController> ViewGroup.viewController(viewController: T, stack: ViewControllerStack = ViewControllerStack.dummy, initCode: T.() -> Unit): View {
+    public fun <T : ViewController> ViewGroup.viewController(viewController: T, initCode: T.() -> Unit = {}): View {
+        assert(context is VCActivity)
         viewController.initCode()
-        val view = viewController.make(context, stack)
+        val view = viewController.make(context as VCActivity)
         innerViews.put(viewController, view)
         addView(view)
         return view
     }
 
-    override fun make(context: Context, stack: ViewControllerStack): View {
+    override fun make(activity: VCActivity): View {
         for (listener in listeners) {
-            listener.make(context, stack)
+            listener.make(activity)
         }
-        return View(context)
+        return View(activity)
     }
 
     override fun unmake(view: View) {
@@ -60,7 +61,7 @@ public abstract class AutocleanViewController : ViewController {
     }
 
     public interface Listener : Disposable {
-        public fun make(context: Context, stack: ViewControllerStack)
+        public fun make(activity: VCActivity)
         public fun unmake(view: View)
     }
 }

@@ -24,7 +24,7 @@ open class VCStack(): VCContainerImpl(){
         swapListener?.invoke(current, animationSet)
     }
     fun pop(animationSet: AnimationSet? = AnimationSet.slidePop){
-        stack.pop()
+        stack.pop().dispose()
         if(stack.size() == 0){
             onEmptyListener()
         } else {

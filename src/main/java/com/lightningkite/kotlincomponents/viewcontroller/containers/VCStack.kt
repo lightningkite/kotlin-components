@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Created by jivie on 10/12/15.
  */
-open class VCStack(): VCContainer(){
+open class VCStack(): VCContainerImpl(){
     override val current: ViewController get() = stack.peek()
 
     val size:Int get() = stack.size()

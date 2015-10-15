@@ -5,14 +5,17 @@ import android.database.DataSetObserver
 import android.view.ViewManager
 import android.widget.LinearLayout
 import android.widget.ListAdapter
+import com.lightningkite.kotlincomponents.vertical
 import org.jetbrains.anko.custom.ankoView
+import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.onClick
 import org.jetbrains.anko.onLongClick
+import org.jetbrains.anko.wrapContent
 
 /**
  * Created by jivie on 8/12/15.
  */
-public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
+public open class AdapterLinearLayout(context: Context, val stretchMode: Boolean) : LinearLayout(context) {
 
     init {
         orientation = LinearLayout.VERTICAL
@@ -38,7 +41,23 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
             view.onLongClick {
                 onItemLongClick.invoke(this, view, i, _adapter.getItemId(i))
             }
-            addView(view)
+            addView(view, getParams())
+        }
+    }
+
+    private fun getParams():LinearLayout.LayoutParams{
+        if(orientation == vertical){
+            if(stretchMode){
+                return LinearLayout.LayoutParams(matchParent, 0, 1f)
+            } else {
+                return LinearLayout.LayoutParams(matchParent, wrapContent)
+            }
+        } else {
+            if(stretchMode){
+                return LinearLayout.LayoutParams(0, matchParent, 1f)
+            } else {
+                return LinearLayout.LayoutParams(wrapContent, matchParent)
+            }
         }
     }
 
@@ -80,6 +99,6 @@ public class AdapterLinearLayout(context: Context) : LinearLayout(context) {
 }
 
 @Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.adapterLinearLayout() = adapterLinearLayout {}
-public inline fun ViewManager.adapterLinearLayout(init: AdapterLinearLayout.() -> Unit): AdapterLinearLayout {
-    return ankoView({ AdapterLinearLayout(it) }, init)
+public inline fun ViewManager.adapterLinearLayout(stretchMode: Boolean = false, init: AdapterLinearLayout.() -> Unit): AdapterLinearLayout {
+    return ankoView({ AdapterLinearLayout(it, stretchMode) }, init)
 }

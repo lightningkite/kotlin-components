@@ -8,13 +8,17 @@ import java.util.*
 /**
  * Created by jivie on 10/12/15.
  */
-abstract class VCContainer: Disposable {
-    var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
+interface VCContainer: Disposable{
+    var onSwapCompleteListeners: ArrayList<() -> Unit>
     fun swapComplete(){
         onSwapCompleteListeners.forEach{it()}
         onSwapCompleteListeners.clear()
     }
-    var swapListener:((newVC: ViewController, AnimationSet?)->Unit)? = null
+    var swapListener:((newVC: ViewController, AnimationSet?)->Unit)?
 
-    abstract val current: ViewController
+    val current: ViewController
+}
+abstract class VCContainerImpl: VCContainer {
+    override var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
+    override var swapListener:((newVC: ViewController, AnimationSet?)->Unit)? = null
 }

@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Created by jivie on 10/14/15.
  */
-class VCSwapper(startVC:ViewController): VCContainer(){
+class VCSwapper(startVC:ViewController): VCContainerImpl(){
 
     override var current: ViewController = startVC
 

@@ -7,7 +7,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 /**
  * Created by jivie on 10/14/15.
  */
-class VCViewController(val container:VCContainer): ViewController {
+class ContainerVC(val container:VCContainer): ViewController {
 
     var vcView:VCView? = null
 

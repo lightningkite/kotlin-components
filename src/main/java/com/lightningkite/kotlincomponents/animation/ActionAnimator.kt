@@ -35,7 +35,8 @@ public class ActionAnimator<T, V>(
             if (timeElapsed < duration && weak.get() != null) {
                 handler.postDelayed(runnable, delta)
             } else {
-                startValue = currentVal
+                startValue = endValue!!
+                weak.get()?.action(endValue!!)
             }
         }
     }
@@ -90,22 +91,22 @@ public fun interpolateARGB(from: Int, interpolationValue: Float, to: Int): Int {
 }
 
 public fun interpolateHSV(from: Int, interpolationValue: Float, to: Int): Int {
-    val thisHSV: FloatArray = FloatArray(3)
-    Color.colorToHSV(from, thisHSV)
+    val fromHSV: FloatArray = FloatArray(3)
+    Color.colorToHSV(from, fromHSV)
     val toHSV: FloatArray = FloatArray(3)
     Color.colorToHSV(to, toHSV)
 
     val fromA = Color.alpha(from)
     val toA = Color.alpha(to)
 
-    val diff = thisHSV[0].degreesTo(toHSV[0])
+    val diff = fromHSV[0].degreesTo(toHSV[0])
 
     val inv = 1 - interpolationValue
 
     val interpHSV: FloatArray = floatArrayOf(
-            thisHSV[0] + diff * interpolationValue,
-            thisHSV[1] * inv + toHSV[1] * interpolationValue,
-            thisHSV[2] * inv + toHSV[2] * interpolationValue
+            (fromHSV[0] + diff * interpolationValue + 360) % 360,
+            fromHSV[1] * inv + toHSV[1] * interpolationValue,
+            fromHSV[2] * inv + toHSV[2] * interpolationValue
     )
 
     return Color.HSVToColor((toA * interpolationValue + fromA * inv).toInt(), interpHSV)

@@ -7,7 +7,7 @@ import java.util.*
 /**
  * Created by jivie on 10/12/15.
  */
-open class VCStack(): VCContainer(){
+open class VCStack(): VCContainerImpl(){
     override val current: ViewController get() = stack.peek()
 
     val size:Int get() = stack.size()
@@ -24,7 +24,7 @@ open class VCStack(): VCContainer(){
         swapListener?.invoke(current, animationSet)
     }
     fun pop(animationSet: AnimationSet? = AnimationSet.slidePop){
-        stack.pop()
+        stack.pop().dispose()
         if(stack.size() == 0){
             onEmptyListener()
         } else {

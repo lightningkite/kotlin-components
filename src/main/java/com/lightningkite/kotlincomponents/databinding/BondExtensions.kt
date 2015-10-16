@@ -1,24 +1,24 @@
 package com.lightningkite.kotlincomponents.databinding
 
-import android.content.Context
 import android.text.InputType
 import android.view.View
 import android.widget.*
-import com.lightningkite.kotlincomponents.adapter.AdaptableViewController
-import com.lightningkite.kotlincomponents.adapter.ViewControllerAdapter
 import org.jetbrains.anko.onCheckedChange
 import org.jetbrains.anko.opaque
 import org.jetbrains.anko.textChangedListener
 import org.jetbrains.anko.textColor
 import java.text.NumberFormat
-import java.util.*
 
 /**
  * Various extension functions to support bonds.
  * Created by jivie on 7/22/15.
  */
 
-
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the text here will be updated.
+ */
 public fun EditText.bindString(bond: Bond<String>) {
     setText(bond.get())
     textChangedListener {
@@ -35,6 +35,11 @@ public fun EditText.bindString(bond: Bond<String>) {
     }
 }
 
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the integer here will be updated.
+ */
 public fun EditText.bindInt(bond: Bond<Int>) {
     inputType = (inputType and 0xFFFFFFF0.toInt()) or InputType.TYPE_CLASS_NUMBER
     setText(bond.get().toString())
@@ -52,6 +57,11 @@ public fun EditText.bindInt(bond: Bond<Int>) {
     }
 }
 
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the number here will be updated.
+ */
 public fun EditText.bindFloat(bond: Bond<Float>, format: NumberFormat) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
@@ -77,6 +87,9 @@ public fun EditText.bindFloat(bond: Bond<Float>, format: NumberFormat) {
     }
 }
 
+/**
+ * Binds this [Switch] two way to the bond.
+ */
 public fun Switch.bind(bond: Bond<Boolean>) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
@@ -126,18 +139,29 @@ public fun CheckBox.bindArray(bond: Bond<Array<Boolean>>, index: Int) {
     }
 }
 
+/**
+ * Makes this [TextView] display the value of the bond.
+ */
 public fun TextView.bindString(bond: Bond<String>) {
     bond.bind {
         this.text = bond.get()
     }
 }
 
+/**
+ * Makes this [TextView] display the value of the bond.
+ */
 public fun TextView.bindAny(bond: Bond<Any>) {
     bond.bind {
         this.text = bond.get().toString()
     }
 }
 
+/**
+ * Binds this [Spinner] two way to the bond.
+ * When the user picks a new value from the spinner, the value of the bond will change to the index of the new value.
+ * When the value of the bond changes, the item will shown will be updated.
+ */
 public fun Spinner.bindIndex(bond: Bond<Int>) {
     bond.bind {
         if (selectedItemPosition != it) {
@@ -157,6 +181,11 @@ public fun Spinner.bindIndex(bond: Bond<Int>) {
     }
 }
 
+/**
+ * Binds this [RadioButton] two way to the bond.
+ * When the user picks this radio button, [bond] is set to [value]
+ * When the value of the bond changes, it will be shown as checked if they are equal.
+ */
 public fun <T> RadioButton.bind(bond: Bond<T>, value: T) {
     bond.bind {
         isChecked = value == bond.get()

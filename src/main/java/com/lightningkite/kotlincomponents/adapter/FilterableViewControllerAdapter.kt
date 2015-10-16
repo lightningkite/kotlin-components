@@ -1,6 +1,5 @@
 package com.lightningkite.kotlincomponents.adapter
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -10,6 +9,9 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActiv
 import java.util.*
 
 /**
+ * A [ViewControllerAdapter] that implements [android.widget.Filterable], allowing it to be used in autocomplete views.
+ *
+ *
  * Created by jivie on 9/2/15.
  */
 

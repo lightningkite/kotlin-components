@@ -5,11 +5,24 @@ import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 
 /**
+ * A set of animation lambdas for transitioning between two views.
  * Created by jivie on 8/6/15.
  */
 public interface AnimationSet {
-    public val animateIn: View.(ViewGroup) -> ViewPropertyAnimator
-    public val animateOut: View.(ViewGroup) -> ViewPropertyAnimator
+    /**
+     * An animation lambda for animating the new view in.
+     * This - The view being animated.
+     * parent - the view group that contains it.
+     * @return A [ViewPropertyAnimator] ready to animate the view.  [ViewPropertyAnimator.start] needs to be called on this value to start the animation.
+     */
+    public val animateIn: View.(parent: ViewGroup) -> ViewPropertyAnimator
+    /**
+     * An animation lambda for animating the old view out.
+     * This - The view being animated.
+     * parent - the view group that contains it.
+     * @return A [ViewPropertyAnimator] ready to animate the view.  [ViewPropertyAnimator.start] needs to be called on this value to start the animation.
+     */
+    public val animateOut: View.(parent: ViewGroup) -> ViewPropertyAnimator
 
     //operator public fun component1(): View.(ViewGroup) -> ViewPropertyAnimator = animateIn
     //operator public fun component2(): View.(ViewGroup) -> ViewPropertyAnimator = animateOut

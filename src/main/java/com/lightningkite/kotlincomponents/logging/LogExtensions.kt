@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.logging
 import android.util.Log
 
 /**
+ * Functions for doing some quick logging.
  * Created by josep on 10/4/2015.
  */
 public fun Any.logD(text: String) = Log.d(javaClass.simpleName, text)

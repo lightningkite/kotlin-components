@@ -1,16 +1,13 @@
 package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
-import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
-import org.jetbrains.anko.frameLayout
 import java.util.*
 
 /**
@@ -21,6 +18,8 @@ abstract class VCActivity : Activity() {
     companion object {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
+
+    val onBackButtonStack: Stack<() -> Unit> = Stack()
 
     fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit) {
         val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
@@ -38,11 +37,8 @@ abstract class VCActivity : Activity() {
 
     open val defaultAnimation: AnimationSet? = AnimationSet.fade
 
-    var disposeOnComplete:Boolean = false
     var container:VCContainer? = null
-    fun attach(newContainer: VCContainer, newDisposeOnComplete:Boolean = false){
-        if(disposeOnComplete) container?.dispose()
-        disposeOnComplete = newDisposeOnComplete
+    fun attach(newContainer: VCContainer) {
         container = newContainer
         newContainer.swapListener = swap
         swap(newContainer.current, null)
@@ -82,8 +78,15 @@ abstract class VCActivity : Activity() {
         setContentView(frame)
     }
 
+    override fun onBackPressed() {
+        if (onBackButtonStack.isNotEmpty()) {
+            onBackButtonStack.peek()()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun onDestroy() {
-        if(disposeOnComplete) container?.dispose()
         current?.unmake(currentView!!)
         container?.swapListener = null
         super.onDestroy()

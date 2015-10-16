@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.databinding
 import java.util.*
 
 /**
+ * A bond that can have permanent listeners.
  * Created by jivie on 6/25/15.
  */
 

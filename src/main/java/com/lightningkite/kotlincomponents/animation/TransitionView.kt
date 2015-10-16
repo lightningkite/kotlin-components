@@ -8,6 +8,8 @@ import org.jetbrains.anko.custom.ankoView
 import java.util.*
 
 /**
+ * A container view that transitions between the child views.
+ * Use this class Anko-style, and append the views with the [tag] function.
  * Created by jivie on 8/26/15.
  */
 public class TransitionView(context: Context) : _FrameLayout(context) {
@@ -24,12 +26,21 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
         super.removeView(views.remove(tag))
     }
 
+    /**
+     * Tags a view with [myTag].
+     * @param myTag The tag used to access this view later.
+     */
     public fun <T : View> T.tag(myTag: String): T {
         views.put(myTag, this)
         visibility = View.INVISIBLE
         return this
     }
 
+    /**
+     * Animates using [set] to the view designated by [tag].
+     * @param tag The view to animate to.
+     * @param set The animation set for animating.
+     */
     public fun animate(tag: String, set: AnimationSet = AnimationSet.fade) {
         //val (animateIn, animateOut) = set
         val animateIn = set.animateIn

@@ -183,3 +183,15 @@ public fun <T> ListView.bindList(activity: VCActivity, bond: Bond<in List<T>>, m
         thisAdapter.list = list
     }
 }
+
+public fun <T> ListView.bindNullableList(activity: VCActivity, bond: Bond<in List<T>?>, makeView: AdaptableViewController<T>.() -> View) {
+    val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
+    adapter = thisAdapter
+    bond.bind { list ->
+        if(list == null) {
+            thisAdapter.list = ArrayList()
+        } else {
+            thisAdapter.list = list
+        }
+    }
+}

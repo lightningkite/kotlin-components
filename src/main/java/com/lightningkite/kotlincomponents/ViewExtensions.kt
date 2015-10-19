@@ -88,12 +88,16 @@ public fun TextView.setFont(fileName: String) {
     typeface = font
 }
 
-public fun TextView.showSoftInput() {
+public fun EditText.showSoftInput() {
     context.inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 }
 
-public fun TextView.hideSoftInput() {
+public fun View.hideSoftInput() {
     context.inputMethodManager.hideSoftInputFromWindow(this.applicationWindowToken, 0)
+}
+
+public fun Activity.hideSoftInput() {
+    inputMethodManager.toggleSoftInput(0, 0)
 }
 
 public @DrawableRes val View.selectableItemBackground: Int
@@ -143,6 +147,25 @@ public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
 
 public fun EditText.onDone(action: (text: String) -> Unit) {
     imeOptions = EditorInfo.IME_ACTION_DONE
+    setOnKeyListener(object : View.OnKeyListener {
+        override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+            if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                action(text.toString())
+                return true;
+            }
+            return false
+        }
+    })
+    setOnEditorActionListener(object : TextView.OnEditorActionListener {
+        override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+            action(text.toString())
+            return true;
+        }
+    })
+}
+
+public fun EditText.onSend(action: (text: String) -> Unit) {
+    imeOptions = EditorInfo.IME_ACTION_SEND
     setOnKeyListener(object : View.OnKeyListener {
         override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
             if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {

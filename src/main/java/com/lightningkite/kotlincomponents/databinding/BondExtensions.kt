@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.AdaptableViewController
 import com.lightningkite.kotlincomponents.adapter.ViewControllerAdapter
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.onCheckedChange
 import org.jetbrains.anko.opaque
 import org.jetbrains.anko.textChangedListener
@@ -168,10 +169,17 @@ public fun <T> RadioButton.bind(bond: Bond<T>, value: T) {
     }
 }
 
-/*public fun <T> ListView.bind(context: Context, bond: Bond<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
-    val thisAdapter = ViewControllerAdapter.quick(context, ViewControllerStack.dummy, ArrayList(), makeView)
+public fun <T> ListView.bindArray(activity: VCActivity, bond: Bond<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
+    val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
     adapter = thisAdapter
     bond.bind {
         thisAdapter.list = it.toArrayList()
     }
-}*/
+}
+public fun <T> ListView.bindList(activity: VCActivity, bond: Bond<in List<T>>, makeView: AdaptableViewController<T>.() -> View) {
+    val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
+    adapter = thisAdapter
+    bond.bind { list ->
+        thisAdapter.list = list
+    }
+}

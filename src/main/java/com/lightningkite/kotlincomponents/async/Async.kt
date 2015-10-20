@@ -25,6 +25,10 @@ public object Async {
     val handler: Handler = Handler(Looper.getMainLooper())
 }
 
+/**
+ * Runs [action] asynchronously.
+ * @param action The lambda to run asynchronously.
+ */
 public fun <T> doAsync(action: () -> T) {
     Async.threadPool.execute(object : Runnable {
         override fun run() {
@@ -39,6 +43,11 @@ public fun <T> doAsync(action: () -> T) {
     })
 }
 
+/**
+ * Runs [action] asynchronously with its result being dealt with on the UI thread in [uiThread].
+ * @param action The lambda to run asynchronously.
+ * @param uiThread The lambda to run with the result of [action] on the UI thread.
+ */
 public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
     Async.threadPool.execute(object : Runnable {
         override fun run() {

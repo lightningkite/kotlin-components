@@ -10,9 +10,13 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 
 /**
+ * Functions for dealing with files.
  * Created by jivie on 8/14/15.
  */
 
+/**
+ * Gets the actual path of the [Uri].
+ */
 public fun Uri.getRealPath(context: Context): String? {
 
     val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT

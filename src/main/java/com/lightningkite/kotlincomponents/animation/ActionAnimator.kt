@@ -7,6 +7,11 @@ import com.lightningkite.kotlincomponents.math.degreesTo
 import java.lang.ref.WeakReference
 
 /**
+ * Animates pretty much anything.
+ * @param target The view that is being animated on.
+ * @param startValue The initial value that should be shown or null if the first call to animate should just jump.
+ * @param action An extension function that changes the view to reflect the value passed in.
+ * @param interpolator A function that interpolates between one value and another.
  * Created by jivie on 9/28/15.
  */
 public class ActionAnimator<T, V>(
@@ -15,8 +20,8 @@ public class ActionAnimator<T, V>(
         public val action: T.(value: V) -> Unit,
         public var interpolator: ((startVal: V, progress: Float, endVal: V) -> V)
 ) {
-    public val weak: WeakReference<T> = WeakReference(target)
-    public val handler: Handler = Handler(Looper.getMainLooper())
+    private val weak: WeakReference<T> = WeakReference(target)
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
     private var endValue: V? = null
     private var duration: Long = 0
@@ -24,23 +29,12 @@ public class ActionAnimator<T, V>(
     private var timeElapsed: Long = 0
     private var shouldRun: Boolean = false
 
-    private val runnable: Runnable = object : Runnable {
-        override fun run() {
-            if (!shouldRun || endValue == null || startValue == null) return
-
-            timeElapsed = Math.min(timeElapsed + delta, duration)
-            val currentVal = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
-            weak.get()?.action(currentVal)
-
-            if (timeElapsed < duration && weak.get() != null) {
-                handler.postDelayed(runnable, delta)
-            } else {
-                startValue = endValue!!
-                weak.get()?.action(endValue!!)
-            }
-        }
-    }
-
+    /**
+     * Animates the property to the new value [to] over [newDuration] milliseconds with [newDelta] milliseconds of precision.
+     * @param to The value to animate to.
+     * @param newDuration The amount of time to animate over in milliseconds.
+     * @param newDelta The time between updates of the animation in milliseconds, defaulted to 20 milliseconds.
+     */
     public fun animate(
             to: V,
             newDuration: Long,
@@ -61,15 +55,38 @@ public class ActionAnimator<T, V>(
         }
     }
 
+    /**
+     * Immediately cancels the current animation.
+     */
     public fun stop() {
         if (endValue != null && startValue != null) {
             startValue = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
         }
         shouldRun = false
     }
+
+    private val runnable: Runnable = object : Runnable {
+        override fun run() {
+            if (!shouldRun || endValue == null || startValue == null) return
+
+            timeElapsed = Math.min(timeElapsed + delta, duration)
+            val currentVal = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
+            weak.get()?.action(currentVal)
+
+            if (timeElapsed < duration && weak.get() != null) {
+                handler.postDelayed(runnable, delta)
+            } else {
+                startValue = endValue!!
+                weak.get()?.action(endValue!!)
+            }
+        }
+    }
 }
 
-public fun interpolateARGB(from: Int, interpolationValue: Float, to: Int): Int {
+/**
+ * A function that interpolates between colors RGB style.
+ */
+public fun interpolateRGB(from: Int, interpolationValue: Float, to: Int): Int {
     val a1 = Color.alpha(from)
     val r1 = Color.red(from)
     val g1 = Color.green(from)
@@ -90,6 +107,9 @@ public fun interpolateARGB(from: Int, interpolationValue: Float, to: Int): Int {
     )
 }
 
+/**
+ * A function that interpolates between colors HSV style.
+ */
 public fun interpolateHSV(from: Int, interpolationValue: Float, to: Int): Int {
     val fromHSV: FloatArray = FloatArray(3)
     Color.colorToHSV(from, fromHSV)

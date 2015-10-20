@@ -10,6 +10,7 @@ import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.matchParent
 
 /**
+ * A [ListView]-like view that animates between different adapters
  * Created by jivie on 8/7/15.
  */
 public class AnimatedListView(context: Context) : _FrameLayout(context) {

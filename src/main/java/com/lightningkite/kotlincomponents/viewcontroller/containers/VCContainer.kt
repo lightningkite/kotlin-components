@@ -14,11 +14,15 @@ interface VCContainer: Disposable{
         onSwapCompleteListeners.forEach{it()}
         onSwapCompleteListeners.clear()
     }
-    var swapListener:((newVC: ViewController, AnimationSet?)->Unit)?
+    var swapListener:((newVC: ViewController, AnimationSet?, onFinish: ()->Unit)->Unit)?
 
     val current: ViewController
+
+    fun onBackPressed(backAction:()->Unit){
+        backAction()
+    }
 }
 abstract class VCContainerImpl: VCContainer {
     override var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
-    override var swapListener:((newVC: ViewController, AnimationSet?)->Unit)? = null
+    override var swapListener:((newVC: ViewController, AnimationSet?, onFinish: ()->Unit)->Unit)? = null
 }

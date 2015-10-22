@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.graphics.Color
 import android.widget.DatePicker
 import android.widget.TimePicker
 import java.util.Calendar
@@ -17,6 +18,15 @@ public fun Int.alpha(alpha: Int): Int {
 
 public fun Int.alpha(alpha: Float): Int {
     return (this and 0x00FFFFFF) or ((alpha.coerceIn(0f, 1f) * 0xFF).toInt() shl 24)
+}
+
+public fun Int.multiply(value: Double):Int{
+    return Color.argb(
+            Color.alpha(this),
+            (Color.red(this) * value).toInt().coerceIn(0, 255),
+            (Color.green(this) * value).toInt().coerceIn(0, 255),
+            (Color.blue(this) * value).toInt().coerceIn(0, 255)
+    )
 }
 
 public fun Calendar.modifyTimeThroughPicker(context: Context, after: (calendar: Calendar) -> Unit) {

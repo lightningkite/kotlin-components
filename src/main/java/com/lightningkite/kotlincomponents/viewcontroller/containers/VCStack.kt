@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.viewcontroller.containers
 
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import java.util.*
 
@@ -21,32 +22,58 @@ open class VCStack(): VCContainerImpl(){
 
     fun push(viewController: ViewController, animationSet: AnimationSet? = AnimationSet.slidePush) {
         stack.push(viewController)
-        swapListener?.invoke(current, animationSet)
+        swapListener?.invoke(current, animationSet){}
     }
     fun pop(animationSet: AnimationSet? = AnimationSet.slidePop){
-        stack.pop().dispose()
-        if(stack.size() == 0){
+        if(stack.size() <= 1){
             onEmptyListener()
         } else {
-            swapListener?.invoke(current, animationSet)
+            val toDispose = stack.pop()
+            swapListener?.invoke(current, animationSet){
+                toDispose.dispose()
+            }
         }
     }
     fun back(predicate: (ViewController)->Boolean, animationSet: AnimationSet? = AnimationSet.slidePop){
+        val toDispose = ArrayList<ViewController>()
         while(!predicate(stack.peek())){
-            stack.pop()
+            toDispose.add(stack.pop())
             if(stack.size() == 0) throw IllegalArgumentException("There is no view controller that matches this predicate!")
         }
-        swapListener?.invoke(current, animationSet)
+        swapListener?.invoke(current, animationSet){
+            toDispose.forEach{
+                it.dispose()
+            }
+        }
     }
     fun swap(viewController: ViewController, animationSet: AnimationSet? = null) {
-        stack.pop()
+        val toDispose = stack.pop()
         stack.push(viewController)
-        swapListener?.invoke(current, animationSet)
+        swapListener?.invoke(current, animationSet){
+            toDispose.dispose()
+        }
     }
     fun reset(viewController: ViewController, animationSet: AnimationSet? = null) {
+        val toDispose = ArrayList(stack)
         stack.clear()
         stack.push(viewController)
-        swapListener?.invoke(current, animationSet)
+        swapListener?.invoke(current, animationSet){
+            toDispose.forEach { it.dispose() }
+        }
+    }
+
+    override fun onBackPressed(backAction: () -> Unit) {
+        if(stack.size() == 0){
+            backAction()
+        } else if (stack.size() == 1){
+            current.onBackPressed {
+                backAction()
+            }
+        } else {
+            current.onBackPressed {
+                pop()
+            }
+        }
     }
 
     override fun dispose() {

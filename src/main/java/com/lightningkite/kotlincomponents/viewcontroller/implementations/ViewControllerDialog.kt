@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.view.Window
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
@@ -17,8 +18,15 @@ public fun VCActivity.dialog(
     var dismissed: Boolean = false
     val builder = AlertDialog.Builder(this)
     dialog = builder.create()
-    dialog!!.setView(vcMaker(dialog).make(this), 0, 0, 0, 0)
+    val viewController = vcMaker(dialog)
+    val view = viewController.make(this)
+    dialog!!.setView(view, 0, 0, 0, 0)
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialog.setOnDismissListener(object: DialogInterface.OnDismissListener{
+        override fun onDismiss(dialog: DialogInterface?) {
+            viewController.unmake(view)
+        }
+    })
     dialog.show()
 }
 

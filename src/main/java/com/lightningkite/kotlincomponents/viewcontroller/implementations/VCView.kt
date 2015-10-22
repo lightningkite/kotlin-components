@@ -20,7 +20,7 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
     fun attach(newContainer: VCContainer){
         container = newContainer
         newContainer.swapListener = swap
-        swap(newContainer.current, null)
+        swap(newContainer.current, null){}
     }
     fun detatch(){
         container?.swapListener = null
@@ -28,7 +28,7 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
 
     var current: ViewController? = null
     var currentView: View? = null
-    val swap = fun(vc: ViewController, preferredAnimation: AnimationSet?){
+    val swap = fun(vc: ViewController, preferredAnimation: AnimationSet?, onFinish:()->Unit){
         val oldView = currentView
         val old = current
         val animation = preferredAnimation ?: defaultAnimation
@@ -38,10 +38,12 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         if(old != null && oldView != null){
             if(animation == null){
                 old.unmake(oldView)
+                onFinish()
             } else {
                 val animateOut = animation.animateOut
                 oldView.animateOut(this).withEndAction {
                     old.unmake(oldView)
+                    onFinish()
                 }.start()
                 val animateIn = animation.animateIn
                 currentView!!.animateIn(this).start()

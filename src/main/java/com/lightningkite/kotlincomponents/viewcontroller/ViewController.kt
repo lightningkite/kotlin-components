@@ -16,4 +16,6 @@ public interface ViewController : Disposable {
     override fun dispose() {
     }
     public fun getTitle(resources: Resources): String = "Untitled"
+
+    public fun onBackPressed(backAction:()->Unit){backAction()}
 }

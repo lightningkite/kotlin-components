@@ -26,4 +26,8 @@ class ContainerVC(val container:VCContainer): ViewController {
         container.dispose()
         super.dispose()
     }
+
+    override fun onBackPressed(backAction:()->Unit) {
+        vcView?.container?.onBackPressed(backAction)
+    }
 }

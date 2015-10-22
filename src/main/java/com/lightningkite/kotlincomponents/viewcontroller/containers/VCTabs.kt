@@ -7,26 +7,26 @@ import com.lightningkite.kotlincomponents.viewcontroller.ViewController
  * Created by jivie on 10/14/15.
  */
 
-class VCTabs(startIndex:Int, vararg vcs: ViewController): VCContainerImpl(){
+class VCTabs(startIndex: Int, vararg vcs: ViewController) : VCContainerImpl() {
 
-    val viewControllers:Array<ViewController> = Array(vcs.size(), {vcs[it]})
-    var index:Int = startIndex
+    val viewControllers: Array<ViewController> = Array(vcs.size(), { vcs[it] })
+    var index: Int = startIndex
 
-    override var current: ViewController = viewControllers[index]
+    override val current: ViewController get() = viewControllers[index]
 
-    fun swap(newIndex:Int){
-        if(index == newIndex) return;
+    fun swap(newIndex: Int) {
+        if (index == newIndex) return;
         swapListener?.invoke(viewControllers[newIndex],
-                if(newIndex > index)
+                if (newIndex > index)
                     AnimationSet.slidePush
                 else
                     AnimationSet.slidePop
-        )
+        ){}
         index = newIndex
     }
 
     override fun dispose() {
-        current.dispose()
+        viewControllers.forEach { it.dispose() }
     }
 
 }

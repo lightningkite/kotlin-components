@@ -19,8 +19,6 @@ abstract class VCActivity : Activity() {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
 
-    val onBackButtonStack: Stack<() -> Unit> = Stack()
-
     fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit) {
         val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
         returns[generated] = onResult
@@ -41,12 +39,12 @@ abstract class VCActivity : Activity() {
     fun attach(newContainer: VCContainer) {
         container = newContainer
         newContainer.swapListener = swap
-        swap(newContainer.current, null)
+        swap(newContainer.current, null){}
     }
 
     var current:ViewController? = null
     var currentView: View? = null
-    val swap = fun(vc: ViewController, preferredAnimation: AnimationSet?){
+    val swap = fun(vc: ViewController, preferredAnimation: AnimationSet?, onFinish: ()->Unit){
         val oldView = currentView
         val old = current
         val animation = preferredAnimation ?: defaultAnimation
@@ -56,11 +54,13 @@ abstract class VCActivity : Activity() {
         if(old != null && oldView != null){
             if(animation == null){
                 old.unmake(oldView)
+                onFinish()
                 container?.swapComplete()
             } else {
                 val animateOut = animation.animateOut
                 oldView.animateOut(frame).withEndAction {
                     old.unmake(oldView)
+                    onFinish()
                     container?.swapComplete()
                 }.start()
                 val animateIn = animation.animateIn
@@ -79,9 +79,7 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (onBackButtonStack.isNotEmpty()) {
-            onBackButtonStack.peek()()
-        } else {
+        container?.onBackPressed{
             super.onBackPressed()
         }
     }

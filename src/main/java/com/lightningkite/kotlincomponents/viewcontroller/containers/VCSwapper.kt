@@ -12,7 +12,11 @@ class VCSwapper(startVC:ViewController): VCContainerImpl(){
     override var current: ViewController = startVC
 
     fun swap(vc:ViewController, animation:AnimationSet? = null){
-        swapListener?.invoke(vc, animation)
+        val toDispose = current
+        current = vc
+        swapListener?.invoke(vc, animation){
+            toDispose.dispose()
+        }
     }
 
     override fun dispose() {

@@ -20,7 +20,7 @@ public fun Int.alpha(alpha: Float): Int {
     return (this and 0x00FFFFFF) or ((alpha.coerceIn(0f, 1f) * 0xFF).toInt() shl 24)
 }
 
-public fun Int.multiply(value: Double):Int{
+public fun Int.colorMultiply(value: Double):Int{
     return Color.argb(
             Color.alpha(this),
             (Color.red(this) * value).toInt().coerceIn(0, 255),

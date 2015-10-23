@@ -62,9 +62,9 @@ public fun VCActivity.dialog(
 
     dialog = builder.create()
     dialog!!.setView(view, 0, 0, 0, 0)
-    dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE);
-    dialog!!.setOnDismissListener {
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialog.setOnDismissListener {
         view.detatch()
     }
-    dialog!!.show()
+    dialog.show()
 }

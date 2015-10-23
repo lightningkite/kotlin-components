@@ -11,7 +11,7 @@ import java.util.*
 open class VCStack(): VCContainerImpl(){
     override val current: ViewController get() = stack.peek()
 
-    val size:Int get() = stack.size()
+    val size:Int get() = stack.size
     val isEmpty: Boolean get() = stack.isEmpty()
     var onEmptyListener: ()->Unit = {}
 
@@ -25,7 +25,7 @@ open class VCStack(): VCContainerImpl(){
         swapListener?.invoke(current, animationSet){}
     }
     fun pop(animationSet: AnimationSet? = AnimationSet.slidePop){
-        if(stack.size() <= 1){
+        if(stack.size <= 1){
             onEmptyListener()
         } else {
             val toDispose = stack.pop()
@@ -38,7 +38,7 @@ open class VCStack(): VCContainerImpl(){
         val toDispose = ArrayList<ViewController>()
         while(!predicate(stack.peek())){
             toDispose.add(stack.pop())
-            if(stack.size() == 0) throw IllegalArgumentException("There is no view controller that matches this predicate!")
+            if(stack.size == 0) throw IllegalArgumentException("There is no view controller that matches this predicate!")
         }
         swapListener?.invoke(current, animationSet){
             toDispose.forEach{
@@ -63,9 +63,9 @@ open class VCStack(): VCContainerImpl(){
     }
 
     override fun onBackPressed(backAction: () -> Unit) {
-        if(stack.size() == 0){
+        if(stack.size == 0){
             backAction()
-        } else if (stack.size() == 1){
+        } else if (stack.size == 1){
             current.onBackPressed {
                 backAction()
             }

@@ -13,11 +13,11 @@ public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
     protected var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
     protected var myValue: T = init
 
-    public fun get(thisRef: Any?, prop: PropertyMetadata): T {
+    operator public fun getValue(thisRef: Any?, prop: PropertyMetadata): T {
         return get()
     }
 
-    public fun set(thisRef: Any?, prop: PropertyMetadata, v: T) {
+    operator public fun setValue(thisRef: Any?, prop: PropertyMetadata, v: T) {
         set(v)
     }
 

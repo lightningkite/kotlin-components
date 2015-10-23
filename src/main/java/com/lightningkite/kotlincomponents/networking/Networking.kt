@@ -28,7 +28,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "There was an exception.".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "There was an exception.".toByteArray(Charset.forName("UTF-8")))
         }
     }
 
@@ -46,7 +46,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
         }
     }
 
@@ -64,7 +64,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
         }
     }
 
@@ -82,7 +82,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
         }
     }
 
@@ -100,7 +100,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
         }
     }
 
@@ -118,7 +118,7 @@ public object Networking {
             responseBody.close()
             return netResponse
         } catch(e: Exception) {
-            return NetResponse(0, e.getMessage()?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "{\"error\":\"There was an exception.\"}".toByteArray(Charset.forName("UTF-8")))
         }
     }
 

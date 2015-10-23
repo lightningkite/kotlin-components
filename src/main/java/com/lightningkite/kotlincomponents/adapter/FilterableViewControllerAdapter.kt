@@ -63,7 +63,7 @@ public class FilterableViewControllerAdapter<T>(
     }
 
     override fun getCount(): Int {
-        return list.size()
+        return list.size
     }
 
     public fun update() {
@@ -84,7 +84,7 @@ public class FilterableViewControllerAdapter<T>(
                 }
             }
             val results = Filter.FilterResults()
-            results.count = suggestions.size()
+            results.count = suggestions.size
             results.values = suggestions
             return results
         }

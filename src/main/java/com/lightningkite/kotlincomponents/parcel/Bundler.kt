@@ -13,7 +13,7 @@ public annotation class bundled
 
 public object Bundler {
 
-    public inline fun toBundle<reified T : Any>(toBundleObj: T): Bundle {
+    public inline fun <reified T : Any> toBundle(toBundleObj: T): Bundle {
         return toBundle(toBundleObj, T::class.java)
     }
 
@@ -31,7 +31,7 @@ public object Bundler {
         return bundle
     }
 
-    public inline fun fromBundle<reified T : Any>(bundle: Bundle, fromBundleObj: T): T {
+    public inline fun <reified T : Any> fromBundle(bundle: Bundle, fromBundleObj: T): T {
         fromBundle(bundle, fromBundleObj, T::class.java)
         return fromBundleObj
     }
@@ -63,11 +63,11 @@ public object Bundler {
             is LongArray -> bundle.putLongArray(name, value)
             is BooleanArray -> bundle.putBooleanArray(name, value)
             is String -> bundle.putString(name, value)
-            is Array<String> -> bundle.putStringArray(name, value)
+            //is Array<String> -> bundle.putStringArray(name, value) //TODO
             is Parcelable -> bundle.putParcelable(name, value)
-            is Array<Parcelable> -> bundle.putParcelableArray(name, value)
+            //is Array<Parcelable> -> bundle.putParcelableArray(name, value)
             is ArrayList<*> -> {
-                if (value.size() > 0) {
+                if (value.size > 0) {
                     val subvalue = value.get(0)
                     if (subvalue != null) {
                         when (subvalue) {
@@ -98,12 +98,12 @@ public object Bundler {
             Long::class.java -> return (bundle.getLong(name))
             Boolean::class.java -> return (bundle.getBoolean(name))
 
-            java.lang.Integer::class.java -> return (bundle.getInt(name))
-            java.lang.Short::class.java -> return (bundle.getShort(name))
-            java.lang.Byte::class.java -> return (bundle.getByte(name))
-            java.lang.Character::class.java -> return (bundle.getChar(name))
-            java.lang.Long::class.java -> return (bundle.getLong(name))
-            java.lang.Boolean::class.java -> return (bundle.getBoolean(name))
+//            java.lang.Integer::class.java -> return (bundle.getInt(name))
+//            java.lang.Short::class.java -> return (bundle.getShort(name))
+//            java.lang.Byte::class.java -> return (bundle.getByte(name))
+//            java.lang.Character::class.java -> return (bundle.getChar(name))
+//            java.lang.Long::class.java -> return (bundle.getLong(name))
+//            java.lang.Boolean::class.java -> return (bundle.getBoolean(name))
 
             IntArray::class.java -> return (bundle.getIntArray(name))
             ShortArray::class.java -> return (bundle.getShortArray(name))

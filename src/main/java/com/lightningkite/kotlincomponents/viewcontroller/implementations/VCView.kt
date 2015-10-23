@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.AbsListView
 import android.widget.FrameLayout
+import android.widget.ListView
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
+import org.jetbrains.anko.onClick
 
 /**
  * Created by jivie on 10/13/15.
@@ -34,6 +37,9 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         val animation = preferredAnimation ?: defaultAnimation
         current = vc
         currentView = vc.make(activity)
+        if(currentView !is AbsListView){
+            currentView!!.onClick {  }
+        }
         this.addView(currentView)
         if(old != null && oldView != null){
             if(animation == null){

@@ -109,7 +109,7 @@ public class ViewControllerAdapter<T>(
     }
 
     override fun getCount(): Int {
-        return list.size()
+        return list.size
     }
 
 }

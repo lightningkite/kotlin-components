@@ -25,8 +25,8 @@ private fun buildDisplayList(vararg objs: Any?): String {
         builder.append(obj.toString())
         builder.append(", ")
     }
-    if (builder.length() > 2) {
-        builder.setLength(builder.length() - 2)
+    if (builder.length > 2) {
+        builder.setLength(builder.length - 2)
     }
     return builder.toString()
 }

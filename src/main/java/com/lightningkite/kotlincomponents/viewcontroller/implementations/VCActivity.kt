@@ -37,61 +37,27 @@ abstract class VCActivity : Activity() {
 
     open val defaultAnimation: AnimationSet? = AnimationSet.fade
 
-    var container:VCContainer? = null
     fun attach(newContainer: VCContainer) {
-        container = newContainer
-        newContainer.swapListener = swap
-        swap(newContainer.current, null){}
+        vcView.attach(newContainer)
     }
 
-    var current:ViewController? = null
-    var currentView: View? = null
-    val swap = fun(vc: ViewController, preferredAnimation: AnimationSet?, onFinish: ()->Unit){
-        val oldView = currentView
-        val old = current
-        val animation = preferredAnimation ?: defaultAnimation
-        current = vc
-        currentView = vc.make(this)
-        if(currentView !is AbsListView){
-            currentView!!.onClick {  }
-        }
-        frame.addView(currentView)
-        if(old != null && oldView != null){
-            if(animation == null){
-                old.unmake(oldView)
-                onFinish()
-                container?.swapComplete()
-            } else {
-                val animateOut = animation.animateOut
-                oldView.animateOut(frame).withEndAction {
-                    old.unmake(oldView)
-                    onFinish()
-                    container?.swapComplete()
-                }.start()
-                val animateIn = animation.animateIn
-                currentView!!.animateIn(frame).start()
-            }
-        } else{
-            container?.swapComplete()
-        }
-    }
+    lateinit var vcView: VCView
 
-    lateinit var frame:FrameLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        frame = FrameLayout(this)
-        setContentView(frame)
+        vcView = VCView(this)
+        setContentView(vcView)
     }
 
     override fun onBackPressed() {
-        container?.onBackPressed{
+        vcView.container?.onBackPressed{
             super.onBackPressed()
-        }
+        } ?: super.onBackPressed()
     }
 
     override fun onDestroy() {
-        current?.unmake(currentView!!)
-        container?.swapListener = null
+        vcView.detatch()
+        vcView.unmake()
         super.onDestroy()
     }
 

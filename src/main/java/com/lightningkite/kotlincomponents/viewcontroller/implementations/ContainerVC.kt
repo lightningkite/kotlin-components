@@ -7,7 +7,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 /**
  * Created by jivie on 10/14/15.
  */
-class ContainerVC(val container:VCContainer): ViewController {
+class ContainerVC(val container:VCContainer, val disposeContainer:Boolean = true): ViewController {
 
     var vcView:VCView? = null
 
@@ -19,11 +19,14 @@ class ContainerVC(val container:VCContainer): ViewController {
 
     override fun unmake(view: View) {
         vcView?.detatch()
+        vcView?.unmake()
         super.unmake(view)
     }
 
     override fun dispose() {
-        container.dispose()
+        if(disposeContainer) {
+            container.dispose()
+        }
         super.dispose()
     }
 

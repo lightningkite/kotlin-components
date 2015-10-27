@@ -51,6 +51,7 @@ public abstract class AutocleanViewController : ViewController {
         for ((controller, innerView) in innerViews) {
             controller.unmake(innerView)
         }
+        innerViews.clear()
         super.unmake(view)
     }
 

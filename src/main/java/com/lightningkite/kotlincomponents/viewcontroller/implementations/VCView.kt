@@ -8,6 +8,7 @@ import android.widget.AbsListView
 import android.widget.FrameLayout
 import android.widget.ListView
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import org.jetbrains.anko.onClick

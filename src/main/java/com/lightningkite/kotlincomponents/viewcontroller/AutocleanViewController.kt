@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
 

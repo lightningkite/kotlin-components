@@ -10,6 +10,10 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActiv
  * Created by jivie on 6/26/15.
  */
 public interface ViewController : Disposable {
+    object EMPTY : ViewController {
+        override fun make(activity: VCActivity): View = View(activity)
+    }
+
     public fun make(activity: VCActivity): View
     public fun unmake(view: View) {
     }

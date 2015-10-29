@@ -58,5 +58,25 @@ public interface AnimationSet {
                 animate().translationX(it.width.toFloat()).setDuration(300)
             }
         }
+        public val slideUp: AnimationSet = object : AnimationSet {
+            override val animateIn: View.(ViewGroup) -> ViewPropertyAnimator = {
+                translationY = it.height.toFloat()
+                animate().translationY(0f).setDuration(300)
+            }
+            override val animateOut: View.(ViewGroup) -> ViewPropertyAnimator = {
+                translationY = 0f
+                animate().translationY(-it.height.toFloat()).setDuration(300)
+            }
+        }
+        public val slideDown: AnimationSet = object : AnimationSet {
+            override val animateIn: View.(ViewGroup) -> ViewPropertyAnimator = {
+                translationY = (-it.height.toFloat())
+                animate().translationY(0f).setDuration(300)
+            }
+            override val animateOut: View.(ViewGroup) -> ViewPropertyAnimator = {
+                translationY = 0f
+                animate().translationY(it.height.toFloat()).setDuration(300)
+            }
+        }
     }
 }

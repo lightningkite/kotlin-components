@@ -1,7 +1,9 @@
 package com.lightningkite.kotlincomponents.ui
 
+import android.util.Log
 import android.widget.AbsListView
 import android.widget.ListView
+import com.lightningkite.kotlincomponents.logging.logD
 
 /**
  * Created by jivie on 10/23/15.
@@ -16,7 +18,9 @@ class ScrollStatus(): AbsListView.OnScrollListener{
     public val visibleItemCount:Int get() = _visibleItemCount
     public val totalItemCount:Int get() = _totalItemCount
     public val lastVisibleItem:Int get() = _firstVisibleItem + _visibleItemCount
-    public val isAtBottom:Boolean get() = _totalItemCount <= firstVisibleItem + visibleItemCount
+    public val isAtBottom:Boolean get() {
+        return _totalItemCount <= _firstVisibleItem + _visibleItemCount
+    }
     public val isAtTop:Boolean get() = _firstVisibleItem == 0
 
     override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {

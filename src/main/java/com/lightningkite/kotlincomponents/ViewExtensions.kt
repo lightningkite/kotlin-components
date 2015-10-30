@@ -12,6 +12,7 @@ import android.os.Build
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
+import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -19,7 +20,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebView
 import android.widget.*
+import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
 
@@ -199,6 +202,26 @@ public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction:
         override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
             onClickAction(adapter.getItem(position) as T)
         }
+    }
+}
+
+public fun WebView.javascript(function:String, vararg arguments:Any?){
+    val stringArguments = arguments.map{
+        when(it){
+            is String -> "\"$it\""
+            is Int -> it.toString()
+            is Long -> it.toString()
+            is Float -> it.toString()
+            is Double -> it.toString()
+            is Char -> "'$it'"
+            else -> throw IllegalArgumentException()
+        }
+    }
+    val call = function + "(" + stringArguments.joinToString(", ") + ");"
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+        evaluateJavascript(call, null);
+    } else {
+        loadUrl("javascript:"+call);
     }
 }
 

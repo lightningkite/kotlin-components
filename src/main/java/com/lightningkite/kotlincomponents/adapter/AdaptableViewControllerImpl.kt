@@ -8,4 +8,5 @@ import com.lightningkite.kotlincomponents.databinding.Bond
  */
 public abstract class AdaptableViewControllerImpl<T>(initial: T) : AdaptableViewController<T> {
     override var itemBond: Bond<T> = Bond(initial)
+    override var index:Int = 0
 }

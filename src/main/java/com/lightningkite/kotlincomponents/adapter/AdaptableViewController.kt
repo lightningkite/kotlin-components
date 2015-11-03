@@ -20,7 +20,8 @@ public interface AdaptableViewController<T> : ViewController {
         get() = itemBond.get()
         set(value) = itemBond.set(value)
 
-    override fun unmake(view: View) {
-        itemBond.unmake(view)
-    }
+    /**
+     * The index of the item this view controller is supposed to be displaying.
+     */
+    public var index:Int
 }

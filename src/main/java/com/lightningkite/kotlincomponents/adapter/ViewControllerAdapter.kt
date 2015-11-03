@@ -73,9 +73,10 @@ public class ViewControllerAdapter<T>(
 
     @Suppress("UNCHECKED_CAST")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-        val item = list.get(position)
+        val item = list[position]
         if (convertView == null) {
             val holder: AdaptableViewController<T> = maker(item)
+            holder.index = position
             val view = holder.make(activity)
             viewControllers.add(holder)
 
@@ -91,6 +92,7 @@ public class ViewControllerAdapter<T>(
             view.tag = holder
             return view
         } else {
+            (convertView.tag as? AdaptableViewController<T>)?.index = position
             (convertView.tag as? AdaptableViewController<T>)?.item = item
         }
         return convertView
@@ -101,7 +103,7 @@ public class ViewControllerAdapter<T>(
     }
 
     override fun getItem(position: Int): Any? {
-        return list.get(position)
+        return list[position]
     }
 
     override fun getItemId(position: Int): Long {

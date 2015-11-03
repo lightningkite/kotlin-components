@@ -47,6 +47,7 @@ public class FilterableViewControllerAdapter<T>(
         } else {
             (convertView.tag as? AdaptableViewController<T>)?.item = item
         }
+        (convertView.tag as? AdaptableViewController<T>)?.index = position
         return convertView
     }
 

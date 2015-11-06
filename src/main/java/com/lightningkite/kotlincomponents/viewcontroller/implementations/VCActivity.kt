@@ -26,11 +26,8 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0) {
-            returns[requestCode]?.invoke(resultCode, data)
-            returns.remove(requestCode)
-        }
+        returns[requestCode]?.invoke(resultCode, data)
+        returns.remove(requestCode)
     }
 
     open val defaultAnimation: AnimationSet? = AnimationSet.fade

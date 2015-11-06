@@ -7,7 +7,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActiv
 import java.util.*
 
 /**
- * Creates an adapter that uses [ViewController]s for showing the data.
+ * Creates an adapter that uses [com.lightningkite.kotlincomponents.viewcontroller.ViewController]s for showing the data.
  * This constructor will typically not be used, as it is more verbose.  Take a look at [ViewControllerAdapter.quick] instead.
  *
  * @param activity The VCActivity that the view controllers should use for creating their views.

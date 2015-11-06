@@ -1,14 +1,13 @@
 package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.view.Window
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
-import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
 
 /**
+ * Allows you to create a dialog using a view controller.
  * Created by jivie on 9/25/15.
  */
 public fun VCActivity.dialog(
@@ -27,23 +26,6 @@ public fun VCActivity.dialog(
             viewController.unmake(view)
         }
     })
-    dialog.show()
-}
-
-public fun VCActivity.dialog(
-        container: VCContainer
-) {
-    var dialog: AlertDialog? = null
-    var dismissed: Boolean = false
-    val builder = AlertDialog.Builder(this)
-    val view = VCView(this)
-    view.attach(container)
-    dialog = builder.create()
-    dialog!!.setView(view, 0, 0, 0, 0)
-    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-    dialog.setOnDismissListener {
-        view.detatch()
-    }
     dialog.show()
 }
 

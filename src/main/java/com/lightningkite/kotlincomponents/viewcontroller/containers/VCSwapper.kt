@@ -2,9 +2,10 @@ package com.lightningkite.kotlincomponents.viewcontroller.containers
 
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
-import java.util.*
 
 /**
+ * The simplest [VCContainer] implementation.  Can swap the [ViewController] that is visible for
+ * another one.  Keeps no history of past [ViewController]s.
  * Created by jivie on 10/14/15.
  */
 class VCSwapper(startVC:ViewController): VCContainerImpl(){

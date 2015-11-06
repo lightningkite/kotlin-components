@@ -3,16 +3,14 @@ package com.lightningkite.kotlincomponents.viewcontroller.implementations
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.AbsListView
-import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.animation.AnimationSet
-import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
-import org.jetbrains.anko.onClick
 import java.util.*
 
 /**
+ * All activities hosting [ViewController]s must be extended from this one.
+ * It handles the calling of other activities with [onActivityResult], the attaching of a
+ * [VCContainer], and use the back button on the [VCContainer].
  * Created by jivie on 10/12/15.
  */
 abstract class VCActivity : Activity() {

@@ -13,6 +13,7 @@ import org.jetbrains.anko.onLongClick
 import org.jetbrains.anko.wrapContent
 
 /**
+ * A linear layout that can use an adapter.
  * Created by jivie on 8/12/15.
  */
 public open class AdapterLinearLayout(context: Context, val stretchMode: Boolean) : LinearLayout(context) {

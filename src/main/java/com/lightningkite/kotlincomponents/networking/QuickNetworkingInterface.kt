@@ -5,6 +5,7 @@ import com.squareup.okhttp.Headers
 import com.squareup.okhttp.RequestBody
 
 /**
+ * Give you all of the networking calls, but using the same set of headers across all of them.
  * Created by jivie on 9/3/15.
  */
 public open class QuickNetworkingInterface(

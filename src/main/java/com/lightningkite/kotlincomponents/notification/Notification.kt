@@ -10,7 +10,7 @@ import android.widget.RemoteViews
 import org.jetbrains.anko.notificationManager
 
 /**
- * H
+ * Used to conveniently make notifications.
  * Created by jivie on 9/14/15.
  */
 

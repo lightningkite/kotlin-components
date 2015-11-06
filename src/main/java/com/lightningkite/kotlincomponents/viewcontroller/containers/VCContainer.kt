@@ -6,6 +6,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import java.util.*
 
 /**
+ * Something that contains [ViewController]s and handles the changes between them.
  * Created by jivie on 10/12/15.
  */
 interface VCContainer: Disposable{

@@ -8,6 +8,7 @@ import com.google.gson.JsonParser
 import com.lightningkite.kotlincomponents.BasicGson
 
 /**
+ * Represents a response from the network.  It can be anything, so it's stored in a byte array.
  * Created by jivie on 9/23/15.
  */
 public data class NetResponse(

@@ -1,11 +1,11 @@
 package com.lightningkite.kotlincomponents.viewcontroller.containers
 
 import com.lightningkite.kotlincomponents.animation.AnimationSet
-import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import java.util.*
 
 /**
+ * A stack of [ViewController]s.  You can [push] and [pop] them, among other things.
  * Created by jivie on 10/12/15.
  */
 open class VCStack(): VCContainerImpl(){

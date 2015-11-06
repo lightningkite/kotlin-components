@@ -17,6 +17,10 @@ public fun JsonObject.toRequestBody(): RequestBody {
     return RequestBody.create(Networking.JSON, toString())
 }
 
+public fun String.toJsonRequestBody(): RequestBody {
+    return RequestBody.create(Networking.JSON, this)
+}
+
 public fun headers(vararg test: Pair<String, String>): Headers {
     val builder = Headers.Builder()
     test.forEach { builder.add(it.first, it.second) }

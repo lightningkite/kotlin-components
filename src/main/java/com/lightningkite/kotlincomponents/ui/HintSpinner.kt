@@ -9,6 +9,7 @@ import com.lightningkite.kotlincomponents.run
 import org.jetbrains.anko.custom.ankoView
 
 /**
+ * A spinner that can have a hint.
  * Created by jivie on 8/25/15.
  */
 public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(context).run { text = "Select one" }) : Spinner(context, mode) {

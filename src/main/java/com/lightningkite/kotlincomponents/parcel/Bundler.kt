@@ -11,6 +11,11 @@ import java.util.*
 
 public annotation class bundled
 
+/**
+ * Use at your own risk, as bundling arrays and bonds is broken due to new versions of Kotlin.
+ * You probably shouldn't need this class if you are using view controllers correctly, as you can
+ * pass data between them directly.
+ */
 public object Bundler {
 
     public inline fun <reified T : Any> toBundle(toBundleObj: T): Bundle {

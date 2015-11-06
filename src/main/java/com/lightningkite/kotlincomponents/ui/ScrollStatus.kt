@@ -1,11 +1,11 @@
 package com.lightningkite.kotlincomponents.ui
 
-import android.util.Log
 import android.widget.AbsListView
 import android.widget.ListView
-import com.lightningkite.kotlincomponents.logging.logD
 
 /**
+ * When attached as a ListView scroll listener, it can be used to obtain information about where
+ * the list view is scrolled to and what items are visible.
  * Created by jivie on 10/23/15.
  */
 class ScrollStatus(): AbsListView.OnScrollListener{

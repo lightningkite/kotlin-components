@@ -1,9 +1,9 @@
 package com.lightningkite.kotlincomponents.time
 
-import org.joda.time.Interval
 import org.joda.time.Period
 
 /**
+ * Writes a more human-friendly string describing a period of time, such as "an hour" or "3 minutes"
  * Created by jivie on 11/4/15.
  */
 fun Period.humanize():String{
@@ -21,6 +21,11 @@ fun Period.humanize():String{
     if(seconds > 0) return "a second"
     return "less than a second"
 }
+
+/**
+ * Writes a more human-friendly string describing a period of time, such as "an hour" or "3 minutes".
+ * Will never display anything in seconds, but rather uses "less than a minute".
+ */
 fun Period.humanizeToMinute():String{
     if(years > 1) return "$years years"
     if(years > 0) return "a year"

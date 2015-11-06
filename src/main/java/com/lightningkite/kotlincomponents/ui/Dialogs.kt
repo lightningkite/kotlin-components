@@ -39,10 +39,10 @@ fun Activity.inputDialog(message: String, title: String, inputType: Int = InputT
                 this.inputType = inputType
             }
         }
-        positiveButton {
+        positiveButton(android.R.string.ok) {
             onResult(input.text.toString())
         }
-        negativeButton {
+        negativeButton(android.R.string.cancel) {
             onResult(null)
         }
         cancellable(true)

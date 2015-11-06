@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.animation
 
 import android.content.Context
+import android.view.Gravity
 import android.view.View
 import android.view.ViewManager
 import org.jetbrains.anko._FrameLayout
@@ -15,6 +16,7 @@ import java.util.*
 public class TransitionView(context: Context) : _FrameLayout(context) {
     private val views: HashMap<String, View> = HashMap()
     private var currentView: View = View(context)
+    public var defaultAnimation: AnimationSet = AnimationSet.fade
 
     public fun addView(tag: String, child: View) {
         super.addView(child)
@@ -24,6 +26,12 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
 
     public fun removeView(tag: String) {
         super.removeView(views.remove(tag))
+    }
+
+    override fun generateDefaultLayoutParams(): LayoutParams? {
+        val params = super.generateDefaultLayoutParams()
+        params.gravity = Gravity.CENTER
+        return params
     }
 
     /**
@@ -41,12 +49,13 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
      * @param tag The view to animate to.
      * @param set The animation set for animating.
      */
-    public fun animate(tag: String, set: AnimationSet = AnimationSet.fade) {
+    public fun animate(tag: String, set: AnimationSet = defaultAnimation) {
+        if (views[tag] == currentView) return;
         //val (animateIn, animateOut) = set
         val animateIn = set.animateIn
         val animateOut = set.animateOut
         val oldView = currentView
-        val newView = views.get(tag) ?: return
+        val newView = views[tag] ?: return
 
         newView.visibility = View.VISIBLE
         newView.animateIn(this).start()
@@ -59,7 +68,7 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
 
     public fun jump(tag: String) {
         currentView.visibility = View.INVISIBLE
-        currentView = views.get(tag)!!
+        currentView = views[tag]!!
         currentView.visibility = View.VISIBLE
     }
 }

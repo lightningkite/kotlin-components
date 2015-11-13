@@ -11,7 +11,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.ViewController
  */
 class VCTabs(startIndex: Int, vararg vcs: ViewController) : VCContainerImpl() {
 
-    val viewControllers: Array<ViewController> = Array(vcs.size(), { vcs[it] })
+    val viewControllers: Array<ViewController> = Array(vcs.size, { vcs[it] })
     var index: Int = startIndex
 
     override val current: ViewController get() = viewControllers[index]

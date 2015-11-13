@@ -31,7 +31,7 @@ public open class AdapterLinearLayout(context: Context, val stretchMode: Boolean
             notifyDataSetChanged()
         }
 
-    private fun notifyDataSetChanged() {
+    fun notifyDataSetChanged() {
         removeAllViews()
         val _adapter = _adapter ?: return
         for (i in 0.._adapter.count - 1) {

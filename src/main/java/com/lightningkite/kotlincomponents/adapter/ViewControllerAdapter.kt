@@ -114,4 +114,6 @@ public class ViewControllerAdapter<T>(
         return list.size
     }
 
+    fun getItemTyped(position: Int): T = list[position]
+
 }

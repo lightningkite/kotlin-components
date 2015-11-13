@@ -19,7 +19,7 @@ abstract class VCActivity : Activity() {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
 
-    fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit) {
+    fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit = { a, b -> }) {
         val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
         returns[generated] = onResult
         startActivityForResult(intent, generated, options)

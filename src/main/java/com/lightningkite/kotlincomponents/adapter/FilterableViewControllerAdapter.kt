@@ -22,6 +22,33 @@ public class FilterableViewControllerAdapter<T>(
         private val maker: (T) -> AdaptableViewController<T>
 ) : BaseAdapter(), Filterable {
 
+
+    public companion object {
+        /**
+         * Creates an adapter that uses [com.lightningkite.kotlincomponents.viewcontroller.ViewController]s for showing the data.
+         *
+         * @param activity The VCActivity that the view controllers should use for creating their views.
+         * @param list  A list of items you want to display.
+         * @param makeFunction An extension function on [AdaptableViewController] that returns the view.  [AdaptableViewController.itemBond] should be used to populate the data.  For more information, see [com.lightningkite.kotlincomponents.databinding.Bond].
+         *
+         * @return An adapter with the settings specified.
+         */
+        public fun <T> quick(
+                activity: VCActivity,
+                list: List<T>,
+                matches: T.(String) -> Boolean,
+                makeFunction: AdaptableViewController<T>.() -> View
+        ): FilterableViewControllerAdapter<T> {
+            return FilterableViewControllerAdapter(activity, list, matches, fun(it: T): AdaptableViewController<T> {
+                return object : AdaptableViewControllerImpl<T>(it) {
+                    override fun make(activity: VCActivity): View {
+                        return this.makeFunction()
+                    }
+                }
+            })
+        }
+    }
+
     public var list: List<T> = ArrayList()
 
     private val viewControllers: ArrayList<AdaptableViewController<T>> = ArrayList()

@@ -28,13 +28,34 @@ public fun EditText.bindString(bond: Bond<String>) {
     setText(bond.get())
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
-            if (!bond.get().equals(charSequence)) {
+            if (bond.get() != charSequence) {
                 bond.set(charSequence.toString())
             }
         }
     }
     bond.bind {
-        if (!bond.get().equals(text.toString())) {
+        if (bond.get() != text.toString()) {
+            this.setText(bond.get())
+        }
+    }
+}
+
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the text here will be updated.
+ */
+public fun EditText.bindNullableString(bond: Bond<String?>) {
+    setText(bond.get())
+    textChangedListener {
+        onTextChanged { charSequence, start, before, count ->
+            if (bond.get() != charSequence) {
+                bond.set(charSequence.toString())
+            }
+        }
+    }
+    bond.bind {
+        if (bond.get() != text.toString()) {
             this.setText(bond.get())
         }
     }

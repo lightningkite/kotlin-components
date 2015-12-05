@@ -10,6 +10,18 @@ public fun <T> T.run(runFunc: T.() -> Unit): T {
     return this
 }
 
+fun <E> List<E>.splitIntoGroupsOf(maxInGroup:Int): ArrayList<List<E>> {
+    val whole = ArrayList<List<E>>()
+    var first = 0;
+    var last = Math.min(first + maxInGroup, size);
+    repeat(size / maxInGroup + 1){
+        whole.add(subList(first, last))
+        first += maxInGroup;
+        last = Math.min(first + maxInGroup, size);
+    }
+    return whole
+}
+
 fun <E> Collection<E>.stringJoin(separator: String, toStringFunc: (E) -> String): String {
     val builder = StringBuilder()
     for (item in this) {

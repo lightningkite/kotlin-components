@@ -81,4 +81,23 @@ public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
     override fun toString(): String {
         return "Bond(" + myValue.toString() + ")"
     }
+
+    companion object {
+        fun <A> bind(first: Bond<A>, action: () -> Unit) {
+            first.bind { action() }
+        }
+
+        //Bind an action to two bonds.
+        fun <A, B> bind(first: Bond<A>, second: Bond<B>, action: () -> Unit) {
+            first.bind { action() }
+            second.bind { action() }
+        }
+
+        //Bind an action to three bonds.
+        fun <A, B, C> bind(first: Bond<A>, second: Bond<B>, third: Bond<C>, action: () -> Unit) {
+            first.bind { action() }
+            second.bind { action() }
+            third.bind { action() }
+        }
+    }
 }

@@ -12,6 +12,7 @@ import android.os.Build
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
+import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -185,6 +186,16 @@ public fun EditText.onSend(action: (text: String) -> Unit) {
         }
     })
 }
+
+var TextView.html: String get() = throw IllegalAccessException()
+    set(value){
+        val newVal = value
+                .replace("<li>", "<p>&bull; ")
+                .replace("</li>", "</p>")
+                .replace("<ul>", "")
+                .replace("</ul>", "")
+        text = Html.fromHtml(newVal)
+    }
 
 private val cachedPoint: Point = Point()
 public val View.screenSize: Point get() {

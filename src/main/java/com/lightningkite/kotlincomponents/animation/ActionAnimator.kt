@@ -74,7 +74,7 @@ public class ActionAnimator<T, V>(
             weak.get()?.action(currentVal)
 
             if (timeElapsed < duration && weak.get() != null) {
-                handler.postDelayed(runnable, delta)
+                handler.postDelayed(this, delta)
             } else {
                 startValue = endValue!!
                 weak.get()?.action(endValue!!)

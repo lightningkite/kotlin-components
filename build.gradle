@@ -37,7 +37,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'org.jetbrains.anko:anko-sdk15:0.7.2'
+    compile 'org.jetbrains.anko:anko-sdk15:0.8'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.github.salomonbrys.kotson:kotson:1.5.1'
@@ -45,7 +45,7 @@ dependencies {
     compile 'net.danlew:android.joda:2.9.0'
 }
 buildscript {
-    ext.kotlin_version = '1.0.0-beta-1103'
+    ext.kotlin_version = '1.0.0-beta-3594'
     repositories {
         mavenCentral()
     }

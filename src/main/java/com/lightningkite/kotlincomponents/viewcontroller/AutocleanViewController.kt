@@ -3,7 +3,9 @@ package com.lightningkite.kotlincomponents.viewcontroller
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCView
 import java.util.*
 
 /**
@@ -48,6 +50,20 @@ public abstract class AutocleanViewController : ViewController {
         innerViews.put(viewController, view)
         addView(view)
         return view
+    }
+
+    fun ViewGroup.viewController(container:VCContainer): VCView{
+        val vcview = VCView(context as VCActivity)
+        vcview.attach(container)
+        listeners.add(object: Listener{
+            override fun make(activity: VCActivity) {}
+            override fun dispose() {}
+            override fun unmake(view: View) {
+                vcview.detatch()
+            }
+        })
+        addView(vcview)
+        return vcview
     }
 
     /**

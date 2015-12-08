@@ -219,13 +219,15 @@ public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction:
 public fun WebView.javascript(function:String, vararg arguments:Any?){
     val stringArguments = arguments.map{
         when(it){
+            null -> "null"
             is String -> "\"$it\""
             is Int -> it.toString()
             is Long -> it.toString()
             is Float -> it.toString()
             is Double -> it.toString()
+            is Boolean -> it.toString()
             is Char -> "'$it'"
-            else -> throw IllegalArgumentException()
+            else -> throw IllegalArgumentException("type: " + it.javaClass.simpleName)
         }
     }
     val call = function + "(" + stringArguments.joinToString(", ") + ");"

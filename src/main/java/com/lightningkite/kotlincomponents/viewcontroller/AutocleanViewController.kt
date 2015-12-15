@@ -97,6 +97,8 @@ public abstract class AutocleanViewController : ViewController {
         for (disposable in autoDispose) {
             disposable.dispose()
         }
+        listeners.clear()
+        autoDispose.clear()
         super.dispose()
     }
 

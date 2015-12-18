@@ -26,3 +26,7 @@ public fun headers(vararg test: Pair<String, String>): Headers {
     test.forEach { builder.add(it.first, it.second) }
     return builder.build()
 }
+
+public fun jwtHeader(jwt: String): Headers {
+    return headers("Authorization" to "jwt " + jwt)
+}

@@ -238,6 +238,31 @@ public fun WebView.javascript(function:String, vararg arguments:Any?){
     }
 }
 
+fun verticalLayout(context: Context, setup: _LinearLayout.() -> Unit): _LinearLayout {
+    return _LinearLayout(context).apply {
+        orientation = vertical
+        setup()
+    }
+}
+
+fun linearLayout(context: Context, setup: _LinearLayout.() -> Unit): _LinearLayout {
+    val layout = _LinearLayout(context)
+    layout.setup()
+    return layout
+}
+
+fun frameLayout(context: Context, setup: _FrameLayout.() -> Unit): _FrameLayout {
+    val layout = _FrameLayout(context)
+    layout.setup()
+    return layout
+}
+
+fun relativeLayout(context: Context, setup: _RelativeLayout.() -> Unit): _RelativeLayout {
+    val layout = _RelativeLayout(context)
+    layout.setup()
+    return layout
+}
+
 //////////////////////////////DEPRECATED///////////////////////////////
 
 @Deprecated("This function is unnecessary abstraction and is therefore deprecated.",

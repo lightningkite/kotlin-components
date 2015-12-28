@@ -9,11 +9,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
-import android.support.annotation.ColorRes
-import android.support.annotation.DrawableRes
-import android.support.annotation.LayoutRes
 import android.text.Html
-import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -23,7 +19,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.widget.*
-import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
 
@@ -31,7 +26,7 @@ import org.jetbrains.anko.*
  * Created by jivie on 7/16/15.
  */
 
-public fun ViewController.inflate(context: Context, @LayoutRes layoutResource: Int, init: View.() -> Unit): View {
+public fun ViewController.inflate(context: Context, layoutResource: Int, init: View.() -> Unit): View {
     val layout = LayoutInflater.from(context).inflate(layoutResource, null);
     layout.init();
     return layout;
@@ -76,12 +71,12 @@ public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int,
 public val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
 public val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
 
-public @ColorRes var TextView.textColorResource: Int
+public var TextView.textColorResource: Int
     get() = throw IllegalAccessException()
     set(value) {
         setTextColor(resources.getColor(value))
     }
-public @ColorRes var TextView.hintTextColorResource: Int
+public var TextView.hintTextColorResource: Int
     get() = throw IllegalAccessException()
     set(value) {
         setHintTextColor(resources.getColor(value))
@@ -104,7 +99,7 @@ public fun Activity.hideSoftInput() {
     inputMethodManager.toggleSoftInput(0, 0)
 }
 
-public @DrawableRes val View.selectableItemBackground: Int
+public val View.selectableItemBackground: Int
     get() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // If we're running on Honeycomb or newer, then we can use the Theme's

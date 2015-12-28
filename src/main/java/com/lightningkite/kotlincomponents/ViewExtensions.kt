@@ -21,6 +21,7 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import org.jetbrains.anko.*
+import java.util.*
 
 /**
  * Created by jivie on 7/16/15.
@@ -82,9 +83,13 @@ public var TextView.hintTextColorResource: Int
         setHintTextColor(resources.getColor(value))
     }
 
+val fontCache: HashMap<String, Typeface> = HashMap()
 public fun TextView.setFont(fileName: String) {
-    val font = Typeface.createFromAsset(context.assets, fileName)
-    typeface = font
+    typeface = fontCache[fileName] ?: {
+        val font = Typeface.createFromAsset(context.assets, fileName)
+        fontCache[fileName] = font
+        font
+    }()
 }
 
 public fun EditText.showSoftInput() {

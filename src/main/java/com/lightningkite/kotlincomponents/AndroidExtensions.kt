@@ -6,7 +6,8 @@ import android.content.Context
 import android.graphics.Color
 import android.widget.DatePicker
 import android.widget.TimePicker
-import java.util.Calendar
+import org.jetbrains.anko.defaultSharedPreferences
+import java.util.*
 
 /**
  * Created by jivie on 7/22/15.
@@ -54,4 +55,22 @@ public fun Calendar.modifyDateThroughPicker(context: Context, after: (calendar: 
             this.get(Calendar.MONTH),
             this.get(Calendar.DAY_OF_MONTH)
     ).show()
+}
+
+public fun Context.onceEver(name: String, action: () -> Unit) {
+    val prefs = defaultSharedPreferences
+    if (!prefs.contains(name)) {
+        prefs.edit().putBoolean(name, true).commit()
+        action()
+    }
+}
+
+public fun Context.untilEver(name: String, condition: () -> Boolean, action: () -> Unit) {
+    val prefs = defaultSharedPreferences
+    if (!prefs.contains(name)) {
+        action()
+        if (condition()) {
+            prefs.edit().putBoolean(name, true).commit()
+        }
+    }
 }

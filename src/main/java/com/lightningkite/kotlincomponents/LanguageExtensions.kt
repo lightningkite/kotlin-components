@@ -1,20 +1,41 @@
 package com.lightningkite.kotlincomponents
 
+import com.lightningkite.kotlincomponents.async.doAsync
 import java.util.*
 
 /**
  * Created by jivie on 8/7/15.
  */
-public fun <T> T.run(runFunc: T.() -> Unit): T {
-    runFunc()
-    return this
+
+public inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T?, crossinline onResult: (T?) -> Unit) {
+    doAsync({
+        var timesTried: Int = 0
+        var result: T? = null
+        while (true) {
+            try {
+                result = action()
+            } catch(e: Exception) {
+                /*squish*/
+            }
+            timesTried++
+            if (result == null && timesTried < times) break
+            try {
+                Thread.sleep(delay)
+            } catch(e: InterruptedException) {
+                /*squish*/
+            }
+        }
+        result
+    }) {
+        onResult(it)
+    }
 }
 
-fun <E> List<E>.splitIntoGroupsOf(maxInGroup:Int): ArrayList<List<E>> {
+fun <E> List<E>.splitIntoGroupsOf(maxInGroup: Int): ArrayList<List<E>> {
     val whole = ArrayList<List<E>>()
     var first = 0;
     var last = Math.min(first + maxInGroup, size);
-    repeat(size / maxInGroup + 1){
+    repeat(size / maxInGroup + 1) {
         whole.add(subList(first, last))
         first += maxInGroup;
         last = Math.min(first + maxInGroup, size);

@@ -8,6 +8,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.lightningkite.kotlincomponents.BasicGson
+import org.json.JSONObject
 
 /**
  * Represents a response from the network.  It can be anything, so it's stored in a byte array.
@@ -30,7 +31,22 @@ public data class NetResponse(
             return null
         }
     }
-    public fun string(): String = rawBody.toString("UTF-8")
+
+    public fun string(): String {
+        try {
+            return rawBody.toString("UTF-8")
+        } catch(e: Exception) {
+            return ""
+        }
+    }
     public fun jsonElement(): JsonElement = JsonParser().parse(string())
     public fun jsonObject(): JsonObject = JsonParser().parse(string()) as JsonObject
+    public fun toJSONObject(): JSONObject {
+        try {
+            return JSONObject(string())
+        } catch(e: Exception) {
+            e.printStackTrace()
+            return JSONObject()
+        }
+    }
 }

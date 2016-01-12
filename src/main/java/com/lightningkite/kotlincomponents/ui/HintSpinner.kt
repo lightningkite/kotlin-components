@@ -5,14 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewManager
 import android.widget.*
-import com.lightningkite.kotlincomponents.run
 import org.jetbrains.anko.custom.ankoView
 
 /**
  * A spinner that can have a hint.
  * Created by jivie on 8/25/15.
  */
-public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(context).run { text = "Select one" }) : Spinner(context, mode) {
+public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(context).apply { text = "Select one" }) : Spinner(context, mode) {
 
     private var wrapper: AdapterWrapper? = null
 

@@ -104,7 +104,25 @@ public fun Activity.hideSoftInput() {
     inputMethodManager.toggleSoftInput(0, 0)
 }
 
-public val View.selectableItemBackground: Int
+@Deprecated("Use the properly named one, selectableItemBackgroundResource",
+        ReplaceWith(
+                "selectableItemBackgroundResource",
+                "com.lightningkite.kotlincomponents.selectableItemBackgroundResource"
+        )
+)
+val View.selectableItemBackground: Int
+    get() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // If we're running on Honeycomb or newer, then we can use the Theme's
+            // selectableItemBackground to ensure that the View has a pressed state
+            val outValue = TypedValue();
+            context.theme.resolveAttribute(R.attr.selectableItemBackground, outValue, true);
+            return outValue.resourceId
+        }
+        return 0
+    }
+
+public val View.selectableItemBackgroundResource: Int
     get() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // If we're running on Honeycomb or newer, then we can use the Theme's

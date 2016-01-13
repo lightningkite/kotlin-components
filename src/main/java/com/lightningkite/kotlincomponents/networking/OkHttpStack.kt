@@ -9,7 +9,7 @@ import java.nio.charset.Charset
 /**
  * Created by jivie on 1/13/16.
  */
-object OkHttpNetworking: NetStack {
+object OkHttpStack : NetStack {
 
     public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 

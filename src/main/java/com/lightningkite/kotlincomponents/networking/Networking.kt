@@ -11,7 +11,7 @@ import java.nio.charset.Charset
 
 public object Networking: NetStack {
 
-    var stack: NetStack = OkHttpNetworking
+    var stack: NetStack = OkHttpStack
 
     public val JSON: MediaType = MediaType.parse("application/json; charset=utf-8");
     public val HEADERS_EMPTY: Headers = Headers.Builder().build()

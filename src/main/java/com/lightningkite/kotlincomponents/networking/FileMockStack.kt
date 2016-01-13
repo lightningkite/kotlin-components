@@ -9,7 +9,7 @@ import java.io.*
 /**
  * Created by jivie on 1/13/16.
  */
-open class FileMockNetworking(val context: Context, val urlToAssetPath:(String)->String) : NetStack {
+open class FileMockStack(val context: Context, val urlToAssetPath:(String)->String) : NetStack {
 
     fun readTextFile(successCode:Int, assetPath:String): NetResponse {
         try {

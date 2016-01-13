@@ -1,6 +1,9 @@
 package com.lightningkite.kotlincomponents
 
 import com.lightningkite.kotlincomponents.async.doAsync
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 
 /**
@@ -97,3 +100,18 @@ public var Calendar.minute: Int
 public var Calendar.second: Int
     get() = get(Calendar.SECOND)
     set(value) = set(Calendar.SECOND, value)
+
+fun InputStream.toByteArray(): ByteArray {
+    val output = ByteArrayOutputStream();
+    try {
+        val b = ByteArray(4096);
+        var n = read(b);
+        while (n != -1) {
+            output.write(b, 0, n);
+            n = read(b)
+        }
+        return output.toByteArray();
+    } finally {
+        output.close();
+    }
+}

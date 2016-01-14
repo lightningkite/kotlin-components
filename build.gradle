@@ -26,9 +26,6 @@ android {
 repositories {
     mavenCentral()
     maven {
-        url "http://maven.rushorm.com"
-    }
-    maven {
         url "https://jitpack.io"
     }
     jcenter()

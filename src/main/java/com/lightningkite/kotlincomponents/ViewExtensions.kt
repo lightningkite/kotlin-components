@@ -149,9 +149,7 @@ public fun Context.getActivity(): Activity? {
 }
 
 public fun View.postDelayed(milliseconds: Long, action: () -> Unit) {
-    postDelayed(object : Runnable {
-        override fun run() = action()
-    }, milliseconds)
+    postDelayed({ action() }, milliseconds)
 }
 
 public inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T {
@@ -169,39 +167,31 @@ public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
 
 public fun EditText.onDone(action: (text: String) -> Unit) {
     imeOptions = EditorInfo.IME_ACTION_DONE
-    setOnKeyListener(object : View.OnKeyListener {
-        override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-            if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                action(text.toString())
-                return true;
-            }
-            return false
-        }
-    })
-    setOnEditorActionListener(object : TextView.OnEditorActionListener {
-        override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+    setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+        if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             action(text.toString())
-            return true;
+            return@OnKeyListener true;
         }
+        false
+    })
+    setOnEditorActionListener({ v, actionId, event ->
+        action(text.toString())
+        true;
     })
 }
 
 public fun EditText.onSend(action: (text: String) -> Unit) {
     imeOptions = EditorInfo.IME_ACTION_SEND
-    setOnKeyListener(object : View.OnKeyListener {
-        override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-            if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                action(text.toString())
-                return true;
-            }
-            return false
-        }
-    })
-    setOnEditorActionListener(object : TextView.OnEditorActionListener {
-        override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+    setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+        if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             action(text.toString())
-            return true;
+            return@OnKeyListener true;
         }
+        false
+    })
+    setOnEditorActionListener({ v, actionId, event ->
+        action(text.toString())
+        true;
     })
 }
 
@@ -226,12 +216,7 @@ public val View.parentView: View get() {
 
 public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction: (T) -> Unit) {
     this.adapter = adapter
-    this.onItemClickListener = object : AdapterView.OnItemClickListener {
-        @Suppress("UNCHECKED_CAST")
-        override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-            onClickAction(adapter.getItem(position) as T)
-        }
-    }
+    this.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id -> onClickAction(adapter.getItem(position) as T) }
 }
 
 public fun WebView.javascript(function:String, vararg arguments:Any?){

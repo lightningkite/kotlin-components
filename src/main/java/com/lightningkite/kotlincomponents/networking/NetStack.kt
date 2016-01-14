@@ -2,11 +2,10 @@ package com.lightningkite.kotlincomponents.networking
 
 import com.lightningkite.kotlincomponents.async.doAsync
 import com.squareup.okhttp.Headers
-import com.squareup.okhttp.Request
 import com.squareup.okhttp.RequestBody
-import java.nio.charset.Charset
 
 /**
+ * An interface that represents something that works like a network stack, be it a real stack or a mock stack.
  * Created by jivie on 1/13/16.
  */
 interface NetStack {

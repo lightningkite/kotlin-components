@@ -4,6 +4,7 @@ import android.view.View
 import com.lightningkite.kotlincomponents.viewcontroller.AutocleanViewController
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.util.*
+import kotlin.reflect.KProperty
 
 /**
  * This class is used for binding data to views.
@@ -13,11 +14,11 @@ public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
     protected var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
     protected var myValue: T = init
 
-    operator public fun getValue(thisRef: Any?, prop: PropertyMetadata): T {
+    operator public fun getValue(thisRef: Any?, prop: KProperty<*>): T {
         return get()
     }
 
-    operator public fun setValue(thisRef: Any?, prop: PropertyMetadata, v: T) {
+    operator public fun setValue(thisRef: Any?, prop: KProperty<*>, v: T) {
         set(v)
     }
 

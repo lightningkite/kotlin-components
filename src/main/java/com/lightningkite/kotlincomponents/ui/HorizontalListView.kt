@@ -181,11 +181,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet? = null) :
         mCurrentX = mNextX
 
         if (!mScroller.isFinished) {
-            post(object : Runnable {
-                override fun run() {
-                    requestLayout()
-                }
-            })
+            post({ requestLayout() })
 
         }
     }

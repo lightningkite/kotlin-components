@@ -4,8 +4,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Color
-import android.widget.DatePicker
-import android.widget.TimePicker
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
 
@@ -31,25 +29,21 @@ public fun Int.colorMultiply(value: Double):Int{
 }
 
 public fun Calendar.modifyTimeThroughPicker(context: Context, after: (calendar: Calendar) -> Unit) {
-    TimePickerDialog(context, object : TimePickerDialog.OnTimeSetListener {
-        override fun onTimeSet(view: TimePicker, hourOfDay: Int, minute: Int) {
-            this@modifyTimeThroughPicker.set(Calendar.HOUR_OF_DAY, hourOfDay)
-            this@modifyTimeThroughPicker.set(Calendar.MINUTE, minute)
-            after(this@modifyTimeThroughPicker)
-        }
+    TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+        this@modifyTimeThroughPicker.set(Calendar.HOUR_OF_DAY, hourOfDay)
+        this@modifyTimeThroughPicker.set(Calendar.MINUTE, minute)
+        after(this@modifyTimeThroughPicker)
     }, this.get(Calendar.HOUR_OF_DAY), this.get(Calendar.MINUTE), false).show()
 }
 
 public fun Calendar.modifyDateThroughPicker(context: Context, after: (calendar: Calendar) -> Unit) {
     DatePickerDialog(
             context,
-            object : DatePickerDialog.OnDateSetListener {
-                override fun onDateSet(view: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int) {
-                    this@modifyDateThroughPicker.set(Calendar.YEAR, year)
-                    this@modifyDateThroughPicker.set(Calendar.MONTH, monthOfYear)
-                    this@modifyDateThroughPicker.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                    after(this@modifyDateThroughPicker)
-                }
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                this@modifyDateThroughPicker.set(Calendar.YEAR, year)
+                this@modifyDateThroughPicker.set(Calendar.MONTH, monthOfYear)
+                this@modifyDateThroughPicker.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                after(this@modifyDateThroughPicker)
             },
             this.get(Calendar.YEAR),
             this.get(Calendar.MONTH),

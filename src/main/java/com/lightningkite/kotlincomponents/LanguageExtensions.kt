@@ -2,7 +2,6 @@ package com.lightningkite.kotlincomponents
 
 import com.lightningkite.kotlincomponents.async.doAsync
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
@@ -52,7 +51,7 @@ fun <E> Collection<E>.stringJoin(separator: String, toStringFunc: (E) -> String)
         builder.append(toStringFunc(item))
         builder.append(separator)
     }
-    builder.setLength(builder.length() - separator.length())
+    builder.setLength(builder.length - separator.length)
     return builder.toString()
 }
 

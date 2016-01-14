@@ -1,6 +1,5 @@
 package com.lightningkite.kotlincomponents.adapter
 
-import android.view.View
 import com.lightningkite.kotlincomponents.databinding.Bond
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 

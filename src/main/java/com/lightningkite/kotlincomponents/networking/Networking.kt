@@ -1,8 +1,8 @@
 package com.lightningkite.kotlincomponents.networking
 
-import com.lightningkite.kotlincomponents.async.doAsync
-import com.squareup.okhttp.*
-import java.nio.charset.Charset
+import com.squareup.okhttp.Headers
+import com.squareup.okhttp.MediaType
+import com.squareup.okhttp.RequestBody
 
 /**
  * Used to make network calls easier.

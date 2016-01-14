@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
+ * Various functions to do things asynchronously.
  * Created by jivie on 9/2/15.
  */
 
@@ -30,14 +31,12 @@ public object Async {
  * @param action The lambda to run asynchronously.
  */
 public fun <T> doAsync(action: () -> T) {
-    Async.threadPool.execute(object : Runnable {
-        override fun run() {
-            try {
-                val result = action()
-            } catch(e: Exception) {
-                Async.handler.post {
-                    throw e
-                }
+    Async.threadPool.execute({
+        try {
+            val result = action()
+        } catch(e: Exception) {
+            Async.handler.post {
+                throw e
             }
         }
     })
@@ -49,17 +48,15 @@ public fun <T> doAsync(action: () -> T) {
  * @param uiThread The lambda to run with the result of [action] on the UI thread.
  */
 public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
-    Async.threadPool.execute(object : Runnable {
-        override fun run() {
-            try {
-                val result = action()
-                Async.handler.post {
-                    uiThread(result)
-                }
-            } catch(e: Exception) {
-                Async.handler.post {
-                    throw e
-                }
+    Async.threadPool.execute({
+        try {
+            val result = action()
+            Async.handler.post {
+                uiThread(result)
+            }
+        } catch(e: Exception) {
+            Async.handler.post {
+                throw e
             }
         }
     })

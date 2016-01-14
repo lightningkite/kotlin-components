@@ -7,7 +7,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActiv
 import java.util.*
 
 /**
- * Creates an adapter that uses [com.lightningkite.kotlincomponents.viewcontroller.ViewController]s for showing the data.
+ * Creates an adapter that uses [AdaptableViewController]s for showing the data.
  * This constructor will typically not be used, as it is more verbose.  Take a look at [ViewControllerAdapter.quick] instead.
  *
  * @param activity The VCActivity that the view controllers should use for creating their views.
@@ -24,7 +24,7 @@ public class ViewControllerAdapter<T>(
     /**
      * The list the adapter uses.  You can safely change this, but note that if you do not change
      * instance but change the instance itself that you are responsible for calling
-     * [android.widget.BaseAdapter.notifyDataSetChanged].
+     * [BaseAdapter.notifyDataSetChanged].
      */
     public var list: List<T> = list
         get() {
@@ -37,11 +37,11 @@ public class ViewControllerAdapter<T>(
 
     public companion object {
         /**
-         * Creates an adapter that uses [com.lightningkite.kotlincomponents.viewcontroller.ViewController]s for showing the data.
+         * Creates an adapter that uses [AdaptableViewController]s for showing the data.
          *
          * @param activity The VCActivity that the view controllers should use for creating their views.
          * @param list  A list of items you want to display.
-         * @param makeFunction An extension function on [AdaptableViewController] that returns the view.  [AdaptableViewController.itemBond] should be used to populate the data.  For more information, see [com.lightningkite.kotlincomponents.databinding.Bond].
+         * @param makeFunction An extension function on [AdaptableViewController] that returns the view.  [AdaptableViewController.itemBond] should be used to populate the data.
          *
          * @return An adapter with the settings specified.
          */

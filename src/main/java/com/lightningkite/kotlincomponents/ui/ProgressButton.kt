@@ -7,13 +7,12 @@ import android.view.ViewManager
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ProgressBar
-import com.lightningkite.kotlincomponents.async.doAsync
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.onClick
 import org.jetbrains.anko.textResource
 
 /**
+ * This "button" has both a button and a progress bar within it, making it useful for actions that take time.
  * Created by jivie on 12/2/15.
  */
 class ProgressButton(context: Context) : FrameLayout(context){

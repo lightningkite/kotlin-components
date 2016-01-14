@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Bundle
 import android.widget.RemoteViews
 import org.jetbrains.anko.notificationManager
 
@@ -86,12 +85,6 @@ public var Notification.Builder.deleteIntent: PendingIntent
     get() = throw Exception("This is not accessible publicly.")
     set(value) {
         setDeleteIntent(value)
-    }
-
-public var Notification.Builder.extras: Bundle
-    get() = getExtras() ?: { val bundle = Bundle(); setExtras(bundle); bundle }()
-    set(value) {
-        setExtras(value)
     }
 
 public var Notification.Builder.fullscreenIntent: PendingIntent

@@ -21,11 +21,7 @@ public fun VCActivity.dialog(
     val view = viewController.make(this)
     dialog!!.setView(view, 0, 0, 0, 0)
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-    dialog.setOnDismissListener(object: DialogInterface.OnDismissListener{
-        override fun onDismiss(dialog: DialogInterface?) {
-            viewController.unmake(view)
-        }
-    })
+    dialog.setOnDismissListener(DialogInterface.OnDismissListener { viewController.unmake(view) })
     dialog.show()
 }
 

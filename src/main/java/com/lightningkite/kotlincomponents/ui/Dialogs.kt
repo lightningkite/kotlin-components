@@ -7,6 +7,7 @@ import org.jetbrains.anko.alert
 import org.jetbrains.anko.editText
 
 /**
+ * Creates a dialog with an input text field on it.
  * Created by josep on 11/6/2015.
  */
 fun Activity.inputDialog(message: Int, title: Int, inputType: Int = InputType.TYPE_CLASS_TEXT, onResult: (String?) -> Unit) {

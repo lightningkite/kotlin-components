@@ -6,6 +6,7 @@ import android.util.Log
 import java.util.*
 
 /**
+ * Various pieces to change normal objects into bundles.
  * Created by jivie on 6/25/15.
  */
 
@@ -73,7 +74,7 @@ public object Bundler {
             //is Array<Parcelable> -> bundle.putParcelableArray(name, value)
             is ArrayList<*> -> {
                 if (value.size > 0) {
-                    val subvalue = value.get(0)
+                    val subvalue = value[0]
                     if (subvalue != null) {
                         when (subvalue) {
                             is Int -> bundle.putIntegerArrayList(name, value as ArrayList<Int>?)

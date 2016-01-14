@@ -9,7 +9,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActiv
 import java.util.*
 
 /**
- * A [ViewControllerAdapter] that implements [android.widget.Filterable], allowing it to be used in autocomplete views.
+ * A [ViewControllerAdapter] that implements [Filterable], allowing it to be used in autocomplete views.
  *
  *
  * Created by jivie on 9/2/15.
@@ -25,11 +25,11 @@ public class FilterableViewControllerAdapter<T>(
 
     public companion object {
         /**
-         * Creates an adapter that uses [com.lightningkite.kotlincomponents.viewcontroller.ViewController]s for showing the data.
+         * Creates an adapter that uses [AdaptableViewController]s for showing the data.
          *
          * @param activity The VCActivity that the view controllers should use for creating their views.
          * @param list  A list of items you want to display.
-         * @param makeFunction An extension function on [AdaptableViewController] that returns the view.  [AdaptableViewController.itemBond] should be used to populate the data.  For more information, see [com.lightningkite.kotlincomponents.databinding.Bond].
+         * @param makeFunction An extension function on [AdaptableViewController] that returns the view.  [AdaptableViewController.itemBond] should be used to populate the data.
          *
          * @return An adapter with the settings specified.
          */
@@ -53,8 +53,9 @@ public class FilterableViewControllerAdapter<T>(
 
     private val viewControllers: ArrayList<AdaptableViewController<T>> = ArrayList()
 
+    @Suppress("UNCHECKED_CAST")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-        val item = list.get(position)
+        val item = list[position]
         if (convertView == null) {
             val holder: AdaptableViewController<T> = maker(item)
             val view = holder.make(activity)
@@ -72,6 +73,7 @@ public class FilterableViewControllerAdapter<T>(
             view.tag = holder
             return view
         } else {
+            //suppress UNCHECKED_CAST
             (convertView.tag as? AdaptableViewController<T>)?.item = item
         }
         (convertView.tag as? AdaptableViewController<T>)?.index = position
@@ -83,7 +85,7 @@ public class FilterableViewControllerAdapter<T>(
     }
 
     override fun getItem(position: Int): Any? {
-        return list.get(position)
+        return list[position]
     }
 
     override fun getItemId(position: Int): Long {

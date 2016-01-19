@@ -28,7 +28,8 @@ abstract class StandardViewController() : ViewController {
     val onDispose: ArrayList<() -> Unit> = ArrayList()
 
     /**
-     * Adds the item to the collection, but removes it when [unmake] is called.
+     * Adds the item to the collection immediately, but removes it when [unmake] is called.
+     * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
      */
     fun <T> connect(collection: MutableCollection<T>, item: T): T {
         collection.add(item)

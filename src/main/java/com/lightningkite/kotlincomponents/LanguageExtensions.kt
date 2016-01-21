@@ -33,6 +33,10 @@ public inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T
     }
 }
 
+fun <E> List<E>.random(): E {
+    return this[Math.random().times(size).toInt()]
+}
+
 fun <E> List<E>.splitIntoGroupsOf(maxInGroup: Int): ArrayList<List<E>> {
     val whole = ArrayList<List<E>>()
     var first = 0;

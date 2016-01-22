@@ -61,3 +61,11 @@ public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
         }
     })
 }
+
+/**
+ * Posts [action] to the main thread.
+ * @param action The lambda to run asynchronously.
+ */
+fun doUiThread(delay: Long = 0, action: () -> Unit) {
+    Async.handler.postDelayed(action, delay)
+}

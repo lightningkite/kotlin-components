@@ -39,6 +39,22 @@ abstract class StandardViewController() : ViewController {
         return item
     }
 
+    /**
+     * Adds the item to the collections immediately, but removes the item from all of the collections when [unmake] is called.
+     * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
+     */
+    fun <T> connectMany(vararg collections: MutableCollection<T>, item: T): T {
+        for (collection in collections) {
+            collection.add(item)
+        }
+        onUnmake.add {
+            for (collection in collections) {
+                collection.remove(item)
+            }
+        }
+        return item
+    }
+
     abstract fun makeView(activity: VCActivity): View
     final override fun make(activity: VCActivity): View {
         val view = makeView(activity)

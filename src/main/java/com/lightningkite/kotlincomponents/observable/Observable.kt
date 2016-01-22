@@ -7,28 +7,17 @@ import kotlin.reflect.KProperty
  * Created by jivie on 1/19/16.
  */
 open class Observable<T>(
-        var value: T,
-        val listeners: ArrayList<(T) -> Unit> = ArrayList()
-) : MutableCollection<(T) -> Unit> {
-
-    override fun clear() = listeners.clear()
-    override fun remove(element: (T) -> Unit): Boolean = listeners.remove(element)
-    override fun removeAll(elements: Collection<(T) -> Unit>): Boolean = listeners.removeAll(elements)
-    override fun retainAll(elements: Collection<(T) -> Unit>): Boolean = listeners.retainAll(elements)
-    override val size: Int = listeners.size
-    override fun contains(element: (T) -> Unit): Boolean = listeners.contains(element)
-    override fun containsAll(elements: Collection<(T) -> Unit>): Boolean = listeners.containsAll(elements)
-    override fun isEmpty(): Boolean = listeners.isEmpty()
-    override fun iterator(): MutableIterator<(T) -> Unit> = listeners.iterator()
+        var value: T
+) : ArrayList<(T) -> Unit>() {
 
     override fun add(element: (T) -> Unit): Boolean {
         element(value)
-        return listeners.add(element)
+        return super.add(element)
     }
 
     override fun addAll(elements: Collection<(T) -> Unit>): Boolean {
         elements.forEach { it(value) }
-        return listeners.addAll(elements)
+        return super.addAll(elements)
     }
 
     operator public fun getValue(thisRef: Any?, prop: KProperty<*>): T {
@@ -55,7 +44,7 @@ open class Observable<T>(
     }
 
     fun update() {
-        for (listener in listeners) {
+        for (listener in this) {
             listener(value)
         }
     }

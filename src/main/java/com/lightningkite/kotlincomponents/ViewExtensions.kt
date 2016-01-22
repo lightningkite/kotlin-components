@@ -195,6 +195,15 @@ public fun EditText.onSend(action: (text: String) -> Unit) {
     })
 }
 
+fun View.onChildrenRecursive(action: (View) -> Unit) {
+    action(this)
+    if (this is ViewGroup) {
+        for (index in 0..this.childCount - 1) {
+            getChildAt(index)?.onChildrenRecursive(action)
+        }
+    }
+}
+
 var TextView.html: String get() = throw IllegalAccessException()
     set(value){
         val newVal = value

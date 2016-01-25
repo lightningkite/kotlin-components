@@ -3,14 +3,12 @@ package com.lightningkite.kotlincomponents.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.observable.KObservable
-import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 
 /**
  * Created by josep on 1/24/2016.
  */
-class LightningAdapter<T>(list:List<T>, val makeView:(KObservable<T>)->View): BaseAdapter() {
+class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) -> View) : BaseAdapter() {
 
     class ItemObservable<T>(init:T) : KObservable<T>(init){
         var index:Int = 0

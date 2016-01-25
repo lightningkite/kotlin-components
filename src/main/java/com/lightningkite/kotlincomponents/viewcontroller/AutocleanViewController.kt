@@ -10,7 +10,7 @@ import java.util.*
 
 /**
  * This class is a wrapper around ViewController that cleans up after itself - you can use
- * autoDispose(x) to dispose x when the view controller is disposed, and use listener(x) to call
+ * autoDispose(x) to dispose x when the view controller is disposed, and use x to call
  * make(View) and unmake(View) when those view controller's functions are invoked.
  * Also has a convenience function for placing a view controller within this view controller.
  * Created by jivie on 9/30/15.

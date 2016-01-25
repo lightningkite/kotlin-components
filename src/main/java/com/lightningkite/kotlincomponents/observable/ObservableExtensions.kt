@@ -3,10 +3,7 @@ package com.lightningkite.kotlincomponents.observable
 import android.text.InputType
 import android.view.View
 import android.widget.*
-import com.lightningkite.kotlincomponents.adapter.AdaptableViewController
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
-import com.lightningkite.kotlincomponents.adapter.ViewControllerAdapter
-import com.lightningkite.kotlincomponents.viewcontroller.StandardViewController
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.onCheckedChange
 import org.jetbrains.anko.opaque
@@ -20,14 +17,56 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
-fun <T> View.connect(observable:MutableCollection<T>, item:T){
+fun <T> View.bind(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener{
         override fun onViewDetachedFromWindow(v: View?) {
             observable.remove(item)
+            this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
             observable.add(item)
+        }
+    })
+}
+
+fun <A, B> View.bind(observableA: MutableCollection<(A) -> Unit>, observableB: MutableCollection<(B) -> Unit>, action: () -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+
+        val itemA = { item: A -> action() }
+        val itemB = { item: B -> action() }
+
+        override fun onViewDetachedFromWindow(v: View?) {
+            observableA.remove(itemA)
+            observableB.remove(itemB)
+            this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            observableA.add(itemA)
+            observableB.add(itemB)
+        }
+    })
+}
+
+fun <A, B, C> View.bind(observableA: MutableCollection<(A) -> Unit>, observableB: MutableCollection<(B) -> Unit>, observableC: MutableCollection<(C) -> Unit>, action: () -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+
+        val itemA = { item: A -> action() }
+        val itemB = { item: B -> action() }
+        val itemC = { item: C -> action() }
+
+        override fun onViewDetachedFromWindow(v: View?) {
+            observableA.remove(itemA)
+            observableB.remove(itemB)
+            observableC.remove(itemC)
+            this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            observableA.add(itemA)
+            observableB.add(itemB)
+            observableC.add(itemC)
         }
     })
 }
@@ -46,7 +85,7 @@ public fun EditText.bindString(bond: KObservable<String>) {
             }
         }
     }
-    connect(bond) {
+    bind(bond) {
         if (bond.get() != text.toString()) {
             this.setText(bond.get())
         }
@@ -67,7 +106,7 @@ public fun EditText.bindNullableString(bond: KObservable<String?>) {
             }
         }
     }
-    connect(bond) {
+    bind(bond) {
         if (bond.get() != text.toString()) {
             this.setText(bond.get())
         }
@@ -89,7 +128,7 @@ public fun EditText.bindInt(bond: KObservable<Int>) {
             }
         }
     }
-    connect(bond) {
+    bind(bond) {
         if (!bond.get().toString().equals(text.toString())) {
             this.setText(bond.get())
         }
@@ -118,7 +157,7 @@ public fun EditText.bindFloat(bond: KObservable<Float>, format: NumberFormat) {
             }
         }
     }
-    connect(bond) {
+    bind(bond) {
         val value = text.toString().toFloat()
         if (bond.get() != value) {
             this.setText(format.format(bond.get()))
@@ -137,7 +176,7 @@ public fun Switch.bind(bond: KObservable<Boolean>) {
             bond.set(isChecked);
         }
     }
-    connect(bond) {
+    bind(bond) {
         if (isChecked != bond.get()) {
             isChecked = bond.get();
         }
@@ -153,7 +192,7 @@ public fun Switch.bindArray(bond: KObservable<Array<Boolean>>, index: Int) {
             bond.update()
         }
     }
-    connect(bond) {
+    bind(bond) {
         val value = bond.get()[index]
         if (isChecked != value) {
             isChecked = value;
@@ -170,7 +209,7 @@ public fun CheckBox.bindArray(bond: KObservable<Array<Boolean>>, index: Int) {
             bond.update()
         }
     }
-    connect(bond) {
+    bind(bond) {
         val value = bond.get()[index]
         if (isChecked != value) {
             isChecked = value;
@@ -182,7 +221,7 @@ public fun CheckBox.bindArray(bond: KObservable<Array<Boolean>>, index: Int) {
  * Makes this [TextView] display the value of the bond.
  */
 public fun TextView.bindString(bond: KObservable<String>) {
-    connect(bond) {
+    bind(bond) {
         this.text = bond.get()
     }
 }
@@ -191,7 +230,7 @@ public fun TextView.bindString(bond: KObservable<String>) {
  * Makes this [TextView] display the value of the bond.
  */
 public fun TextView.bindAny(bond: KObservable<Any>) {
-    connect(bond) {
+    bind(bond) {
         this.text = bond.get().toString()
     }
 }
@@ -202,7 +241,7 @@ public fun TextView.bindAny(bond: KObservable<Any>) {
  * When the value of the bond changes, the item will shown will be updated.
  */
 public fun Spinner.bindIndex(bond: KObservable<Int>) {
-    connect(bond) {
+    bind(bond) {
         if (selectedItemPosition != it) {
             setSelection(it)
         }
@@ -225,8 +264,8 @@ public fun Spinner.bindIndex(bond: KObservable<Int>) {
  * When the user picks this radio button, [bond] is set to [value]
  * When the value of the bond changes, it will be shown as checked if they are equal.
  */
-public fun <T> RadioButton.bind(bond: KObservable<T>, value: T) {
-    connect(bond) {
+public fun <T> RadioButton.bindValue(bond: KObservable<T>, value: T) {
+    bind(bond) {
         isChecked = value == bond.get()
     }
     onCheckedChange { compoundButton, checked ->
@@ -239,7 +278,7 @@ public fun <T> RadioButton.bind(bond: KObservable<T>, value: T) {
 public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable<Array<T>>, makeView:(KObservable<T>)->View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
-    connect(bond) {
+    bind(bond) {
         thisAdapter.list = it.toArrayList()
     }
 }
@@ -247,7 +286,7 @@ public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable<Array<
 public fun <T> ListView.bindList(activity: VCActivity, bond: KObservable<in List<T>>, makeView: (KObservable<T>)->View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
-    connect(bond) { list ->
+    bind(bond) { list ->
         thisAdapter.list = list
     }
 }
@@ -255,7 +294,7 @@ public fun <T> ListView.bindList(activity: VCActivity, bond: KObservable<in List
 public fun <T> ListView.bindNullableList(activity: VCActivity, bond: KObservable<in List<T>?>, makeView:(KObservable<T>)->View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
-    connect(bond) { list ->
+    bind(bond) { list ->
         if (list == null) {
             thisAdapter.list = ArrayList()
         } else {

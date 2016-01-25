@@ -55,7 +55,7 @@ open class KObservable<T>(
     }
 
     fun update() {
-        for (listener in this) {
+        for (listener in list) {
             listener(value)
         }
     }

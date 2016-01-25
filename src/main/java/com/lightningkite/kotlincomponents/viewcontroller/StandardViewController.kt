@@ -31,7 +31,7 @@ abstract class StandardViewController() : ViewController {
      * Adds the item to the collection immediately, but removes it when [unmake] is called.
      * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
      */
-    fun <T> connect(collection: MutableCollection<T>, item: T): T {
+    fun <T> connectVC(collection: MutableCollection<T>, item: T): T {
         collection.add(item)
         onUnmake.add {
             collection.remove(item)
@@ -43,7 +43,7 @@ abstract class StandardViewController() : ViewController {
      * Adds the item to the collections immediately, but removes the item from all of the collections when [unmake] is called.
      * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
      */
-    fun <T> connectMany(vararg collections: MutableCollection<T>, item: T): T {
+    fun <T> connectManyVC(vararg collections: MutableCollection<T>, item: T): T {
         for (collection in collections) {
             collection.add(item)
         }
@@ -80,13 +80,24 @@ abstract class StandardViewController() : ViewController {
         return vc
     }
 
-    fun ViewGroup.viewContainer(container: VCContainer): VCView {
+    inline fun ViewGroup.viewContainer(container: VCContainer): VCView {
         val vcview = VCView(context as VCActivity)
         vcview.attach(container)
         onUnmake.add {
             vcview.detatch()
         }
         addView(vcview)
+        return vcview
+    }
+
+    inline fun ViewGroup.viewContainer(container: VCContainer, init: VCView.() -> Unit): VCView {
+        val vcview = VCView(context as VCActivity)
+        vcview.attach(container)
+        onUnmake.add {
+            vcview.detatch()
+        }
+        addView(vcview)
+        vcview.init()
         return vcview
     }
 
@@ -108,7 +119,7 @@ abstract class StandardViewController() : ViewController {
                 }
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             if (bond.get() != text.toString()) {
                 this.setText(bond.get())
             }
@@ -129,7 +140,7 @@ abstract class StandardViewController() : ViewController {
                 }
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             if (bond.get() != text.toString()) {
                 this.setText(bond.get())
             }
@@ -151,7 +162,7 @@ abstract class StandardViewController() : ViewController {
                 }
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             if (!bond.get().toString().equals(text.toString())) {
                 this.setText(bond.get())
             }
@@ -180,7 +191,7 @@ abstract class StandardViewController() : ViewController {
                 }
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             val value = text.toString().toFloat()
             if (bond.get() != value) {
                 this.setText(format.format(bond.get()))
@@ -199,7 +210,7 @@ abstract class StandardViewController() : ViewController {
                 bond.set(isChecked);
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             if (isChecked != bond.get()) {
                 isChecked = bond.get();
             }
@@ -215,7 +226,7 @@ abstract class StandardViewController() : ViewController {
                 bond.update()
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             val value = bond.get()[index]
             if (isChecked != value) {
                 isChecked = value;
@@ -232,7 +243,7 @@ abstract class StandardViewController() : ViewController {
                 bond.update()
             }
         }
-        connect(bond) {
+        connectVC(bond) {
             val value = bond.get()[index]
             if (isChecked != value) {
                 isChecked = value;
@@ -244,7 +255,7 @@ abstract class StandardViewController() : ViewController {
      * Makes this [TextView] display the value of the bond.
      */
     public fun TextView.bindString(bond: KObservable<String>) {
-        connect(bond) {
+        connectVC(bond) {
             this.text = bond.get()
         }
     }
@@ -253,7 +264,7 @@ abstract class StandardViewController() : ViewController {
      * Makes this [TextView] display the value of the bond.
      */
     public fun TextView.bindAny(bond: KObservable<Any>) {
-        connect(bond) {
+        connectVC(bond) {
             this.text = bond.get().toString()
         }
     }
@@ -264,7 +275,7 @@ abstract class StandardViewController() : ViewController {
      * When the value of the bond changes, the item will shown will be updated.
      */
     public fun Spinner.bindIndex(bond: KObservable<Int>) {
-        connect(bond) {
+        connectVC(bond) {
             if (selectedItemPosition != it) {
                 setSelection(it)
             }
@@ -288,7 +299,7 @@ abstract class StandardViewController() : ViewController {
      * When the value of the bond changes, it will be shown as checked if they are equal.
      */
     public fun <T> RadioButton.bind(bond: KObservable<T>, value: T) {
-        connect(bond) {
+        connectVC(bond) {
             isChecked = value == bond.get()
         }
         onCheckedChange { compoundButton, checked ->
@@ -301,7 +312,7 @@ abstract class StandardViewController() : ViewController {
     public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
-        connect(bond) {
+        connectVC(bond) {
             thisAdapter.list = it.toArrayList()
         }
     }
@@ -309,7 +320,7 @@ abstract class StandardViewController() : ViewController {
     public fun <T> ListView.bindList(activity: VCActivity, bond: KObservable<in List<T>>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
-        connect(bond) { list ->
+        connectVC(bond) { list ->
             thisAdapter.list = list
         }
     }
@@ -317,7 +328,7 @@ abstract class StandardViewController() : ViewController {
     public fun <T> ListView.bindNullableList(activity: VCActivity, bond: KObservable<in List<T>?>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
-        connect(bond) { list ->
+        connectVC(bond) { list ->
             if (list == null) {
                 thisAdapter.list = ArrayList()
             } else {

@@ -7,6 +7,7 @@ import java.util.*
  * Created by jivie on 6/25/15.
  */
 
+@Deprecated("This has been replaced with a better-design class KObservable.")
 public class PermanentBond<T : Any?>(init: T) : Bond<T>(init) {
     private var permanentListeners: ArrayList<(v: T) -> Unit> = ArrayList()
 

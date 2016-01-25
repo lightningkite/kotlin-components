@@ -15,6 +15,7 @@ import java.util.*
  * @param maker A function that makes an [AdaptableViewController] that takes something of type T.
  * @return
  */
+@Deprecated("Use LightningAdapter instead.")
 public class ViewControllerAdapter<T>(
         public val activity: VCActivity,
         list: List<T>,

@@ -10,6 +10,7 @@ import kotlin.reflect.KProperty
  * This class is used for binding data to views.
  * Created by jivie on 6/25/15.
  */
+@Deprecated("This has been replaced with a better-design class KObservable.")
 public open class Bond<T : Any?>(init: T) : AutocleanViewController.Listener {
     protected var listeners: ArrayList<(v: T) -> Unit> = ArrayList()
     protected var myValue: T = init

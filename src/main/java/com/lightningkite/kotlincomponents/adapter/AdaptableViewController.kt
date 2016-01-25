@@ -7,6 +7,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.ViewController
  * A view controller that can be used within an adapter, specifically the [ViewControllerAdapter].
  * Created by jivie on 9/2/15.
  */
+@Deprecated("Use LightningAdapter instead.")
 public interface AdaptableViewController<T> : ViewController {
     /**
      * This bond contains the item this view controller is supposed to be displaying.

@@ -7,7 +7,7 @@ import android.widget.*
 import com.lightningkite.kotlincomponents.Disposable
 import com.lightningkite.kotlincomponents.adapter.AdaptableViewController
 import com.lightningkite.kotlincomponents.adapter.ViewControllerAdapter
-import com.lightningkite.kotlincomponents.observable.Observable
+import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCView
@@ -99,7 +99,7 @@ abstract class StandardViewController() : ViewController {
      * When the user edits this, the value of the bond will change.
      * When the value of the bond changes, the text here will be updated.
      */
-    public fun EditText.bindString(bond: Observable<String>) {
+    public fun EditText.bindString(bond: KObservable<String>) {
         setText(bond.get())
         textChangedListener {
             onTextChanged { charSequence, start, before, count ->
@@ -120,7 +120,7 @@ abstract class StandardViewController() : ViewController {
      * When the user edits this, the value of the bond will change.
      * When the value of the bond changes, the text here will be updated.
      */
-    public fun EditText.bindNullableString(bond: Observable<String?>) {
+    public fun EditText.bindNullableString(bond: KObservable<String?>) {
         setText(bond.get())
         textChangedListener {
             onTextChanged { charSequence, start, before, count ->
@@ -141,7 +141,7 @@ abstract class StandardViewController() : ViewController {
      * When the user edits this, the value of the bond will change.
      * When the value of the bond changes, the integer here will be updated.
      */
-    public fun EditText.bindInt(bond: Observable<Int>) {
+    public fun EditText.bindInt(bond: KObservable<Int>) {
         inputType = (inputType and 0xFFFFFFF0.toInt()) or InputType.TYPE_CLASS_NUMBER
         setText(bond.get().toString())
         textChangedListener {
@@ -163,7 +163,7 @@ abstract class StandardViewController() : ViewController {
      * When the user edits this, the value of the bond will change.
      * When the value of the bond changes, the number here will be updated.
      */
-    public fun EditText.bindFloat(bond: Observable<Float>, format: NumberFormat) {
+    public fun EditText.bindFloat(bond: KObservable<Float>, format: NumberFormat) {
         inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         val originalTextColor = this.textColors.defaultColor
         textChangedListener {
@@ -191,7 +191,7 @@ abstract class StandardViewController() : ViewController {
     /**
      * Binds this [Switch] two way to the bond.
      */
-    public fun Switch.bind(bond: Observable<Boolean>) {
+    public fun Switch.bind(bond: KObservable<Boolean>) {
         this.onCheckedChange {
             buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
             Unit
@@ -206,7 +206,7 @@ abstract class StandardViewController() : ViewController {
         }
     }
 
-    public fun Switch.bindArray(bond: Observable<Array<Boolean>>, index: Int) {
+    public fun Switch.bindArray(bond: KObservable<Array<Boolean>>, index: Int) {
         this.onCheckedChange {
             buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
             Unit
@@ -223,7 +223,7 @@ abstract class StandardViewController() : ViewController {
         }
     }
 
-    public fun CheckBox.bindArray(bond: Observable<Array<Boolean>>, index: Int) {
+    public fun CheckBox.bindArray(bond: KObservable<Array<Boolean>>, index: Int) {
         this.onCheckedChange {
             buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
             Unit
@@ -243,7 +243,7 @@ abstract class StandardViewController() : ViewController {
     /**
      * Makes this [TextView] display the value of the bond.
      */
-    public fun TextView.bindString(bond: Observable<String>) {
+    public fun TextView.bindString(bond: KObservable<String>) {
         connect(bond) {
             this.text = bond.get()
         }
@@ -252,7 +252,7 @@ abstract class StandardViewController() : ViewController {
     /**
      * Makes this [TextView] display the value of the bond.
      */
-    public fun TextView.bindAny(bond: Observable<Any>) {
+    public fun TextView.bindAny(bond: KObservable<Any>) {
         connect(bond) {
             this.text = bond.get().toString()
         }
@@ -263,7 +263,7 @@ abstract class StandardViewController() : ViewController {
      * When the user picks a new value from the spinner, the value of the bond will change to the index of the new value.
      * When the value of the bond changes, the item will shown will be updated.
      */
-    public fun Spinner.bindIndex(bond: Observable<Int>) {
+    public fun Spinner.bindIndex(bond: KObservable<Int>) {
         connect(bond) {
             if (selectedItemPosition != it) {
                 setSelection(it)
@@ -287,7 +287,7 @@ abstract class StandardViewController() : ViewController {
      * When the user picks this radio button, [bond] is set to [value]
      * When the value of the bond changes, it will be shown as checked if they are equal.
      */
-    public fun <T> RadioButton.bind(bond: Observable<T>, value: T) {
+    public fun <T> RadioButton.bind(bond: KObservable<T>, value: T) {
         connect(bond) {
             isChecked = value == bond.get()
         }
@@ -298,7 +298,7 @@ abstract class StandardViewController() : ViewController {
         }
     }
 
-    public fun <T> ListView.bindArray(activity: VCActivity, bond: Observable<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
+    public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable<Array<T>>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
         connect(bond) {
@@ -306,7 +306,7 @@ abstract class StandardViewController() : ViewController {
         }
     }
 
-    public fun <T> ListView.bindList(activity: VCActivity, bond: Observable<in List<T>>, makeView: AdaptableViewController<T>.() -> View) {
+    public fun <T> ListView.bindList(activity: VCActivity, bond: KObservable<in List<T>>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
         connect(bond) { list ->
@@ -314,7 +314,7 @@ abstract class StandardViewController() : ViewController {
         }
     }
 
-    public fun <T> ListView.bindNullableList(activity: VCActivity, bond: Observable<in List<T>?>, makeView: AdaptableViewController<T>.() -> View) {
+    public fun <T> ListView.bindNullableList(activity: VCActivity, bond: KObservable<in List<T>?>, makeView: AdaptableViewController<T>.() -> View) {
         val thisAdapter = ViewControllerAdapter.quick(activity, ArrayList(), makeView)
         adapter = thisAdapter
         connect(bond) { list ->

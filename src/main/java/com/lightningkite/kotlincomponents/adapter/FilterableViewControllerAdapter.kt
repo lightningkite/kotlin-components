@@ -15,6 +15,7 @@ import java.util.*
  * Created by jivie on 9/2/15.
  */
 
+@Deprecated("Use LightningAdapter instead.")
 public class FilterableViewControllerAdapter<T>(
         public val activity: VCActivity,
         public val fullList: List<T>,

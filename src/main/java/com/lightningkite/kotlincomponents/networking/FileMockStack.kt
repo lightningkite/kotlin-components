@@ -7,9 +7,12 @@ import com.squareup.okhttp.RequestBody
 import java.io.*
 
 /**
+ *
  * Created by jivie on 1/13/16.
+ *
  */
-open class FileMockStack(val context: Context, val urlToAssetPath:(String)->String) : NetStack {
+
+open class FileMockStack(val context: Context, val responseCodeForUrl:(String) -> Int, val urlToAssetPath:(String, RequestBody?)->String) : NetStack {
 
     fun readTextFile(successCode:Int, assetPath:String): NetResponse {
         try {
@@ -21,22 +24,22 @@ open class FileMockStack(val context: Context, val urlToAssetPath:(String)->Stri
     }
 
     override fun syncGet(headers: Headers, url: String): NetResponse {
-        return readTextFile(200, urlToAssetPath(url) + ".get.txt")
+        return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, null) + ".get.txt")
     }
 
     override fun syncPost(headers: Headers, url: String, body: RequestBody): NetResponse {
-        return readTextFile(201, urlToAssetPath(url) + ".post.txt")
+        return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".post.txt")
     }
 
     override fun syncPut(headers: Headers, url: String, body: RequestBody): NetResponse {
-        return readTextFile(200, urlToAssetPath(url) + ".put.txt")
+        return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".put.txt")
     }
 
     override fun syncPatch(headers: Headers, url: String, body: RequestBody): NetResponse {
-        return readTextFile(200, urlToAssetPath(url) + ".patch.txt")
+        return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".patch.txt")
     }
 
     override fun syncDelete(headers: Headers, url: String, body: RequestBody): NetResponse {
-        return readTextFile(200, urlToAssetPath(url) + ".delete.txt")
+        return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".delete.txt")
     }
 }

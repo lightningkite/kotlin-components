@@ -1,16 +1,13 @@
 package com.lightningkite.kotlincomponents.networking
 
-import com.squareup.okhttp.Headers
-import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.Request
-import com.squareup.okhttp.RequestBody
+import com.squareup.okhttp.*
 import java.nio.charset.Charset
 
 /**
  * Created by jivie on 1/13/16.
  */
 object OkHttpStack : NetStack {
-
+    public val mediaType :MediaType = MediaType.parse("application/json")
     public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 
     /**
@@ -41,13 +38,13 @@ object OkHttpStack : NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    override fun syncPost(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPost(headers: Headers, url: String, body: String): NetResponse {
         try {
             val response = client.newCall(
                     Request.Builder()
                             .headers(headers)
                             .url(url)
-                            .post(body)
+                            .post(RequestBody.create(mediaType, body))
                             .build()
             ).execute()
             val responseBody = response.body()
@@ -65,13 +62,13 @@ object OkHttpStack : NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    override fun syncPut(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPut(headers: Headers, url: String, body: String): NetResponse {
         try {
             val response = client.newCall(
                     Request.Builder()
                             .headers(headers)
                             .url(url)
-                            .put(body)
+                            .put(RequestBody.create(mediaType, body))
                             .build()
             ).execute()
             val responseBody = response.body()
@@ -89,13 +86,13 @@ object OkHttpStack : NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    override fun syncPatch(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPatch(headers: Headers, url: String, body: String): NetResponse {
         try {
             val response = client.newCall(
                     Request.Builder()
                             .headers(headers)
                             .url(url)
-                            .patch(body)
+                            .patch(RequestBody.create(mediaType, body))
                             .build()
             ).execute()
             val responseBody = response.body()
@@ -113,13 +110,13 @@ object OkHttpStack : NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    override fun syncDelete(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncDelete(headers: Headers, url: String, body: String): NetResponse {
         try {
             val response = client.newCall(
                     Request.Builder()
                             .headers(headers)
                             .url(url)
-                            .delete(body)
+                            .delete(RequestBody.create(mediaType, ""))
                             .build()
             ).execute()
             val responseBody = response.body()

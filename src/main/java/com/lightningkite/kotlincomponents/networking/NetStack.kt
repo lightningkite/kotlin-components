@@ -23,7 +23,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun syncPost(headers: Headers, url: String, body: RequestBody): NetResponse
+    public fun syncPost(headers: Headers, url: String, body: String): NetResponse
 
     /**
      * Synchronously makes an HTTP PUT request.
@@ -31,14 +31,14 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun syncPut(headers: Headers, url: String, body: RequestBody): NetResponse
+    public fun syncPut(headers: Headers, url: String, body: String): NetResponse
     /**
      * Synchronously makes an HTTP PATCH request.
      * @param headers The headers used in this request.
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun syncPatch(headers: Headers, url: String, body: RequestBody): NetResponse
+    public fun syncPatch(headers: Headers, url: String, body: String): NetResponse
 
     /**
      * Synchronously makes an HTTP DELETE request.
@@ -46,7 +46,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun syncDelete(headers: Headers, url: String, body: RequestBody = RequestBody.create(null, ByteArray(0))): NetResponse
+    public fun syncDelete(headers: Headers, url: String, body: String = ""): NetResponse
 
 
     //Shortcuts
@@ -64,7 +64,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun post(headers: Headers, url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPost(headers, url, body) }, onResult)
+    public fun post(headers: Headers, url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPost(headers, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP PUT request.
@@ -72,7 +72,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun put(headers: Headers, url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPut(headers, url, body) }, onResult)
+    public fun put(headers: Headers, url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPut(headers, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP PATCH request.
@@ -80,7 +80,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun patch(headers: Headers, url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPatch(headers, url, body) }, onResult)
+    public fun patch(headers: Headers, url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPatch(headers, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP DELETE request.
@@ -88,7 +88,7 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun delete(headers: Headers, url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncDelete(headers, url, body) }, onResult)
+    public fun delete(headers: Headers, url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncDelete(headers, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP DELETE request.
@@ -109,28 +109,28 @@ interface NetStack {
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun post(url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPost(Networking.HEADERS_EMPTY, url, body) }, onResult)
+    public fun post(url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPost(Networking.HEADERS_EMPTY, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP PUT request with empty headers.
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun put(url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPut(Networking.HEADERS_EMPTY, url, body) }, onResult)
+    public fun put(url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPut(Networking.HEADERS_EMPTY, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP PATCH request with empty headers.
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun patch(url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPatch(Networking.HEADERS_EMPTY, url, body) }, onResult)
+    public fun patch(url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncPatch(Networking.HEADERS_EMPTY, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP DELETE request with empty headers.
      * @param url The URL the request is made to.
      * @param body The data to send in this request.
      */
-    public fun delete(url: String, body: RequestBody, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncDelete(Networking.HEADERS_EMPTY, url, body) }, onResult)
+    public fun delete(url: String, body: String, onResult: (NetResponse) -> Unit): Unit = doAsync({ syncDelete(Networking.HEADERS_EMPTY, url, body) }, onResult)
 
     /**
      * Asynchronously makes an HTTP DELETE request with empty headers.

@@ -3,7 +3,6 @@ package com.lightningkite.kotlincomponents.networking
 import android.content.Context
 import com.lightningkite.kotlincomponents.toByteArray
 import com.squareup.okhttp.Headers
-import com.squareup.okhttp.RequestBody
 import java.io.*
 
 /**
@@ -12,7 +11,7 @@ import java.io.*
  *
  */
 
-open class FileMockStack(val context: Context, val responseCodeForUrl:(String) -> Int, val urlToAssetPath:(String, RequestBody?)->String) : NetStack {
+open class FileMockStack(val context: Context, val responseCodeForUrl:(String) -> Int, val urlToAssetPath:(String, String?)->String) : NetStack {
 
     fun readTextFile(successCode:Int, assetPath:String): NetResponse {
         try {
@@ -27,19 +26,19 @@ open class FileMockStack(val context: Context, val responseCodeForUrl:(String) -
         return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, null) + ".get.txt")
     }
 
-    override fun syncPost(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPost(headers: Headers, url: String, body: String): NetResponse {
         return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".post.txt")
     }
 
-    override fun syncPut(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPut(headers: Headers, url: String, body: String): NetResponse {
         return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".put.txt")
     }
 
-    override fun syncPatch(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncPatch(headers: Headers, url: String, body: String): NetResponse {
         return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".patch.txt")
     }
 
-    override fun syncDelete(headers: Headers, url: String, body: RequestBody): NetResponse {
+    override fun syncDelete(headers: Headers, url: String, body: String): NetResponse {
         return readTextFile(responseCodeForUrl(url), urlToAssetPath(url, body) + ".delete.txt")
     }
 }

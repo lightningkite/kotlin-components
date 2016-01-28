@@ -16,7 +16,7 @@ import org.json.JSONObject
  */
 public data class NetResponse(
         public val code: Int,
-        public val rawBody: ByteArray
+        public val raw: ByteArray
 ) {
     public val isSuccessful: Boolean get() = code / 100 == 2
     public inline fun <reified T : Any> result(gson: Gson = BasicGson.gson): T? {
@@ -25,7 +25,7 @@ public data class NetResponse(
 
     public fun bitmap(): Bitmap? {
         try {
-            return BitmapFactory.decodeByteArray(rawBody, 0, rawBody.size)
+            return BitmapFactory.decodeByteArray(raw, 0, raw.size)
         } catch (e: Exception) {
             e.printStackTrace()
             return null
@@ -34,7 +34,7 @@ public data class NetResponse(
 
     public fun string(): String {
         try {
-            return rawBody.toString("UTF-8")
+            return raw.toString(Charsets.UTF_8)
         } catch(e: Exception) {
             return ""
         }

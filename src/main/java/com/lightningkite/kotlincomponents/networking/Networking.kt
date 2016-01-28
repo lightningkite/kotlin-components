@@ -12,5 +12,4 @@ public object Networking: NetStack {
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
         return stack.sync(method, url, body, headers)
     }
-
 }

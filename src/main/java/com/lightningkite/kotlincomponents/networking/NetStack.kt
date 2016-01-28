@@ -43,7 +43,6 @@ interface NetStack {
     public fun syncPut(url: String, body: NetBody = NetBody.EMPTY, headers: Map<String, String> = NetHeader.EMPTY): NetResponse {
         return sync(NetMethod.PUT, url, body, headers)
     }
-
     /**
      * Synchronously makes a PATCH request.
      * @param headers The headers used in this request.

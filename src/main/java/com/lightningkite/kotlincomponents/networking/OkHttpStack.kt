@@ -10,6 +10,7 @@ import java.nio.charset.Charset
  * Created by jivie on 1/13/16.
  */
 object OkHttpStack : NetStack {
+
     public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
@@ -44,5 +45,4 @@ object OkHttpStack : NetStack {
         }
         return RequestBody.create(MediaType.parse(this.contentType.toString()), this.content)
     }
-
 }

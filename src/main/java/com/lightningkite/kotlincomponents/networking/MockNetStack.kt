@@ -6,7 +6,7 @@ package com.lightningkite.kotlincomponents.networking
 class MockNetStack(val createMockResponse:(url:String, body:NetBody?) -> NetResponse) : NetStack {
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
-        throw UnsupportedOperationException()
+        return createMockResponse(url, body)
     }
 
     //    override fun syncGet(headers: Headers, url: String): NetResponse {

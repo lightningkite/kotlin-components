@@ -5,10 +5,7 @@ import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
-import org.jetbrains.anko.onCheckedChange
-import org.jetbrains.anko.opaque
-import org.jetbrains.anko.textChangedListener
-import org.jetbrains.anko.textColor
+import org.jetbrains.anko.*
 import java.text.NumberFormat
 import java.util.*
 
@@ -256,6 +253,20 @@ inline public fun Spinner.bindIndex(bond: KObservable<Int>) {
             }
         }
 
+    }
+}
+
+inline public fun <T> Spinner.bindList(bond: KObservable<T>, list: List<T>) {
+    this.onItemSelectedListener {
+        onItemSelected { adapterView, view, index, id ->
+            bond.set(list[index])
+        }
+    }
+    bind(bond) {
+        if (it == null) return@bind
+        val index = list.indexOf(it)
+        if (index == -1) return@bind
+        setSelection(index)
     }
 }
 

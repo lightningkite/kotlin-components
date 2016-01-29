@@ -1,14 +1,13 @@
 package com.lightningkite.kotlincomponents.observable
 
 import java.util.*
-import kotlin.reflect.KProperty
 
 /**
  * Created by jivie on 1/19/16.
  */
 open class KObservable<T>(
         var value: T
-) : MutableCollection<(T) -> Unit> {
+) : KObservableInterface<T> {
 
     val list = ArrayList<(T) -> Unit>()
     override val size: Int = list.size
@@ -31,30 +30,16 @@ open class KObservable<T>(
         return list.addAll(elements)
     }
 
-    operator public fun getValue(thisRef: Any?, prop: KProperty<*>): T {
-        return get()
-    }
-
-    operator public fun setValue(thisRef: Any?, prop: KProperty<*>, v: T) {
-        set(v)
-    }
-
-    /**
-     * Gets the value contained by the bond.
-     */
-    open public fun get(): T {
+    override fun get(): T {
         return value
     }
 
-    /**
-     * Sets the value contained by the bond.
-     */
-    open public fun set(v: T) {
+    override fun set(v: T) {
         value = v
         update()
     }
 
-    fun update() {
+    override fun update() {
         for (listener in list) {
             listener(value)
         }

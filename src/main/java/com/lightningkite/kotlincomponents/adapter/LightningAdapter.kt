@@ -34,6 +34,7 @@ class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) -> Vi
             val newObs = ItemObservable(list[position])
             val newView = makeView(newObs)
             newView.tag = newObs
+            newObs.index = position
             return newView
         } else {
             val obs = convertView.tag as ItemObservable<T>

@@ -33,7 +33,7 @@ public fun ViewController.inflate(context: Context, layoutResource: Int, init: V
     return layout;
 }
 
-public fun View.dip(value: Int): Int = context.dip(value)
+//public fun View.dip(value: Int): Int = context.dip(value)
 
 public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
     assert(milliseconds > millisecondsTransition * 2) { "The time shown must be at least twice as much as the transition time" }

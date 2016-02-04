@@ -341,11 +341,11 @@ inline public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) {
-        thisAdapter.list = it.toArrayList()
+        thisAdapter.list = it.toMutableList()
     }
 }
 
-inline public fun <T> ListView.bindList(activity: VCActivity, bond: KObservableInterface<in List<T>>, noinline makeView: (KObservableInterface<T>) -> View) {
+inline public fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond: KObservableInterface<L>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) { list ->
@@ -353,7 +353,7 @@ inline public fun <T> ListView.bindList(activity: VCActivity, bond: KObservableI
     }
 }
 
-inline public fun <T> ListView.bindNullableList(activity: VCActivity, bond: KObservableInterface<in List<T>?>, noinline makeView: (KObservableInterface<T>) -> View) {
+inline public fun <T, L : List<T>> ListView.bindNullableList(activity: VCActivity, bond: KObservableInterface<L?>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) { list ->

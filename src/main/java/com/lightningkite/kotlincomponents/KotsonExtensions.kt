@@ -67,10 +67,10 @@ public fun Any?.toJsonElement(): JsonElement {
         return JsonNull.INSTANCE
 
     return when (this) {
-        is Number -> this.toJson()
-        is Char -> this.toJson()
-        is Boolean -> this.toJson()
-        is String -> this.toJson()
+        is Number -> JsonPrimitive(this)
+        is Char -> JsonPrimitive(this)
+        is Boolean -> JsonPrimitive(this)
+        is String -> JsonPrimitive(this)
         is JsonElement -> this
         else -> throw IllegalArgumentException("${this} cannot be converted to JSON")
     }
@@ -81,11 +81,11 @@ public fun Any.gsonTo(gson: Gson = MyGson.gson): String {
 }
 
 public inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson<T>(this)
+    return gson.fromJson(this, T::class.java)
 }
 
 public inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson<T>(this)
+    return gson.fromJson(this, T::class.java)
 }
 
 

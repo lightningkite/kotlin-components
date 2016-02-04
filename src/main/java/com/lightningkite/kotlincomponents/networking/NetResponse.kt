@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.networking
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject

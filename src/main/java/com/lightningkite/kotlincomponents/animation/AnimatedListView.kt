@@ -13,26 +13,26 @@ import org.jetbrains.anko.matchParent
  * A [ListView]-like view that animates between different adapters
  * Created by jivie on 8/7/15.
  */
-public class AnimatedListView(context: Context) : _FrameLayout(context) {
+class AnimatedListView(context: Context) : _FrameLayout(context) {
     private var front: ListView = ListView(context)
     private var back: ListView = ListView(context)
 
     private var _onItemClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit = { a, b, c, d -> }
-    public var onItemClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit
+    var onItemClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit
         get() = _onItemClick
         set(value) {
             _onItemClick = value
             front.setOnItemClickListener(value)
         }
     private var _onItemLongClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Boolean = { a, b, c, d -> true }
-    public var onItemLongClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Boolean
+    var onItemLongClick: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Boolean
         get() = _onItemLongClick
         set(value) {
             _onItemLongClick = value
             front.setOnItemLongClickListener(value)
         }
 
-    public fun onItemClick(func: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit) {
+    fun onItemClick(func: (parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) -> Unit) {
         onItemClick = func
     }
 
@@ -44,11 +44,11 @@ public class AnimatedListView(context: Context) : _FrameLayout(context) {
         addView(front)
     }
 
-    public var adapter: ListAdapter?
+    var adapter: ListAdapter?
         get() = front.adapter
         set(value) = setAdapter(value)
 
-    public fun setAdapter(adapter: ListAdapter?, animationSet: AnimationSet = AnimationSet.fade) {
+    fun setAdapter(adapter: ListAdapter?, animationSet: AnimationSet = AnimationSet.fade) {
         val temp = front
         front = back
         back = temp
@@ -69,7 +69,7 @@ public class AnimatedListView(context: Context) : _FrameLayout(context) {
     }
 }
 
-@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.animatedListView() = animatedListView {}
-public inline fun ViewManager.animatedListView(init: AnimatedListView.() -> Unit): AnimatedListView {
+@Suppress("NOTHING_TO_INLINE") inline fun ViewManager.animatedListView() = animatedListView {}
+inline fun ViewManager.animatedListView(init: AnimatedListView.() -> Unit): AnimatedListView {
     return ankoView({ AnimatedListView(it) }, init)
 }

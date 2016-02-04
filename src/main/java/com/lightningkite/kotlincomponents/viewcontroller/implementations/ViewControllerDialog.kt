@@ -10,7 +10,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
  * Allows you to create a dialog using a view controller.
  * Created by jivie on 9/25/15.
  */
-public fun VCActivity.dialog(
+fun VCActivity.dialog(
         vcMaker: (AlertDialog)->ViewController
 ) {
     var dialog: AlertDialog? = null
@@ -25,7 +25,7 @@ public fun VCActivity.dialog(
     dialog.show()
 }
 
-public fun VCActivity.dialog(
+fun VCActivity.dialog(
         stack: VCStack
 ) {
     var dialog: AlertDialog? = null

@@ -17,7 +17,7 @@ import android.provider.MediaStore
 /**
  * Gets the actual path of the [Uri].
  */
-public fun Uri.getRealPath(context: Context): String? {
+fun Uri.getRealPath(context: Context): String? {
 
     val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
 
@@ -82,7 +82,7 @@ public fun Uri.getRealPath(context: Context): String? {
  * *
  * @return The value of the _data column, which is typically a file path.
  */
-public fun Context.getDataColumn(uri: Uri, selection: String?, selectionArgs: Array<String>?): String? {
+fun Context.getDataColumn(uri: Uri, selection: String?, selectionArgs: Array<String>?): String? {
 
     var cursor: Cursor? = null
     val column = "_data"
@@ -105,20 +105,20 @@ public fun Context.getDataColumn(uri: Uri, selection: String?, selectionArgs: Ar
 /**
  * @return Whether the Uri authority is ExternalStorageProvider.
  */
-public fun Uri.isExternalStorageDocument(): Boolean {
+fun Uri.isExternalStorageDocument(): Boolean {
     return "com.android.externalstorage.documents" == authority
 }
 
 /**
  * @return Whether the Uri authority is DownloadsProvider.
  */
-public fun Uri.isDownloadsDocument(): Boolean {
+fun Uri.isDownloadsDocument(): Boolean {
     return "com.android.providers.downloads.documents" == authority
 }
 
 /**
  * @return Whether the Uri authority is MediaProvider.
  */
-public fun Uri.isMediaDocument(): Boolean {
+fun Uri.isMediaDocument(): Boolean {
     return "com.android.providers.media.documents" == authority
 }

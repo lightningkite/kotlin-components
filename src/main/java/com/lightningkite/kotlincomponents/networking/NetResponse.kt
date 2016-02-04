@@ -14,16 +14,16 @@ import org.json.JSONObject
  * Represents a response from the network.  It can be anything, so it's stored in a byte array.
  * Created by jivie on 9/23/15.
  */
-public data class NetResponse(
-        public val code: Int,
-        public val raw: ByteArray
+data class NetResponse(
+        val code: Int,
+        val raw: ByteArray
 ) {
-    public val isSuccessful: Boolean get() = code / 100 == 2
-    public inline fun <reified T : Any> result(gson: Gson = MyGson.gson): T? {
+    val isSuccessful: Boolean get() = code / 100 == 2
+    inline fun <reified T : Any> result(gson: Gson = MyGson.gson): T? {
         return gson.fromJson<T>(string())
     }
 
-    public fun bitmap(): Bitmap? {
+    fun bitmap(): Bitmap? {
         try {
             return BitmapFactory.decodeByteArray(raw, 0, raw.size)
         } catch (e: Exception) {
@@ -32,16 +32,17 @@ public data class NetResponse(
         }
     }
 
-    public fun string(): String {
+    fun string(): String {
         try {
             return raw.toString(Charsets.UTF_8)
         } catch(e: Exception) {
             return ""
         }
     }
-    public fun jsonElement(): JsonElement = JsonParser().parse(string())
-    public fun jsonObject(): JsonObject = JsonParser().parse(string()) as JsonObject
-    public fun toJSONObject(): JSONObject {
+
+    fun jsonElement(): JsonElement = JsonParser().parse(string())
+    fun jsonObject(): JsonObject = JsonParser().parse(string()) as JsonObject
+    fun toJSONObject(): JSONObject {
         try {
             return JSONObject(string())
         } catch(e: Exception) {

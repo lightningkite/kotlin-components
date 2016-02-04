@@ -11,7 +11,7 @@ import org.jetbrains.anko.custom.ankoView
  * A spinner that can have a hint.
  * Created by jivie on 8/25/15.
  */
-public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(context).apply { text = "Select one" }) : Spinner(context, mode) {
+class HintSpinner(context: Context, mode: Int, val hint: View = TextView(context).apply { text = "Select one" }) : Spinner(context, mode) {
 
     private var wrapper: AdapterWrapper? = null
 
@@ -103,6 +103,6 @@ public class HintSpinner(context: Context, mode: Int, val hint: View = TextView(
     }
 }
 
-public inline fun ViewManager.hintSpinner(mode: Int, hint: View, init: HintSpinner.() -> Unit): HintSpinner {
+inline fun ViewManager.hintSpinner(mode: Int, hint: View, init: HintSpinner.() -> Unit): HintSpinner {
     return ankoView({ HintSpinner(it, mode, hint) }, init)
 }

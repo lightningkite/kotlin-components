@@ -39,10 +39,10 @@ import org.jetbrains.anko.custom.ankoView
 import java.util.*
 import kotlin.properties.Delegates
 
-public class HorizontalListView(context: Context, attrs: AttributeSet? = null) : AdapterView<ListAdapter>(context, attrs) {
+class HorizontalListView(context: Context, attrs: AttributeSet? = null) : AdapterView<ListAdapter>(context, attrs) {
 
 
-    public var mAlwaysOverrideTouch: Boolean = true
+    var mAlwaysOverrideTouch: Boolean = true
     protected var mAdapter: ListAdapter? = null
     private var mLeftViewIndex = -1
     private var mRightViewIndex = 0
@@ -268,7 +268,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet? = null) :
         }
     }
 
-    @Synchronized public fun scrollTo(x: Int) {
+    @Synchronized fun scrollTo(x: Int) {
         mScroller.startScroll(mNextX, 0, x - mNextX, 0)
         requestLayout()
     }
@@ -360,7 +360,7 @@ public class HorizontalListView(context: Context, attrs: AttributeSet? = null) :
 
 }
 
-@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.horizontalListView() = horizontalListView {}
-public inline fun ViewManager.horizontalListView(init: HorizontalListView.() -> Unit): HorizontalListView {
+@Suppress("NOTHING_TO_INLINE") inline fun ViewManager.horizontalListView() = horizontalListView {}
+inline fun ViewManager.horizontalListView(init: HorizontalListView.() -> Unit): HorizontalListView {
     return ankoView({ HorizontalListView(it, null) }, init)
 }

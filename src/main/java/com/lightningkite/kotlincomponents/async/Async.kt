@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
  * Created by jivie on 9/2/15.
  */
 
-public object Async {
+object Async {
     val runnableQueue = LinkedBlockingQueue<Runnable>();
     private val NUMBER_OF_CORES: Int = Runtime.getRuntime().availableProcessors();
     private val KEEP_ALIVE_TIME: Long = 1;
@@ -30,7 +30,7 @@ public object Async {
  * Runs [action] asynchronously.
  * @param action The lambda to run asynchronously.
  */
-public fun <T> doAsync(action: () -> T) {
+fun <T> doAsync(action: () -> T) {
     Async.threadPool.execute({
         try {
             val result = action()
@@ -47,7 +47,7 @@ public fun <T> doAsync(action: () -> T) {
  * @param action The lambda to run asynchronously.
  * @param uiThread The lambda to run with the result of [action] on the UI thread.
  */
-public fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
+fun <T> doAsync(action: () -> T, uiThread: (T) -> Unit) {
     Async.threadPool.execute({
         try {
             val result = action()

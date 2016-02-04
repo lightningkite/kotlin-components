@@ -12,7 +12,6 @@ import android.os.Build
 import android.text.Html
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -27,15 +26,9 @@ import java.util.*
  * Created by jivie on 7/16/15.
  */
 
-public fun ViewController.inflate(context: Context, layoutResource: Int, init: View.() -> Unit): View {
-    val layout = LayoutInflater.from(context).inflate(layoutResource, null);
-    layout.init();
-    return layout;
-}
-
 //public fun View.dip(value: Int): Int = context.dip(value)
 
-public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
+fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
     assert(milliseconds > millisecondsTransition * 2) { "The time shown must be at least twice as much as the transition time" }
     val originalBackground = background
     val transition = TransitionDrawable(arrayOf(originalBackground, ColorDrawable(color)))
@@ -50,11 +43,11 @@ public fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTra
     }
 }
 
-public fun ViewGroup.MarginLayoutParams.setMarginsDip(context: Context, left: Int, top: Int, right: Int, bottom: Int) {
+fun ViewGroup.MarginLayoutParams.setMarginsDip(context: Context, left: Int, top: Int, right: Int, bottom: Int) {
     setMargins(context.dip(left), context.dip(top), context.dip(right), context.dip(bottom))
 }
 
-public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int, left: Int, top: Int, right: Int, bottom: Int) {
+fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int, left: Int, top: Int, right: Int, bottom: Int) {
     val params = ViewGroup.MarginLayoutParams(
             if (width != matchParent && width != wrapContent && width != 0)
                 context.dip(width)
@@ -69,22 +62,22 @@ public fun View.setLayoutParamsMargin(context: Context, width: Int, height: Int,
     layoutParams = params
 }
 
-public val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
-public val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
+val LinearLayout.horizontal: Int  get() = LinearLayout.HORIZONTAL
+val LinearLayout.vertical: Int  get() = LinearLayout.VERTICAL
 
-public var TextView.textColorResource: Int
+var TextView.textColorResource: Int
     get() = throw IllegalAccessException()
     set(value) {
         setTextColor(resources.getColor(value))
     }
-public var TextView.hintTextColorResource: Int
+var TextView.hintTextColorResource: Int
     get() = throw IllegalAccessException()
     set(value) {
         setHintTextColor(resources.getColor(value))
     }
 
 val fontCache: HashMap<String, Typeface> = HashMap()
-public fun TextView.setFont(fileName: String) {
+fun TextView.setFont(fileName: String) {
     typeface = fontCache[fileName] ?: {
         val font = Typeface.createFromAsset(context.assets, fileName)
         fontCache[fileName] = font
@@ -92,15 +85,15 @@ public fun TextView.setFont(fileName: String) {
     }()
 }
 
-public fun EditText.showSoftInput() {
+fun EditText.showSoftInput() {
     context.inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 }
 
-public fun View.hideSoftInput() {
+fun View.hideSoftInput() {
     context.inputMethodManager.hideSoftInputFromWindow(this.applicationWindowToken, 0)
 }
 
-public fun Activity.hideSoftInput() {
+fun Activity.hideSoftInput() {
     inputMethodManager.toggleSoftInput(0, 0)
 }
 
@@ -122,7 +115,7 @@ val View.selectableItemBackground: Int
         return 0
     }
 
-public val View.selectableItemBackgroundResource: Int
+val View.selectableItemBackgroundResource: Int
     get() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // If we're running on Honeycomb or newer, then we can use the Theme's
@@ -134,11 +127,11 @@ public val View.selectableItemBackgroundResource: Int
         return 0
     }
 
-public fun View.getActivity(): Activity? {
+fun View.getActivity(): Activity? {
     return context.getActivity()
 }
 
-public fun Context.getActivity(): Activity? {
+fun Context.getActivity(): Activity? {
     if (this is Activity) {
         return this
     } else if (this is ContextWrapper) {
@@ -148,24 +141,24 @@ public fun Context.getActivity(): Activity? {
     }
 }
 
-public fun View.postDelayed(milliseconds: Long, action: () -> Unit) {
+fun View.postDelayed(milliseconds: Long, action: () -> Unit) {
     postDelayed({ action() }, milliseconds)
 }
 
-public inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T {
+inline fun <T : View> ViewGroup.addView(view: T, setup: T.() -> Unit): T {
     view.setup();
     addView(view)
     return view
 }
 
-public inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
+inline fun <reified T : View> ViewGroup.addView(setup: T.() -> Unit): T {
     val view = T::class.java.getConstructor(Context::class.java).newInstance(context)
     view.setup();
     addView(view)
     return view
 }
 
-public fun EditText.onDone(action: (text: String) -> Unit) {
+fun EditText.onDone(action: (text: String) -> Unit) {
     imeOptions = EditorInfo.IME_ACTION_DONE
     setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
         if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -180,7 +173,7 @@ public fun EditText.onDone(action: (text: String) -> Unit) {
     })
 }
 
-public fun EditText.onSend(action: (text: String) -> Unit) {
+fun EditText.onSend(action: (text: String) -> Unit) {
     imeOptions = EditorInfo.IME_ACTION_SEND
     setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
         if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -215,20 +208,20 @@ var TextView.html: String get() = throw IllegalAccessException()
     }
 
 private val cachedPoint: Point = Point()
-public val View.screenSize: Point get() {
+val View.screenSize: Point get() {
     context.windowManager.defaultDisplay.getSize(cachedPoint)
     return cachedPoint
 }
-public val View.parentView: View get() {
+val View.parentView: View get() {
     return parent as? View ?: throw IllegalStateException("Parent is not a ViewGroup!")
 }
 
-public fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction: (T) -> Unit) {
+fun <T, A : Adapter> AdapterView<A>.setAdapter(adapter: A, onClickAction: (T) -> Unit) {
     this.adapter = adapter
     this.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id -> onClickAction(adapter.getItem(position) as T) }
 }
 
-public fun WebView.javascript(function:String, vararg arguments:Any?){
+fun WebView.javascript(function: String, vararg arguments: Any?) {
     val stringArguments = arguments.map{
         when(it){
             null -> "null"
@@ -283,7 +276,7 @@ fun relativeLayout(context: Context, setup: _RelativeLayout.() -> Unit): _Relati
                 "org.jetbrains.anko._LinearLayout"
         )
 )
-public inline fun ViewController.makeLinearLayout(context: Context, init: _LinearLayout.() -> Unit): LinearLayout {
+inline fun ViewController.makeLinearLayout(context: Context, init: _LinearLayout.() -> Unit): LinearLayout {
     val layout = _LinearLayout(context);
     layout.orientation = LinearLayout.VERTICAL
     layout.init();
@@ -296,7 +289,7 @@ public inline fun ViewController.makeLinearLayout(context: Context, init: _Linea
                 "org.jetbrains.anko._FrameLayout"
         )
 )
-public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameLayout.() -> Unit): FrameLayout {
+inline fun ViewController.makeFrameLayout(context: Context, init: _FrameLayout.() -> Unit): FrameLayout {
     val layout = _FrameLayout(context);
     layout.init();
     return layout;
@@ -308,7 +301,7 @@ public inline fun ViewController.makeFrameLayout(context: Context, init: _FrameL
                 "org.jetbrains.anko._RelativeLayout"
         )
 )
-public inline fun ViewController.makeRelativeLayout(context: Context, init: _RelativeLayout.() -> Unit): RelativeLayout {
+inline fun ViewController.makeRelativeLayout(context: Context, init: _RelativeLayout.() -> Unit): RelativeLayout {
     val layout = _RelativeLayout(context);
     layout.init();
     return layout;
@@ -319,8 +312,7 @@ public inline fun ViewController.makeRelativeLayout(context: Context, init: _Rel
                 "ScrollView(context).run{addView(content)}",
                 "android.widget.ScrollView"
         )
-)
-public fun ViewController.makeScrollView(context: Context, content: View): ScrollView {
+) fun ViewController.makeScrollView(context: Context, content: View): ScrollView {
     val layout = ScrollView(context)
     layout.addView(content)
     return layout

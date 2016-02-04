@@ -7,7 +7,7 @@ import java.util.*
  * Created by jivie on 8/13/15.
  */
 
-public object MyGson {
+object MyGson {
 
     private val hierarchyAdapters = HashMap<Class<*>, Any>()
     fun registerHierarchy(type: Class<*>, adapter: Any) {
@@ -55,14 +55,14 @@ public object MyGson {
 
 }
 
-public fun <E> Collection<E>.toJsonArray(): JsonArray {
+fun <E> Collection<E>.toJsonArray(): JsonArray {
     val array = JsonArray()
     for (value in this)
         array.add(value.toJsonElement())
     return array;
 }
 
-public fun Any?.toJsonElement(): JsonElement {
+fun Any?.toJsonElement(): JsonElement {
     if (this == null)
         return JsonNull.INSTANCE
 
@@ -76,23 +76,23 @@ public fun Any?.toJsonElement(): JsonElement {
     }
 }
 
-public fun Any.gsonTo(gson: Gson = MyGson.gson): String {
+fun Any.gsonTo(gson: Gson = MyGson.gson): String {
     return gson.toJson(this)
 }
 
-public inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
+inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
     return gson.fromJson(this, T::class.java)
 }
 
-public inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
+inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
     return gson.fromJson(this, T::class.java)
 }
 
 
-public inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
     return gson.fromJson(this, type)
 }
 
-public inline fun <reified T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <reified T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
     return gson.fromJson(this, type)
 }

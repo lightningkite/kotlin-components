@@ -15,7 +15,7 @@ import java.util.*
  * Also has a convenience function for placing a view controller within this view controller.
  * Created by jivie on 9/30/15.
  */
-public abstract class AutocleanViewController : ViewController {
+abstract class AutocleanViewController : ViewController {
 
     private val autoDispose: ArrayList<Disposable> = ArrayList()
     private val listeners: ArrayList<Listener> = ArrayList()
@@ -24,7 +24,7 @@ public abstract class AutocleanViewController : ViewController {
     /**
      * Disposes the object given when this view controller is disposed.
      */
-    public fun <T : Disposable> autoDispose(vc: T): T {
+    fun <T : Disposable> autoDispose(vc: T): T {
         autoDispose.add(vc)
         return vc
     }
@@ -32,7 +32,7 @@ public abstract class AutocleanViewController : ViewController {
     /**
      * Calls make(View) and unmake(View) when this view controller has those functions called on it.
      */
-    public fun <T : Listener> listener(l: T): T {
+    fun <T : Listener> listener(l: T): T {
         listeners.add(l)
         autoDispose.add(l)
         return l
@@ -43,7 +43,7 @@ public abstract class AutocleanViewController : ViewController {
      * The view controller passed in should NOT be created within here and should be autodisposed by
      * this view controller.
      */
-    public fun <T : ViewController> ViewGroup.viewController(viewController: T, initCode: T.() -> Unit = {}): View {
+    fun <T : ViewController> ViewGroup.viewController(viewController: T, initCode: T.() -> Unit = {}): View {
         assert(context is VCActivity)
         viewController.initCode()
         val view = viewController.make(context as VCActivity)
@@ -102,8 +102,8 @@ public abstract class AutocleanViewController : ViewController {
         super.dispose()
     }
 
-    public interface Listener : Disposable {
-        public fun make(activity: VCActivity)
-        public fun unmake(view: View)
+    interface Listener : Disposable {
+        fun make(activity: VCActivity)
+        fun unmake(view: View)
     }
 }

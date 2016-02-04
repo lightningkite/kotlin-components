@@ -1,5 +1,8 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
 import com.lightningkite.kotlincomponents.vertical
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko._FrameLayout
@@ -34,4 +37,10 @@ fun ViewController.relativeLayout(activity: VCActivity, setup: _RelativeLayout.(
     val layout = _RelativeLayout(activity)
     layout.setup()
     return layout
+}
+
+fun ViewController.inflate(context: Context, layoutResource: Int, init: View.() -> Unit): View {
+    val layout = LayoutInflater.from(context).inflate(layoutResource, null);
+    layout.init();
+    return layout;
 }

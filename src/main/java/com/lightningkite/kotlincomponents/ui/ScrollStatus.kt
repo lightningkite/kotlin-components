@@ -14,14 +14,14 @@ class ScrollStatus(): AbsListView.OnScrollListener{
     private var _visibleItemCount:Int = 0
     private var _totalItemCount:Int = 0
 
-    public val firstVisibleItem:Int get() = _firstVisibleItem
-    public val visibleItemCount:Int get() = _visibleItemCount
-    public val totalItemCount:Int get() = _totalItemCount
-    public val lastVisibleItem:Int get() = _firstVisibleItem + _visibleItemCount
-    public val isAtBottom:Boolean get() {
+    val firstVisibleItem: Int get() = _firstVisibleItem
+    val visibleItemCount: Int get() = _visibleItemCount
+    val totalItemCount: Int get() = _totalItemCount
+    val lastVisibleItem: Int get() = _firstVisibleItem + _visibleItemCount
+    val isAtBottom: Boolean get() {
         return _totalItemCount <= _firstVisibleItem + _visibleItemCount
     }
-    public val isAtTop:Boolean get() = _firstVisibleItem == 0
+    val isAtTop: Boolean get() = _firstVisibleItem == 0
 
     override fun onScroll(view: AbsListView?, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
         _firstVisibleItem = firstVisibleItem
@@ -34,7 +34,7 @@ class ScrollStatus(): AbsListView.OnScrollListener{
 
 }
 
-public fun ListView.scrollStatus(): ScrollStatus{
+fun ListView.scrollStatus(): ScrollStatus {
     val listener = ScrollStatus()
     setOnScrollListener(listener)
     return listener

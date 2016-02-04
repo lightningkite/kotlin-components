@@ -9,7 +9,7 @@ import android.widget.LinearLayout
  * An animation which animates the height of a view inside a vertical linear layout.
  * Created by Joseph on 2/25/2015.
  */
-public class LinearLayoutHeightAnimation(private val mView: View?, duration: Int, private val mStartHeight: Int, private val mEndHeight: Int) : Animation() {
+class LinearLayoutHeightAnimation(private val mView: View?, duration: Int, private val mStartHeight: Int, private val mEndHeight: Int) : Animation() {
     private val mLayoutParams: LinearLayout.LayoutParams
 
     init {

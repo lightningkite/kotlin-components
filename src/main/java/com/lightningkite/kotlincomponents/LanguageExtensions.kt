@@ -9,7 +9,7 @@ import java.util.*
  * Created by jivie on 8/7/15.
  */
 
-public inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T?, crossinline onResult: (T?) -> Unit) {
+inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T?, crossinline onResult: (T?) -> Unit) {
     doAsync({
         var timesTried: Int = 0
         var result: T? = null
@@ -82,37 +82,37 @@ fun <A, B> Collection<A>.mapOptional(toOtherFunc: (A) -> B?): ArrayList<B> {
     return results
 }
 
-public fun Date.toCalendar(): Calendar {
+fun Date.toCalendar(): Calendar {
     val cal = Calendar.getInstance()
     cal.time = this
     return cal
 }
 
-public var Calendar.year: Int
+var Calendar.year: Int
     get() = get(Calendar.YEAR)
     set(value) = set(Calendar.YEAR, value)
 
-public var Calendar.month: Int
+var Calendar.month: Int
     get() = get(Calendar.MONTH)
     set(value) = set(Calendar.MONTH, value)
 
-public var Calendar.dayOfMonth: Int
+var Calendar.dayOfMonth: Int
     get() = get(Calendar.DAY_OF_MONTH)
     set(value) = set(Calendar.DAY_OF_MONTH, value)
 
-public var Calendar.dayOfWeek: Int
+var Calendar.dayOfWeek: Int
     get() = get(Calendar.DAY_OF_WEEK)
     set(value) = set(Calendar.DAY_OF_WEEK, value)
 
-public var Calendar.hourOfDay: Int
+var Calendar.hourOfDay: Int
     get() = get(Calendar.HOUR_OF_DAY)
     set(value) = set(Calendar.HOUR_OF_DAY, value)
 
-public var Calendar.minute: Int
+var Calendar.minute: Int
     get() = get(Calendar.MINUTE)
     set(value) = set(Calendar.MINUTE, value)
 
-public var Calendar.second: Int
+var Calendar.second: Int
     get() = get(Calendar.SECOND)
     set(value) = set(Calendar.SECOND, value)
 

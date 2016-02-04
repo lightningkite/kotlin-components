@@ -13,18 +13,18 @@ import java.util.*
  * Use this class Anko-style, and append the views with the [tag] function.
  * Created by jivie on 8/26/15.
  */
-public class TransitionView(context: Context) : _FrameLayout(context) {
+class TransitionView(context: Context) : _FrameLayout(context) {
     private val views: HashMap<String, View> = HashMap()
     private var currentView: View = View(context)
-    public var defaultAnimation: AnimationSet = AnimationSet.fade
+    var defaultAnimation: AnimationSet = AnimationSet.fade
 
-    public fun addView(tag: String, child: View) {
+    fun addView(tag: String, child: View) {
         super.addView(child)
         views.put(tag, child)
         child.visibility = View.INVISIBLE
     }
 
-    public fun removeView(tag: String) {
+    fun removeView(tag: String) {
         super.removeView(views.remove(tag))
     }
 
@@ -38,7 +38,7 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
      * Tags a view with [myTag].
      * @param myTag The tag used to access this view later.
      */
-    public fun <T : View> T.tag(myTag: String): T {
+    fun <T : View> T.tag(myTag: String): T {
         views.put(myTag, this)
         visibility = View.INVISIBLE
         return this
@@ -49,7 +49,7 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
      * @param tag The view to animate to.
      * @param set The animation set for animating.
      */
-    public fun animate(tag: String, set: AnimationSet = defaultAnimation) {
+    fun animate(tag: String, set: AnimationSet = defaultAnimation) {
         if (views[tag] == currentView) return;
         //val (animateIn, animateOut) = set
         val animateIn = set.animateIn
@@ -66,14 +66,14 @@ public class TransitionView(context: Context) : _FrameLayout(context) {
         currentView = newView
     }
 
-    public fun jump(tag: String) {
+    fun jump(tag: String) {
         currentView.visibility = View.INVISIBLE
         currentView = views[tag]!!
         currentView.visibility = View.VISIBLE
     }
 }
 
-@Suppress("NOTHING_TO_INLINE") public inline fun ViewManager.transitionView() = transitionView {}
-public inline fun ViewManager.transitionView(init: TransitionView.() -> Unit): TransitionView {
+@Suppress("NOTHING_TO_INLINE") inline fun ViewManager.transitionView() = transitionView {}
+inline fun ViewManager.transitionView(init: TransitionView.() -> Unit): TransitionView {
     return ankoView({ TransitionView(it) }, init)
 }

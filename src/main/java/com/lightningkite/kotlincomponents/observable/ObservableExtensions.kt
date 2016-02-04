@@ -124,7 +124,7 @@ fun <A, B, C> View.bind(
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the text here will be updated.
  */
-inline public fun EditText.bindString(bond: KObservableInterface<String>) {
+inline fun EditText.bindString(bond: KObservableInterface<String>) {
     setText(bond.get())
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
@@ -145,7 +145,7 @@ inline public fun EditText.bindString(bond: KObservableInterface<String>) {
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the text here will be updated.
  */
-inline public fun EditText.bindNullableString(bond: KObservableInterface<String?>) {
+inline fun EditText.bindNullableString(bond: KObservableInterface<String?>) {
     setText(bond.get())
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
@@ -166,7 +166,7 @@ inline public fun EditText.bindNullableString(bond: KObservableInterface<String?
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the integer here will be updated.
  */
-inline public fun EditText.bindInt(bond: KObservableInterface<Int>) {
+inline fun EditText.bindInt(bond: KObservableInterface<Int>) {
     inputType = (inputType and 0xFFFFFFF0.toInt()) or InputType.TYPE_CLASS_NUMBER
     setText(bond.get().toString())
     textChangedListener {
@@ -188,7 +188,7 @@ inline public fun EditText.bindInt(bond: KObservableInterface<Int>) {
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the number here will be updated.
  */
-inline public fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberFormat) {
+inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberFormat) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
     textChangedListener {
@@ -216,7 +216,7 @@ inline public fun EditText.bindFloat(bond: KObservableInterface<Float>, format: 
 /**
  * Binds this [Switch] two way to the bond.
  */
-inline public fun Switch.bind(bond: KObservableInterface<Boolean>) {
+inline fun Switch.bind(bond: KObservableInterface<Boolean>) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         Unit
@@ -231,7 +231,7 @@ inline public fun Switch.bind(bond: KObservableInterface<Boolean>) {
     }
 }
 
-inline public fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
+inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         Unit
@@ -248,7 +248,7 @@ inline public fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, i
     }
 }
 
-inline public fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
+inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         Unit
@@ -268,7 +268,7 @@ inline public fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>,
 /**
  * Makes this [TextView] display the value of the bond.
  */
-inline public fun TextView.bindString(bond: KObservableInterface<String>) {
+inline fun TextView.bindString(bond: KObservableInterface<String>) {
     bind(bond) {
         this.text = bond.get()
     }
@@ -277,7 +277,7 @@ inline public fun TextView.bindString(bond: KObservableInterface<String>) {
 /**
  * Makes this [TextView] display the value of the bond.
  */
-inline public fun TextView.bindAny(bond: KObservableInterface<Any>) {
+inline fun TextView.bindAny(bond: KObservableInterface<Any>) {
     bind(bond) {
         this.text = bond.get().toString()
     }
@@ -288,7 +288,7 @@ inline public fun TextView.bindAny(bond: KObservableInterface<Any>) {
  * When the user picks a new value from the spinner, the value of the bond will change to the index of the new value.
  * When the value of the bond changes, the item will shown will be updated.
  */
-inline public fun Spinner.bindIndex(bond: KObservableInterface<Int>) {
+inline fun Spinner.bindIndex(bond: KObservableInterface<Int>) {
     bind(bond) {
         if (selectedItemPosition != it) {
             setSelection(it)
@@ -307,7 +307,7 @@ inline public fun Spinner.bindIndex(bond: KObservableInterface<Int>) {
     }
 }
 
-inline public fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List<T>) {
+inline fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List<T>) {
     this.onItemSelectedListener {
         onItemSelected { adapterView, view, index, id ->
             bond.set(list[index])
@@ -326,7 +326,7 @@ inline public fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List
  * When the user picks this radio button, [bond] is set to [value]
  * When the value of the bond changes, it will be shown as checked if they are equal.
  */
-inline public fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value: T) {
+inline fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value: T) {
     bind(bond) {
         isChecked = value == bond.get()
     }
@@ -337,7 +337,7 @@ inline public fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value
     }
 }
 
-inline public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservableInterface<Array<T>>, noinline makeView: (KObservableInterface<T>) -> View) {
+inline fun <T> ListView.bindArray(activity: VCActivity, bond: KObservableInterface<Array<T>>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) {
@@ -345,7 +345,7 @@ inline public fun <T> ListView.bindArray(activity: VCActivity, bond: KObservable
     }
 }
 
-inline public fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond: KObservableInterface<L>, noinline makeView: (KObservableInterface<T>) -> View) {
+inline fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond: KObservableInterface<L>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) { list ->
@@ -353,7 +353,7 @@ inline public fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond:
     }
 }
 
-inline public fun <T, L : List<T>> ListView.bindNullableList(activity: VCActivity, bond: KObservableInterface<L?>, noinline makeView: (KObservableInterface<T>) -> View) {
+inline fun <T, L : List<T>> ListView.bindNullableList(activity: VCActivity, bond: KObservableInterface<L?>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
     bind(bond) { list ->

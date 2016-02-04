@@ -5,7 +5,7 @@ package com.lightningkite.kotlincomponents.networking
  * Created by jivie on 9/2/15.
  */
 
-public object Networking: NetStack {
+object Networking : NetStack {
 
     var stack: NetStack = OkHttpStack
 

@@ -6,18 +6,18 @@ import android.util.Log
  * Functions for doing some quick logging.
  * Created by josep on 10/4/2015.
  */
-public fun Any.logD(text: String) = Log.d(javaClass.simpleName, text)
+fun Any.logD(text: String) = Log.d(javaClass.simpleName, text)
 
-public fun Any.logI(text: String) = Log.i(javaClass.simpleName, text)
-public fun Any.logW(text: String) = Log.w(javaClass.simpleName, text)
-public fun Any.logE(text: String) = Log.e(javaClass.simpleName, text)
-public fun Any.logWTF(text: String) = Log.wtf(javaClass.simpleName, text)
+fun Any.logI(text: String) = Log.i(javaClass.simpleName, text)
+fun Any.logW(text: String) = Log.w(javaClass.simpleName, text)
+fun Any.logE(text: String) = Log.e(javaClass.simpleName, text)
+fun Any.logWTF(text: String) = Log.wtf(javaClass.simpleName, text)
 
-public fun Any.logD(obj: Any?) = Log.d(javaClass.simpleName, obj.toString())
-public fun Any.logI(obj: Any?) = Log.i(javaClass.simpleName, obj.toString())
-public fun Any.logW(obj: Any?) = Log.w(javaClass.simpleName, obj.toString())
-public fun Any.logE(obj: Any?) = Log.e(javaClass.simpleName, obj.toString())
-public fun Any.logWTF(obj: Any?) = Log.wtf(javaClass.simpleName, obj.toString())
+fun Any.logD(obj: Any?) = Log.d(javaClass.simpleName, obj.toString())
+fun Any.logI(obj: Any?) = Log.i(javaClass.simpleName, obj.toString())
+fun Any.logW(obj: Any?) = Log.w(javaClass.simpleName, obj.toString())
+fun Any.logE(obj: Any?) = Log.e(javaClass.simpleName, obj.toString())
+fun Any.logWTF(obj: Any?) = Log.wtf(javaClass.simpleName, obj.toString())
 
 private fun buildDisplayList(vararg objs: Any?): String {
     val builder = StringBuilder()
@@ -31,8 +31,8 @@ private fun buildDisplayList(vararg objs: Any?): String {
     return builder.toString()
 }
 
-public fun Any.logD(vararg objs: Any?) = Log.d(javaClass.simpleName, buildDisplayList(objs))
-public fun Any.logI(vararg objs: Any?) = Log.i(javaClass.simpleName, buildDisplayList(objs))
-public fun Any.logW(vararg objs: Any?) = Log.w(javaClass.simpleName, buildDisplayList(objs))
-public fun Any.logE(vararg objs: Any?) = Log.e(javaClass.simpleName, buildDisplayList(objs))
-public fun Any.logWTF(vararg objs: Any?) = Log.wtf(javaClass.simpleName, buildDisplayList(objs))
+fun Any.logD(vararg objs: Any?) = Log.d(javaClass.simpleName, buildDisplayList(objs))
+fun Any.logI(vararg objs: Any?) = Log.i(javaClass.simpleName, buildDisplayList(objs))
+fun Any.logW(vararg objs: Any?) = Log.w(javaClass.simpleName, buildDisplayList(objs))
+fun Any.logE(vararg objs: Any?) = Log.e(javaClass.simpleName, buildDisplayList(objs))
+fun Any.logWTF(vararg objs: Any?) = Log.wtf(javaClass.simpleName, buildDisplayList(objs))

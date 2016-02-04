@@ -2,8 +2,7 @@ package com.lightningkite.kotlincomponents.networking
 
 import android.content.Context
 import com.lightningkite.kotlincomponents.toByteArray
-import com.squareup.okhttp.Headers
-import java.io.*
+import java.io.IOException
 
 /**
  *

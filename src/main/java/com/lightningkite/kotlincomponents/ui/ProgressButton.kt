@@ -62,18 +62,18 @@ class ProgressButton(context: Context) : FrameLayout(context){
     }
 }
 
-public inline fun ViewManager.progressButton(init: ProgressButton.() -> Unit): ProgressButton {
+inline fun ViewManager.progressButton(init: ProgressButton.() -> Unit): ProgressButton {
     return ankoView({ ProgressButton(it) }, init)
 }
 
-public inline fun ViewManager.progressButton(text:String, init: ProgressButton.() -> Unit): ProgressButton {
+inline fun ViewManager.progressButton(text: String, init: ProgressButton.() -> Unit): ProgressButton {
     return ankoView({ ProgressButton(it) }, {
         button.text = text
         init()
     })
 }
 
-public inline fun ViewManager.progressButton(textResource:Int, init: ProgressButton.() -> Unit): ProgressButton {
+inline fun ViewManager.progressButton(textResource: Int, init: ProgressButton.() -> Unit): ProgressButton {
     return ankoView({ ProgressButton(it) }, {
         button.textResource = textResource
         init()

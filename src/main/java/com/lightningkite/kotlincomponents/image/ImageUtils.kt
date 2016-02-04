@@ -27,12 +27,12 @@ import java.util.*
 /**
  * Pops up a dialog for getting an image from the gallery, returning it in [onResult].
  */
-public fun VCActivity.getImageFromGallery(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
+fun VCActivity.getImageFromGallery(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
     val getIntent = Intent(Intent.ACTION_GET_CONTENT)
-    getIntent.setType("image/*")
+    getIntent.type = "image/*"
 
     val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-    pickIntent.setType("image/*")
+    pickIntent.type = "image/*"
 
     val chooserIntent = Intent.createChooser(getIntent, "Select Image")
     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
@@ -47,7 +47,7 @@ public fun VCActivity.getImageFromGallery(maxDimension: Int, onResult: (Bitmap?)
 /**
  * Opens the camera to take a picture, returning it in [onResult].
  */
-public fun VCActivity.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
+fun VCActivity.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) -> Unit) {
     val folder = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
     if (folder == null) {
@@ -70,7 +70,7 @@ public fun VCActivity.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) 
 /**
  * Rotates a bitmap, creating a new bitmap.  Beware of memory allocations.
  */
-public fun Bitmap.rotate(degrees: Int): Bitmap {
+fun Bitmap.rotate(degrees: Int): Bitmap {
     val matrix = Matrix()
     val w = width
     val h = height
@@ -83,7 +83,7 @@ public fun Bitmap.rotate(degrees: Int): Bitmap {
 /**
  * Gets a bitmap from a Uri, scaling it down if necessary.
  */
-public fun Context.getBitmapFromUri(inputUri: Uri, maxDimension: Int): Bitmap? {
+fun Context.getBitmapFromUri(inputUri: Uri, maxDimension: Int): Bitmap? {
     val initialBitmap = lessResolution(this, inputUri, maxDimension, maxDimension) ?: return null
     var bitmap: Bitmap = initialBitmap
     try {

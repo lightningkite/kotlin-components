@@ -11,7 +11,7 @@ import java.nio.charset.Charset
  */
 object OkHttpStack : NetStack {
 
-    public val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
+    val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
         try {

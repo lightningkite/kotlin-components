@@ -14,11 +14,11 @@ import java.lang.ref.WeakReference
  * @param interpolator A function that interpolates between one value and another.
  * Created by jivie on 9/28/15.
  */
-public class ActionAnimator<T, V>(
+class ActionAnimator<T, V>(
         target: T,
-        public var startValue: V? = null,
-        public val action: T.(value: V) -> Unit,
-        public var interpolator: ((startVal: V, progress: Float, endVal: V) -> V)
+        var startValue: V? = null,
+        val action: T.(value: V) -> Unit,
+        var interpolator: ((startVal: V, progress: Float, endVal: V) -> V)
 ) {
     private val weak: WeakReference<T> = WeakReference(target)
     private val handler: Handler = Handler(Looper.getMainLooper())
@@ -35,7 +35,7 @@ public class ActionAnimator<T, V>(
      * @param newDuration The amount of time to animate over in milliseconds.
      * @param newDelta The time between updates of the animation in milliseconds, defaulted to 20 milliseconds.
      */
-    public fun animate(
+    fun animate(
             to: V,
             newDuration: Long,
             newDelta: Long = 20L
@@ -58,7 +58,7 @@ public class ActionAnimator<T, V>(
     /**
      * Immediately cancels the current animation.
      */
-    public fun stop() {
+    fun stop() {
         if (endValue != null && startValue != null) {
             startValue = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
         }
@@ -86,7 +86,7 @@ public class ActionAnimator<T, V>(
 /**
  * A function that interpolates between colors RGB style.
  */
-public fun interpolateRGB(from: Int, interpolationValue: Float, to: Int): Int {
+fun interpolateRGB(from: Int, interpolationValue: Float, to: Int): Int {
     val a1 = Color.alpha(from)
     val r1 = Color.red(from)
     val g1 = Color.green(from)
@@ -110,7 +110,7 @@ public fun interpolateRGB(from: Int, interpolationValue: Float, to: Int): Int {
 /**
  * A function that interpolates between colors HSV style.
  */
-public fun interpolateHSV(from: Int, interpolationValue: Float, to: Int): Int {
+fun interpolateHSV(from: Int, interpolationValue: Float, to: Int): Int {
     val fromHSV: FloatArray = FloatArray(3)
     Color.colorToHSV(from, fromHSV)
     val toHSV: FloatArray = FloatArray(3)

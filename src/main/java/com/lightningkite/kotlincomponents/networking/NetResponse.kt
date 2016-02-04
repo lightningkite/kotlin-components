@@ -2,12 +2,11 @@ package com.lightningkite.kotlincomponents.networking
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.lightningkite.kotlincomponents.BasicGson
+import com.lightningkite.kotlincomponents.MyGson
 import org.json.JSONObject
 
 /**
@@ -19,7 +18,7 @@ public data class NetResponse(
         public val raw: ByteArray
 ) {
     public val isSuccessful: Boolean get() = code / 100 == 2
-    public inline fun <reified T : Any> result(gson: Gson = BasicGson.gson): T? {
+    public inline fun <reified T : Any> result(gson: Gson = MyGson.gson): T? {
         return gson.fromJson<T>(string())
     }
 

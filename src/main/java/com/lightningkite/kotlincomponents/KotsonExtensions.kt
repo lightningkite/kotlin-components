@@ -1,17 +1,58 @@
 package com.lightningkite.kotlincomponents
 
-import com.github.salomonbrys.kotson.fromJson
-import com.github.salomonbrys.kotson.toJson
 import com.google.gson.*
+import java.util.*
 
 /**
  * Created by jivie on 8/13/15.
  */
 
-public object BasicGson {
-    public val gson: Gson = GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .create()
+public object MyGson {
+
+    private val hierarchyAdapters = HashMap<Class<*>, Any>()
+    fun registerHierarchy(type: Class<*>, adapter: Any) {
+        hierarchyAdapters[type] = adapter
+        update()
+    }
+
+    inline fun <reified T : Any> registerHierarchy(adapter: JsonDeserializer<T>) = registerHierarchy(T::class.java, adapter)
+    inline fun <reified T : Any> registerHierarchy(adapter: JsonSerializer<T>) = registerHierarchy(T::class.java, adapter)
+    inline fun <reified T : Any> registerHierarchy(adapter: TypeAdapter<T>) = registerHierarchy(T::class.java, adapter)
+
+    private val adapters = HashMap<Class<*>, Any>()
+    fun register(type: Class<*>, adapter: Any) {
+        adapters[type] = adapter
+        update()
+    }
+
+    inline fun <reified T : Any> register(adapter: JsonDeserializer<T>) = register(T::class.java, adapter)
+    inline fun <reified T : Any> register(adapter: JsonSerializer<T>) = register(T::class.java, adapter)
+    inline fun <reified T : Any> register(adapter: TypeAdapter<T>) = register(T::class.java, adapter)
+
+    val json: JsonParser = JsonParser()
+
+    private var gsonInternal: Gson? = null
+    val gson: Gson get() = gsonInternal ?: initialize()
+
+    fun update() {
+        if (gsonInternal == null) return;
+        initialize()
+    }
+
+    fun initialize(): Gson {
+        val builder = GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        for ((type, adapter) in hierarchyAdapters) {
+            builder.registerTypeHierarchyAdapter(type, adapter)
+        }
+        for ((type, adapter) in adapters) {
+            builder.registerTypeAdapter(type, adapter)
+        }
+        val gson = builder.create()
+        gsonInternal = gson
+        return gson
+    }
+
 }
 
 public fun <E> Collection<E>.toJsonArray(): JsonArray {
@@ -35,10 +76,23 @@ public fun Any?.toJsonElement(): JsonElement {
     }
 }
 
-public fun Any.gsonTo(gson: Gson = BasicGson.gson): String {
+public fun Any.gsonTo(gson: Gson = MyGson.gson): String {
     return gson.toJson(this)
 }
 
-public inline fun <reified T : Any> String.gsonFrom(gson: Gson = BasicGson.gson): T? {
+public inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
     return gson.fromJson<T>(this)
+}
+
+public inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
+    return gson.fromJson<T>(this)
+}
+
+
+public inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+    return gson.fromJson(this, type)
+}
+
+public inline fun <reified T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+    return gson.fromJson(this, type)
 }

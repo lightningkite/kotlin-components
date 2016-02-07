@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents
 
+import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.*
 import java.util.*
 
@@ -81,11 +82,11 @@ fun Any.gsonTo(gson: Gson = MyGson.gson): String {
 }
 
 inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson(this, T::class.java)
+    return gson.fromJson<T>(this)
 }
 
 inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson(this, T::class.java)
+    return gson.fromJson<T>(this)
 }
 
 

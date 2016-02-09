@@ -23,6 +23,10 @@ data class NetResponse(
         return gson.fromJson<T>(string())
     }
 
+    fun <T : Any> result(type: Class<T>, gson: Gson = MyGson.gson): T? {
+        return gson.fromJson<T>(string(), type)
+    }
+
     fun bitmap(): Bitmap? {
         try {
             return BitmapFactory.decodeByteArray(raw, 0, raw.size)

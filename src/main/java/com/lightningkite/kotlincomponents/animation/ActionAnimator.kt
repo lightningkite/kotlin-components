@@ -131,3 +131,10 @@ fun interpolateHSV(from: Int, interpolationValue: Float, to: Int): Int {
 
     return Color.HSVToColor((toA * interpolationValue + fromA * inv).toInt(), interpHSV)
 }
+
+/**
+ * A function that interpolates between two float values linearly.
+ */
+fun interpolate(from: Float, interpolationValue: Float, to: Float): Float {
+    return from * (1 - interpolationValue) + to * interpolationValue
+}

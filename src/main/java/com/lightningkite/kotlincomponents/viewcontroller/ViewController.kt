@@ -40,6 +40,7 @@ interface ViewController : Disposable {
      */
     fun getTitle(resources: Resources): String = "Untitled"
 
+
     /**
      * Called when back is pressed.
      * Example usage:

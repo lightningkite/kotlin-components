@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.viewcontroller.containers
 
+import android.content.res.Resources
 import com.lightningkite.kotlincomponents.Disposable
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
@@ -21,6 +22,10 @@ interface VCContainer: Disposable{
 
     fun onBackPressed(backAction:()->Unit){
         backAction()
+    }
+
+    fun getTitle(resources: Resources): String {
+        return current.getTitle(resources)
     }
 }
 abstract class VCContainerImpl: VCContainer {

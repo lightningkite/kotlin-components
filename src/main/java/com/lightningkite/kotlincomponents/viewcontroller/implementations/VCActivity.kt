@@ -44,6 +44,14 @@ abstract class VCActivity : Activity() {
         setContentView(vcView)
     }
 
+    fun onCreate(savedInstanceState: Bundle?, shouldSetContent: Boolean) {
+        super.onCreate(savedInstanceState)
+        vcView = VCView(this)
+        if (shouldSetContent) {
+            setContentView(vcView)
+        }
+    }
+
     override fun onBackPressed() {
         vcView.container?.onBackPressed{
             super.onBackPressed()

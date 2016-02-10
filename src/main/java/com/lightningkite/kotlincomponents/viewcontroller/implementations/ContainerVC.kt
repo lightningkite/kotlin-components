@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
+import android.content.res.Resources
 import android.view.View
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
@@ -34,5 +35,9 @@ class ContainerVC(val container:VCContainer, val disposeContainer:Boolean = true
 
     override fun onBackPressed(backAction:()->Unit) {
         vcView?.container?.onBackPressed(backAction)
+    }
+
+    override fun getTitle(resources: Resources): String {
+        return container.getTitle(resources)
     }
 }

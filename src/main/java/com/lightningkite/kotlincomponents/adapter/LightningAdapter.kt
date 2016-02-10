@@ -4,6 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.lightningkite.kotlincomponents.observable.KObservable
+import com.lightningkite.kotlincomponents.observable.KObservableInterface
+import com.lightningkite.kotlincomponents.observable.bind
 
 /**
  * Created by josep on 1/24/2016.
@@ -44,4 +46,12 @@ class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) -> Vi
         return convertView
     }
 
+}
+
+fun <T, C : List<T>> View.lightningAdapter(listObs: KObservableInterface<C>, makeView: (LightningAdapter.ItemObservable<T>) -> View): LightningAdapter<T> {
+    val result = LightningAdapter(listObs.get(), makeView)
+    bind(listObs) {
+        result.list = it
+    }
+    return result
 }

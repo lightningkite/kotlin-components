@@ -11,7 +11,7 @@ import com.lightningkite.kotlincomponents.observable.KObservableList
 class KRecyclerViewAdapter<T : Any>(
         val list: KObservableList<T>,
         val makeView: (ItemObservable<T>) -> View
-) : RecyclerView.Adapter<KRecyclerViewAdapter.ViewHolder<T>>() {
+) : RecyclerView.Adapter<KRecyclerViewAdapter.ViewHolder<T>>(), MutableList<T> by list {
 
     override fun getItemCount(): Int = list.size
 
@@ -42,7 +42,7 @@ object RecyclerViewParamAdder {
     }
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableList<T>, crossinline makeView: RecyclerViewParamAdder.(ItemObservable<T>) -> View): RecyclerView.Adapter<KRecyclerViewAdapter.ViewHolder<T>> {
+inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableList<T>, crossinline makeView: RecyclerViewParamAdder.(ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list) {
         RecyclerViewParamAdder.makeView(it)
     }

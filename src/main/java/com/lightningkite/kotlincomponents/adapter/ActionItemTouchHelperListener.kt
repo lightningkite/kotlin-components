@@ -1,10 +1,14 @@
 package com.lightningkite.kotlincomponents.adapter
 
 import android.graphics.Canvas
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import com.lightningkite.kotlincomponents.alpha
+import com.lightningkite.kotlincomponents.logging.logD
+import com.lightningkite.kotlincomponents.ui.setBoundsCentered
 
 /**
  * Created by jivie on 2/11/16.
@@ -36,6 +40,8 @@ open class ActionItemTouchHelperListener(
         }
     }
 
+    val drawRect:RectF = RectF()
+
     override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
 
@@ -48,16 +54,19 @@ open class ActionItemTouchHelperListener(
                 if (rightAction != null) {
                     val icon = rightAction.drawable
                     // swiping right
-                    val top = (itemView.height / 2) - (icon.minimumHeight / 2);
-                    val left = (itemView.x.toInt() / 2) - (icon.minimumWidth / 2);
+                    drawRect.set(itemView.left.toFloat(), itemView.top.toFloat(), itemView.left + dX, itemView.bottom.toFloat())
+
                     val ratio = 1 - dX / itemView.width
 
                     c.save()
-                    c.translate(recyclerView.x, itemView.y)
-                    c.clipRect(itemView.left.toFloat(), 0f, dX, itemView.height.toFloat())
+                    c.translate(drawRect.left, drawRect.top)
+                    c.clipRect(0f, 0f, drawRect.width(), drawRect.height())
 
                     c.drawColor(rightAction.color.alpha(ratio))
-                    icon.setBounds(left, top, left + icon.minimumWidth, top + icon.minimumHeight)
+                    icon.setBoundsCentered(
+                            drawRect.width() / 2,
+                            drawRect.height() / 2
+                    )
                     icon.alpha = (ratio * 255).toInt()
                     icon.draw(c)
 
@@ -69,16 +78,19 @@ open class ActionItemTouchHelperListener(
                 if (leftAction != null) {
                     val icon = leftAction.drawable
                     // swiping right
-                    val top = (itemView.height / 2) - (icon.minimumHeight / 2);
-                    val left = ((recyclerView.width * 2 + dX.toInt()) / 2) - (icon.minimumWidth / 2);
+                    drawRect.set(itemView.right.toFloat() + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+
                     val ratio = 1 + dX / itemView.width
 
                     c.save()
-                    c.translate(recyclerView.x, itemView.y)
-                    c.clipRect(recyclerView.right.toFloat() + dX, 0f, recyclerView.right.toFloat(), itemView.height.toFloat())
+                    c.translate(drawRect.left, drawRect.top)
+                    c.clipRect(0f, 0f, drawRect.width(), drawRect.height())
 
                     c.drawColor(leftAction.color.alpha(ratio))
-                    icon.setBounds(left, top, left + icon.minimumWidth, top + icon.minimumHeight)
+                    icon.setBoundsCentered(
+                            drawRect.width() / 2,
+                            drawRect.height() / 2
+                    )
                     icon.alpha = (ratio * 255).toInt()
                     icon.draw(c)
 

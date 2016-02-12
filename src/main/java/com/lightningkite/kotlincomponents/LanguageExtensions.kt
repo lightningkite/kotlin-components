@@ -130,3 +130,35 @@ fun InputStream.toByteArray(): ByteArray {
         output.close();
     }
 }
+
+fun String.toFloatMaybe():Float?{
+    try{
+        return toFloat()
+    } catch(e:NumberFormatException){
+        return null
+    }
+}
+
+fun String.toDoubleMaybe():Double?{
+    try{
+        return toDouble()
+    } catch(e:NumberFormatException){
+        return null
+    }
+}
+
+fun String.toIntMaybe():Int?{
+    try{
+        return toInt()
+    } catch(e:NumberFormatException){
+        return null
+    }
+}
+
+fun String.toLongMaybe():Long?{
+    try{
+        return toLong()
+    } catch(e:NumberFormatException){
+        return null
+    }
+}

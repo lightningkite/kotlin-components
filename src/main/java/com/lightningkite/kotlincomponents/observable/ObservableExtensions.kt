@@ -18,7 +18,7 @@ fun <T> View.bind(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
             observable.remove(item)
-            this@bind.removeOnAttachStateChangeListener(this)
+            //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
@@ -36,7 +36,7 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         override fun onViewDetachedFromWindow(v: View?) {
             observableA.remove(itemA)
             observableB.remove(itemB)
-            this@bind.removeOnAttachStateChangeListener(this)
+            //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
@@ -62,7 +62,7 @@ fun <A, B, C> View.bind(
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
-            this@bind.removeOnAttachStateChangeListener(this)
+            //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
@@ -82,7 +82,7 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         override fun onViewDetachedFromWindow(v: View?) {
             observableA.remove(itemA)
             observableB.remove(itemB)
-            this@bind.removeOnAttachStateChangeListener(this)
+            //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
@@ -108,7 +108,7 @@ fun <A, B, C> View.bind(
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
-            this@bind.removeOnAttachStateChangeListener(this)
+            //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {

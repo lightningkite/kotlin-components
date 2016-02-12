@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
 
@@ -11,15 +12,15 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
-fun Int.alpha(alpha: Int): Int {
+inline fun Int.alpha(alpha: Int): Int {
     return (this and 0x00FFFFFF) or (alpha shl 24)
 }
 
-fun Int.alpha(alpha: Float): Int {
+inline fun Int.alpha(alpha: Float): Int {
     return (this and 0x00FFFFFF) or ((alpha.coerceIn(0f, 1f) * 0xFF).toInt() shl 24)
 }
 
-fun Int.colorMultiply(value: Double): Int {
+inline fun Int.colorMultiply(value: Double): Int {
     return Color.argb(
             Color.alpha(this),
             (Color.red(this) * value).toInt().coerceIn(0, 255),
@@ -28,7 +29,7 @@ fun Int.colorMultiply(value: Double): Int {
     )
 }
 
-fun Calendar.modifyTimeThroughPicker(context: Context, after: (calendar: Calendar) -> Unit) {
+inline fun Calendar.modifyTimeThroughPicker(context: Context, crossinline after: (calendar: Calendar) -> Unit) {
     TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
         this@modifyTimeThroughPicker.set(Calendar.HOUR_OF_DAY, hourOfDay)
         this@modifyTimeThroughPicker.set(Calendar.MINUTE, minute)
@@ -36,7 +37,7 @@ fun Calendar.modifyTimeThroughPicker(context: Context, after: (calendar: Calenda
     }, this.get(Calendar.HOUR_OF_DAY), this.get(Calendar.MINUTE), false).show()
 }
 
-fun Calendar.modifyDateThroughPicker(context: Context, after: (calendar: Calendar) -> Unit) {
+inline fun Calendar.modifyDateThroughPicker(context: Context, crossinline after: (calendar: Calendar) -> Unit) {
     DatePickerDialog(
             context,
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
@@ -51,7 +52,7 @@ fun Calendar.modifyDateThroughPicker(context: Context, after: (calendar: Calenda
     ).show()
 }
 
-fun Context.onceEver(name: String, action: () -> Unit) {
+inline fun Context.onceEver(name: String, action: () -> Unit) {
     val prefs = defaultSharedPreferences
     if (!prefs.contains(name)) {
         prefs.edit().putBoolean(name, true).commit()
@@ -59,12 +60,26 @@ fun Context.onceEver(name: String, action: () -> Unit) {
     }
 }
 
-fun Context.untilEver(name: String, condition: () -> Boolean, action: () -> Unit) {
+inline fun Context.untilEver(name: String, condition: () -> Boolean, action: () -> Unit) {
     val prefs = defaultSharedPreferences
     if (!prefs.contains(name)) {
         action()
         if (condition()) {
             prefs.edit().putBoolean(name, true).commit()
         }
+    }
+}
+
+inline fun versionOn(version: Int, action: () -> Unit) {
+    if (Build.VERSION.SDK_INT >= version) {
+        action()
+    }
+}
+
+inline fun versionOn(version: Int, action: () -> Unit, otherwise: () -> Unit) {
+    if (Build.VERSION.SDK_INT >= version) {
+        action()
+    } else {
+        otherwise()
     }
 }

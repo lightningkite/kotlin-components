@@ -243,6 +243,18 @@ fun WebView.javascript(function: String, vararg arguments: Any?) {
     }
 }
 
+fun ListView.getView(pos: Int): View? {
+    val firstListItemPosition = firstVisiblePosition;
+    val lastListItemPosition = firstListItemPosition + childCount - 1;
+
+    if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+        return null
+    } else {
+        val childIndex = pos - firstListItemPosition;
+        return getChildAt(childIndex);
+    }
+}
+
 fun verticalLayout(context: Context, setup: _LinearLayout.() -> Unit): _LinearLayout {
     return _LinearLayout(context).apply {
         orientation = vertical

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Kotlin Components</string>
+    <string name="editable_list_action_edit">Edit</string>
+    <string name="editable_list_action_delete">Delete</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.lightningkite.kotlincomponents.animation
 
 import android.view.View
-import android.view.ViewGroup
 
 /**
  * Various functions to assist with animating things.
@@ -10,10 +9,10 @@ import android.view.ViewGroup
 /**
  * Creates a resizer function.
  */
-fun View.animateHeightUpdate(duration: Long, layoutParamsRef: ViewGroup.LayoutParams, startSize: Float? = null): () -> Unit {
+fun View.animateHeightUpdate(duration: Long, startSize: Float? = null): () -> Unit {
 
     val heightAnimator = ActionAnimator(this, startSize, {
-        layoutParamsRef.height = it.toInt()
+        layoutParams.height = it.toInt()
         requestLayout()
     }, Interpolate.float)
 
@@ -30,10 +29,10 @@ fun View.animateHeightUpdate(duration: Long, layoutParamsRef: ViewGroup.LayoutPa
 /**
  * Creates a resizer function.
  */
-fun View.animateWidthUpdate(duration: Long, layoutParamsRef: ViewGroup.LayoutParams, startSize: Float? = null): () -> Unit {
+fun View.animateWidthUpdate(duration: Long, startSize: Float? = null): () -> Unit {
 
     val widthAnimator = ActionAnimator(this, startSize, {
-        layoutParamsRef.width = it.toInt()
+        layoutParams.width = it.toInt()
         requestLayout()
     }, Interpolate.float)
 

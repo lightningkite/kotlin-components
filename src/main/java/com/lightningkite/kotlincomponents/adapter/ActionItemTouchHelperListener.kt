@@ -109,4 +109,5 @@ open class ActionItemTouchHelperListener(
 fun RecyclerView.swipe(leftAction: ActionItemTouchHelperListener.SwipeAction?, rightAction: ActionItemTouchHelperListener.SwipeAction?, padding: Int) {
     val listener = ActionItemTouchHelperListener(leftAction, rightAction, padding)
     ItemTouchHelper(listener).attachToRecyclerView(this)
+    itemAnimator
 }

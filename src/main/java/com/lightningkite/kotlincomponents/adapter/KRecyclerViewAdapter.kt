@@ -3,6 +3,8 @@ package com.lightningkite.kotlincomponents.adapter
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import com.lightningkite.kotlincomponents.observable.KLateInitObservable
+import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
 
 /**
@@ -18,12 +20,18 @@ class KRecyclerViewAdapter<T : Any>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T>? {
         val observable = ItemObservable<T>()
         val newView = makeView(observable)
-        return ViewHolder(newView, observable)
+        val holder = ViewHolder(newView, observable)
+        observable.viewHolder = holder
+        return holder
     }
 
     override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
-        holder.observable.index = position
         holder.observable.set(list[position])
+    }
+
+    class ItemObservable<T: Any>() : KLateInitObservable<T>(){
+        lateinit var viewHolder:ViewHolder<T>
+        val position:Int get() = viewHolder.adapterPosition
     }
 
     class ViewHolder<T : Any>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
@@ -42,7 +50,7 @@ object RecyclerViewParamAdder {
     }
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableList<T>, crossinline makeView: RecyclerViewParamAdder.(ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
+inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableList<T>, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list) {
         RecyclerViewParamAdder.makeView(it)
     }

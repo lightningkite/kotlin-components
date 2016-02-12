@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.adapter
+package com.lightningkite.kotlincomponents.observable
 
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import java.util.*
@@ -6,13 +6,11 @@ import java.util.*
 /**
  * Created by jivie on 2/11/16.
  */
-class ItemObservable<T : Any>() : KObservableInterface<T> {
+open class KLateInitObservable<T : Any>() : KObservableInterface<T> {
 
     constructor(initValue: T) : this() {
         set(initValue)
     }
-
-    var index: Int = 0
 
     var value: T? = null
 

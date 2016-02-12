@@ -1,28 +1,15 @@
 package com.lightningkite.kotlincomponents.ui
 
+import android.support.design.widget.TabLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.ViewManager
-import android.widget.ListView
+import com.lightningkite.kotlincomponents.viewcontroller.containers.VCTabs
 import org.jetbrains.anko.custom.ankoView
 
 /**
  * Created by jivie on 2/9/16.
  */
-fun ListView.swipeToDismiss(canRemove: (Int) -> Boolean, removeItem: (Int) -> Unit, notify: () -> Unit) {
-    val listener = SwipeDismissListViewTouchListener(this,
-            object : SwipeDismissListViewTouchListener.DismissCallbacks {
-                override fun canDismiss(position: Int): Boolean = canRemove(position)
-
-                override fun onDismiss(listView: ListView, reverseSortedPositions: IntArray) {
-                    for (position in reverseSortedPositions) {
-                        removeItem(position)
-                    }
-                    notify()
-                }
-            });
-    setOnTouchListener(listener)
-}
 
 inline fun ViewManager.recyclerView() = recyclerView {}
 inline fun ViewManager.recyclerView(init: RecyclerView.() -> Unit) = ankoView({ RecyclerView(it) }, init)
@@ -44,3 +31,32 @@ inline fun ViewManager.horizontalRecyclerView(init: RecyclerView.() -> Unit) = a
         }
     }
 }, init)
+
+inline fun ViewManager.tabLayout() = tabLayout {}
+inline fun ViewManager.tabLayout(init: TabLayout.() -> Unit) = ankoView({ TabLayout(it) }, init)
+
+inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (Int) -> Unit, crossinline tabBuilder: TabLayout.Tab.(Int) -> Unit) {
+
+    val offset = tabCount
+
+    for (vc in vcTabs.viewControllers) {
+        val tab = newTab()
+        tab.text = vc.getTitle(resources)
+        tab.tabBuilder(tab.position - offset)
+    }
+
+    setOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        override fun onTabReselected(tab: TabLayout.Tab) {
+            onReselect(tab.position - offset)
+        }
+
+        override fun onTabUnselected(tab: TabLayout.Tab) {
+
+        }
+
+        override fun onTabSelected(tab: TabLayout.Tab) {
+            vcTabs.index = tab.position - offset
+        }
+
+    })
+}

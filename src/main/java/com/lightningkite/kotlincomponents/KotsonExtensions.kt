@@ -82,18 +82,46 @@ fun Any.gsonTo(gson: Gson = MyGson.gson): String {
 }
 
 inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson<T>(this)
+    try {
+        return gson.fromJson<T>(this)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
 }
 
 inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? {
-    return gson.fromJson<T>(this)
+    try {
+        return gson.fromJson<T>(this)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
 }
 
 
 inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
-    return gson.fromJson(this, type)
+    try {
+        return gson.fromJson(this, type)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
 }
 
 inline fun <reified T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
-    return gson.fromJson(this, type)
+    try {
+        return gson.fromJson(this, type)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
 }

@@ -97,11 +97,14 @@ inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (In
 
     val offset = tabCount
 
+    var index = 0
+
     for (vc in vcTabs.viewControllers) {
         val tab = newTab()
         tab.text = vc.getTitle(resources)
-        tab.tabBuilder(tab.position - offset)
+        tab.tabBuilder(index - offset)
         addTab(tab)
+        index++
     }
 
     setOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

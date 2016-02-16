@@ -127,6 +127,18 @@ val View.selectableItemBackgroundResource: Int
         return 0
     }
 
+val View.selectableItemBackgroundBorderlessResource: Int
+    get() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // If we're running on Honeycomb or newer, then we can use the Theme's
+            // selectableItemBackground to ensure that the View has a pressed state
+            val outValue = TypedValue();
+            context.theme.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true);
+            return outValue.resourceId
+        }
+        return 0
+    }
+
 fun View.getActivity(): Activity? {
     return context.getActivity()
 }

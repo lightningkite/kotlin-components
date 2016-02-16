@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TabLayout
 import android.support.design.widget.TextInputLayout
@@ -47,20 +48,41 @@ inline fun ViewManager.tabLayout() = tabLayout {}
 inline fun ViewManager.tabLayout(init: TabLayout.() -> Unit) = ankoView({ TabLayout(it) }, init)
 
 class _Toolbar(context: Context) : Toolbar(context) {
-    inline fun View.lparams(gravity: Int) {
+    inline fun <T : View> T.lparams(gravity: Int): T {
         layoutParams = Toolbar.LayoutParams(gravity)
+        return this
     }
 
-    inline fun View.lparams(width: Int, height: Int, gravity: Int) {
+    inline fun <T : View> T.lparams(width: Int, height: Int, gravity: Int): T {
         layoutParams = Toolbar.LayoutParams(width, height, gravity)
+        return this
     }
 }
 
 inline fun ViewManager.toolBar() = toolBar {}
-inline fun ViewManager.toolBar(init: Toolbar.() -> Unit) = ankoView({ _Toolbar(it) }, init)
+inline fun ViewManager.toolBar(init: _Toolbar.() -> Unit) = ankoView({ _Toolbar(it) }, init)
 
 inline fun ViewManager.actionMenuView() = actionMenuView {}
 inline fun ViewManager.actionMenuView(init: ActionMenuView.() -> Unit) = ankoView({ ActionMenuView(it) }, init)
+
+class _CoordinatorLayout(context: Context) : CoordinatorLayout(context) {
+
+    inline fun <T : View> T.lparams(width: Int, height: Int): T {
+        val newParams = CoordinatorLayout.LayoutParams(width, height)
+        layoutParams = newParams
+        return this
+    }
+
+    inline fun <T : View> T.lparams(width: Int, height: Int, init: CoordinatorLayout.LayoutParams.() -> Unit): T {
+        val newParams = CoordinatorLayout.LayoutParams(width, height)
+        newParams.init()
+        layoutParams = newParams
+        return this
+    }
+}
+
+inline fun ViewManager.coordinatorLayout() = coordinatorLayout {}
+inline fun ViewManager.coordinatorLayout(init: _CoordinatorLayout.() -> Unit) = ankoView({ _CoordinatorLayout(it) }, init)
 
 inline fun ViewManager.textInputLayout() = tabLayout {}
 inline fun ViewManager.textInputLayout(init: TextInputLayout.() -> Unit) = ankoView({ TextInputLayout(it) }, init)

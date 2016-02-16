@@ -10,25 +10,27 @@ import java.util.*
  * Something that contains [ViewController]s and handles the changes between them.
  * Created by jivie on 10/12/15.
  */
-interface VCContainer: Disposable{
+interface VCContainer : Disposable {
     var onSwapCompleteListeners: ArrayList<() -> Unit>
-    fun swapComplete(){
-        onSwapCompleteListeners.forEach{it()}
+    fun swapComplete() {
+        onSwapCompleteListeners.forEach { it() }
         onSwapCompleteListeners.clear()
     }
-    var swapListener:((newVC: ViewController, AnimationSet?, onFinish: ()->Unit)->Unit)?
+
+    var swapListener: ((newVC: ViewController, AnimationSet?, onFinish: () -> Unit) -> Unit)?
 
     val current: ViewController
 
-    fun onBackPressed(backAction:()->Unit){
-        backAction()
+    fun onBackPressed(backAction: () -> Unit) {
+        current.onBackPressed (backAction)
     }
 
     fun getTitle(resources: Resources): String {
         return current.getTitle(resources)
     }
 }
-abstract class VCContainerImpl: VCContainer {
+
+abstract class VCContainerImpl : VCContainer {
     override var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
-    override var swapListener:((newVC: ViewController, AnimationSet?, onFinish: ()->Unit)->Unit)? = null
+    override var swapListener: ((newVC: ViewController, AnimationSet?, onFinish: () -> Unit) -> Unit)? = null
 }

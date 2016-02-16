@@ -30,15 +30,11 @@ private class DebounceOne<A>(val delay: Long, val action: (A) -> Unit) : (A) -> 
 
     var posted = false
 
-    var a: A? = null
-
-    val runnable = Runnable {
-        posted = false
-        action(a!!)
-    }
-
-    override fun invoke(p1: A) {
-        a = p1
+    override fun invoke(a: A) {
+        val runnable = Runnable {
+            posted = false
+            action(a)
+        }
         if (posted) {
             Async.handler.removeCallbacks(runnable)
         }
@@ -51,17 +47,11 @@ private class DebounceTwo<A, B>(val delay: Long, val action: (A, B) -> Unit) : (
 
     var posted = false
 
-    var a: A? = null
-    var b: B? = null
-
-    val runnable = Runnable {
-        posted = false
-        action(a!!, b!!)
-    }
-
-    override fun invoke(p1: A, p2: B) {
-        a = p1
-        b = p2
+    override fun invoke(a: A, b: B) {
+        val runnable = Runnable {
+            posted = false
+            action(a, b)
+        }
         if (posted) {
             Async.handler.removeCallbacks(runnable)
         }
@@ -74,19 +64,11 @@ private class DebounceThree<A, B, C>(val delay: Long, val action: (A, B, C) -> U
 
     var posted = false
 
-    var a: A? = null
-    var b: B? = null
-    var c: C? = null
-
-    val runnable = Runnable {
-        posted = false
-        action(a!!, b!!, c!!)
-    }
-
-    override fun invoke(p1: A, p2: B, p3: C) {
-        a = p1
-        b = p2
-        c = p3
+    override fun invoke(a: A, b: B, c: C) {
+        val runnable = Runnable {
+            posted = false
+            action(a, b, c)
+        }
         if (posted) {
             Async.handler.removeCallbacks(runnable)
         }

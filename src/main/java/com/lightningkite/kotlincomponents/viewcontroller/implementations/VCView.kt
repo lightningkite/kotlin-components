@@ -51,6 +51,7 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
                 old.unmake(oldView)
                 removeView(oldView)
                 onFinish()
+                current?.animateInComplete(activity, currentView!!)
             } else {
                 val animateOut = animation.animateOut
                 oldView.animateOut(this).withEndAction {
@@ -59,8 +60,12 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
                     onFinish()
                 }.start()
                 val animateIn = animation.animateIn
-                currentView!!.animateIn(this).start()
+                currentView!!.animateIn(this).withEndAction {
+                    current?.animateInComplete(activity, currentView!!)
+                }.start()
             }
+        } else {
+            current?.animateInComplete(activity, currentView!!)
         }
     }
 

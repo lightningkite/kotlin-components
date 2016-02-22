@@ -11,13 +11,9 @@ import java.util.*
  * Created by jivie on 10/12/15.
  */
 interface VCContainer : Disposable {
-    var onSwapCompleteListeners: ArrayList<() -> Unit>
-    fun swapComplete() {
-        onSwapCompleteListeners.forEach { it() }
-        onSwapCompleteListeners.clear()
-    }
 
     var swapListener: ((newVC: ViewController, AnimationSet?, onFinish: () -> Unit) -> Unit)?
+    val onSwap: MutableList<(ViewController) -> Unit>
 
     val current: ViewController
 
@@ -31,6 +27,6 @@ interface VCContainer : Disposable {
 }
 
 abstract class VCContainerImpl : VCContainer {
-    override var onSwapCompleteListeners: ArrayList<() -> Unit> = ArrayList()
     override var swapListener: ((newVC: ViewController, AnimationSet?, onFinish: () -> Unit) -> Unit)? = null
+    override val onSwap: MutableList<(ViewController) -> Unit> = ArrayList()
 }

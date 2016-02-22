@@ -10,7 +10,7 @@ import com.lightningkite.kotlincomponents.observable.bind
 /**
  * Created by josep on 1/24/2016.
  */
-class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) -> View) : BaseAdapter() {
+open class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) -> View) : BaseAdapter() {
 
     class ItemObservable<T>(init:T) : KObservable<T>(init){
         var index:Int = 0

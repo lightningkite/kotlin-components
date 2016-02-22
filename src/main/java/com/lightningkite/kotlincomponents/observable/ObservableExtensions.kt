@@ -277,7 +277,7 @@ inline fun TextView.bindString(bond: KObservableInterface<String>) {
 /**
  * Makes this [TextView] display the value of the bond.
  */
-inline fun TextView.bindAny(bond: KObservableInterface<Any>) {
+inline fun <T : Any> TextView.bindAny(bond: KObservableInterface<T>) {
     bind(bond) {
         this.text = bond.get().toString()
     }

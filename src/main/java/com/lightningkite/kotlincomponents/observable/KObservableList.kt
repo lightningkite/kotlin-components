@@ -8,12 +8,12 @@ import java.util.*
  */
 class KObservableList<E>(
         val collection: MutableList<E>
-) : MutableList<E> {
+) : KObservableListInterface<E> {
 
-    val onAdd = HashSet<(E, Int) -> Unit>()
-    val onChange = HashSet<(E, Int) -> Unit>()
-    val onUpdate = HashSet<(KObservableList<E>) -> Unit>()
-    val onRemove = HashSet<(E, Int) -> Unit>()
+    override val onAdd = HashSet<(E, Int) -> Unit>()
+    override val onChange = HashSet<(E, Int) -> Unit>()
+    override val onUpdate = HashSet<(KObservableList<E>) -> Unit>()
+    override val onRemove = HashSet<(E, Int) -> Unit>()
 
     override fun set(index: Int, element: E): E {
         collection[index] = element

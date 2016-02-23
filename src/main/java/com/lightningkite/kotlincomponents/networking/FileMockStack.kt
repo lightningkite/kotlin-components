@@ -11,7 +11,7 @@ import java.util.*
  */
 
 open class FileMockStack(
-        val responseCodeForUrl: (String, NetMethod, NetBody?) -> Int,
+        val responseCodeForUrl: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> Int,
         val urlToAssetPath: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> String
 ) : NetStack {
 
@@ -33,31 +33,36 @@ open class FileMockStack(
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
         val i = url.indexOf('?')
-        val justUrl = url.substring(0, i)
-        val args = url.substring(i + 1).split('&').map {
-            var pair = it.split('=')
-            if (pair.size == 2) {
-                pair[0] to pair[1]
-            } else if (pair.size == 1) {
-                pair[0] to null
-            } else throw IllegalArgumentException()
+        var justUrl = ""
+        var args = listOf<Pair<String, String?>>()
+        if (i == -1) {
+            justUrl = url
+        } else {
+            justUrl = url.substring(0, i)
+            args = url.substring(i + 1).split('&').map {
+                var pair = it.split('=')
+                if (pair.size == 2) {
+                    pair[0] to pair[1]
+                } else if (pair.size == 1) {
+                    pair[0] to null
+                } else throw IllegalArgumentException()
+            }
         }
-        return readTextFile(responseCodeForUrl(url, method, body), urlToAssetPath(url, args, method, body))
+        return readTextFile(responseCodeForUrl(justUrl, args, method, body), urlToAssetPath(justUrl, args, method, body))
     }
 
     companion object {
         fun simple(restUrl: String): FileMockStack = FileMockStack(
-                { url, method, body -> 200 },
+                { url, args, method, body -> 200 },
                 { url, args, method, body ->
-                    var fullPath = "src/test/assets/"
+                    var fullPath = "src/main/assets/"
                     fullPath += url.replace(restUrl, "")
                     fullPath += "."
-                    fullPath += args.joinToString(".") { it.first + "." + it.second }
-                    fullPath += "."
+                    fullPath += if (args.isNotEmpty()) args.joinToString(".", ".") { it.first + "." + it.second } + "." else ""
                     fullPath += method.toString()
                     fullPath += ".json"
 
-                    var shortPath = "src/test/assets/"
+                    var shortPath = "src/main/assets/"
                     shortPath += url.replace(restUrl, "")
                     shortPath += "."
                     shortPath += method.toString()

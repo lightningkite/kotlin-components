@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.networking
 
 import android.content.Context
 import com.lightningkite.kotlincomponents.toByteArray
+import java.io.File
 import java.io.IOException
 
 /**
@@ -12,8 +13,8 @@ import java.io.IOException
 
 open class AndroidFileMockStack(
         val context: Context,
-        val responseCodeForUrl: (String, NetMethod, NetBody?) -> Int,
-        val urlToAssetPath: (String, NetMethod, NetBody?) -> String
+        val responseCodeForUrl: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> Int,
+        val urlToAssetPath: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> String
 ) : NetStack {
 
     fun readTextFile(successCode: Int, assetPath: String): NetResponse {
@@ -26,15 +27,48 @@ open class AndroidFileMockStack(
     }
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
-        return readTextFile(responseCodeForUrl(url, method, body), urlToAssetPath(url, method, body))
+        val i = url.indexOf('?')
+        var justUrl = ""
+        var args = listOf<Pair<String, String?>>()
+        if (i == -1) {
+            justUrl = url
+        } else {
+            justUrl = url.substring(0, i)
+            args = url.substring(i + 1).split('&').map {
+                var pair = it.split('=')
+                if (pair.size == 2) {
+                    pair[0] to pair[1]
+                } else if (pair.size == 1) {
+                    pair[0] to null
+                } else throw IllegalArgumentException()
+            }
+        }
+        return readTextFile(responseCodeForUrl(justUrl, args, method, body), urlToAssetPath(justUrl, args, method, body))
     }
 
     companion object {
         fun simple(context: Context, restUrl: String): AndroidFileMockStack = AndroidFileMockStack(
                 context,
-                { url, method, body -> 200 },
-                { url, method, body ->
-                    url.replace(restUrl, "") + "." + method.toString() + ".json"
+                { url, args, method, body -> 200 },
+                { url, args, method, body ->
+                    var fullPath = ""
+                    fullPath += url.replace(restUrl, "")
+                    fullPath += "."
+                    fullPath += args.joinToString(".") { it.first + "." + it.second }
+                    fullPath += "."
+                    fullPath += method.toString()
+                    fullPath += ".json"
+
+                    var shortPath = ""
+                    shortPath += url.replace(restUrl, "")
+                    shortPath += "."
+                    shortPath += method.toString()
+                    shortPath += ".json"
+
+                    if (File(fullPath).exists())
+                        fullPath
+                    else
+                        shortPath
                 }
         )
     }

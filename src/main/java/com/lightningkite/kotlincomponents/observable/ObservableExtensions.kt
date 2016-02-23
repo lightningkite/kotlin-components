@@ -369,6 +369,22 @@ inline fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value: T) {
     }
 }
 
+/**
+ * Binds this [RadioButton] two way to the bond.
+ * When the user picks this radio button, [bond] is set to [value]
+ * When the value of the bond changes, it will be shown as checked if they are equal.
+ */
+inline fun <T, A : T> RadioButton.bindValue(bond: KObservableInterface<T>, otherBond: KObservableInterface<A>) {
+    bind(bond, otherBond) { currentValue, myValue ->
+        isChecked = currentValue == myValue
+    }
+    onCheckedChange { compoundButton, checked ->
+        if (checked && bond.get() != otherBond.get()) {
+            bond.set(otherBond.get())
+        }
+    }
+}
+
 inline fun <T> ListView.bindArray(activity: VCActivity, bond: KObservableInterface<Array<T>>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter

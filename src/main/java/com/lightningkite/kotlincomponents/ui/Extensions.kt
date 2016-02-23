@@ -97,7 +97,7 @@ inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (In
 
     val offset = tabCount
 
-    var index = 0
+    var index = vcTabs.index
 
     for (vc in vcTabs.viewControllers) {
         val tab = newTab()

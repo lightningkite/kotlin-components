@@ -84,7 +84,7 @@ class _CoordinatorLayout(context: Context) : CoordinatorLayout(context) {
 inline fun ViewManager.coordinatorLayout() = coordinatorLayout {}
 inline fun ViewManager.coordinatorLayout(init: _CoordinatorLayout.() -> Unit) = ankoView({ _CoordinatorLayout(it) }, init)
 
-inline fun ViewManager.textInputLayout() = tabLayout {}
+inline fun ViewManager.textInputLayout() = textInputLayout {}
 inline fun ViewManager.textInputLayout(init: TextInputLayout.() -> Unit) = ankoView({ TextInputLayout(it) }, init)
 inline fun ViewManager.textInputLayout(hint: String, init: TextInputLayout.() -> Unit) = ankoView({
     TextInputLayout(it).apply {

@@ -14,7 +14,7 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
-fun <T> View.bind(observable: MutableCollection<T>, item: T) {
+fun <T> View.listen(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
             observable.remove(item)
@@ -22,6 +22,34 @@ fun <T> View.bind(observable: MutableCollection<T>, item: T) {
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            observable.add(item)
+        }
+    })
+}
+
+fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            observable.onUpdate.add(item)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            item(observable)
+            observable.onUpdate.add(item)
+        }
+    })
+}
+
+fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            observable.remove(item)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            item(observable.get())
             observable.add(item)
         }
     })
@@ -40,6 +68,7 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            action(observableA.get(), observableB.get())
             observableA.add(itemA)
             observableB.add(itemB)
         }
@@ -66,6 +95,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            action(observableA.get(), observableB.get(), observableC.get())
             observableA.add(itemA)
             observableB.add(itemB)
             observableC.add(itemC)
@@ -86,6 +116,7 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            action()
             observableA.add(itemA)
             observableB.add(itemB)
         }
@@ -112,6 +143,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            action()
             observableA.add(itemA)
             observableB.add(itemB)
             observableC.add(itemC)

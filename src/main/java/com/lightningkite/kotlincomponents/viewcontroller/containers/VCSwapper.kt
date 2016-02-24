@@ -18,6 +18,7 @@ class VCSwapper(startVC:ViewController): VCContainerImpl(){
         swapListener?.invoke(vc, animation){
             toDispose.dispose()
         }
+        onSwap.forEach { it(current) }
     }
 
     override fun dispose() {

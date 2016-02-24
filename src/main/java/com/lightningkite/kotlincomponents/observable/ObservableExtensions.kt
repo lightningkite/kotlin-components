@@ -27,6 +27,20 @@ fun <T> View.listen(observable: MutableCollection<T>, item: T) {
     })
 }
 
+fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            observable.remove(item)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            observable.add(item)
+            item(init)
+        }
+    })
+}
+
 fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {

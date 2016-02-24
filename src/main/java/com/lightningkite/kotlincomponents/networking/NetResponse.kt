@@ -36,6 +36,10 @@ data class NetResponse(
         }
     }
 
+    override fun toString(): String {
+        return string()
+    }
+
     fun string(): String {
         try {
             return raw.toString(Charsets.UTF_8)

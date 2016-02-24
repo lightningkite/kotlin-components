@@ -33,6 +33,7 @@ class VCTabs(startIndex: Int, vararg vcs: ViewController) : VCContainerImpl() {
                 },
                 {})
         oldIndex = it
+        onSwap.forEach { it(current) }
     }
 
     init {

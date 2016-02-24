@@ -10,7 +10,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
  * Useful if you want to have a smaller section of your view that changes, like you might with tabs.
  * Created by jivie on 10/14/15.
  */
-class ContainerVC(val container:VCContainer, val disposeContainer:Boolean = true): ViewController {
+open class ContainerVC(val container: VCContainer, val disposeContainer: Boolean = true) : ViewController {
 
     var vcView:VCView? = null
 

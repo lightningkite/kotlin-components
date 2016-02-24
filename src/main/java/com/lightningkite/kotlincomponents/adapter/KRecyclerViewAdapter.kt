@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.observable.KLateInitObservable
 import com.lightningkite.kotlincomponents.observable.KObservable
-import com.lightningkite.kotlincomponents.observable.KObservableList
+import com.lightningkite.kotlincomponents.observable.KObservableListInterface
 import com.lightningkite.kotlincomponents.observable.bind
 
 /**
@@ -59,7 +59,7 @@ object RecyclerViewParamAdder {
     }
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableList<T>, defaultValue: T? = null, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
+inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defaultValue: T? = null, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
         RecyclerViewParamAdder.makeView(it)
     }

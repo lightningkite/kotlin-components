@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.observable
 
+import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
 /**
@@ -12,13 +13,14 @@ class KObservableList<E>(
 
     override val onAdd = HashSet<(E, Int) -> Unit>()
     override val onChange = HashSet<(E, Int) -> Unit>()
-    override val onUpdate = HashSet<(KObservableList<E>) -> Unit>()
+    override val onUpdate = HashSet<(KObservableListInterface<E>) -> Unit>()
+    override val onReplace = HashSet<(KObservableListInterface<E>) -> Unit>()
     override val onRemove = HashSet<(E, Int) -> Unit>()
 
     override fun set(index: Int, element: E): E {
         collection[index] = element
-        onChange.forEach { it(element, index) }
-        onUpdate.forEach { it(this) }
+        onChange.runAll(element, index)
+        onUpdate.runAll(this)
         return element
     }
 
@@ -26,26 +28,26 @@ class KObservableList<E>(
         val result = collection.add(element)
         val index = collection.size - 1
         if (result) {
-            onAdd.forEach { it(element, index) }
-            onUpdate.forEach { it(this) }
+            onAdd.runAll(element, index)
+            onUpdate.runAll(this)
         }
         return result
     }
 
     override fun add(index: Int, element: E) {
         collection.add(index, element)
-        onAdd.forEach { it(element, index) }
-        onUpdate.forEach { it(this) }
+        onAdd.runAll(element, index)
+        onUpdate.runAll(this)
     }
 
     override fun addAll(elements: Collection<E>): Boolean {
         var index = collection.size
         collection.addAll(elements)
         for (e in elements) {
-            onAdd.forEach { it(e, index) }
+            onAdd.runAll(e, index)
             index++
         }
-        onUpdate.forEach { it(this) }
+        onUpdate.runAll(this)
         return true
     }
 
@@ -53,10 +55,10 @@ class KObservableList<E>(
         collection.addAll(elements)
         var currentIndex = index
         for (e in elements) {
-            onAdd.forEach { it(e, currentIndex) }
+            onAdd.runAll(e, currentIndex)
             currentIndex++
         }
-        onUpdate.forEach { it(this) }
+        onUpdate.runAll(this)
         return true
     }
 
@@ -65,15 +67,15 @@ class KObservableList<E>(
         val index = indexOf(element)
         if (index == -1) return false
         collection.removeAt(index)
-        onRemove.forEach { it(element, index) }
-        onUpdate.forEach { it(this) }
+        onRemove.runAll(element, index)
+        onUpdate.runAll(this)
         return true
     }
 
     override fun removeAt(index: Int): E {
         val element = collection.removeAt(index)
-        onRemove.forEach { it(element, index) }
-        onUpdate.forEach { it(this) }
+        onRemove.runAll(element, index)
+        onUpdate.runAll(this)
         return element
     }
 
@@ -91,10 +93,10 @@ class KObservableList<E>(
 
     override fun clear() {
         collection.forEachIndexed { i, e ->
-            onRemove.forEach { it(e, i) }
+            onRemove.runAll(e, i)
         }
         collection.clear()
-        onUpdate.forEach { it(this) }
+        onUpdate.runAll(this)
     }
 
     override fun isEmpty(): Boolean = collection.isEmpty()
@@ -109,4 +111,9 @@ class KObservableList<E>(
     override fun lastIndexOf(element: E): Int = collection.lastIndexOf(element)
     override val size: Int get() = collection.size
 
+    fun replace(newItems: List<E>) {
+        collection.clear()
+        collection.addAll(newItems)
+        onReplace.runAll(this)
+    }
 }

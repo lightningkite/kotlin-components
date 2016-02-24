@@ -1,8 +1,10 @@
 package com.lightningkite.kotlincomponents.animation
 
+import android.animation.TimeInterpolator
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
+import android.view.animation.LinearInterpolator
 import com.lightningkite.kotlincomponents.math.degreesTo
 import java.lang.ref.WeakReference
 
@@ -18,8 +20,13 @@ class ActionAnimator<T, V>(
         target: T,
         var startValue: V? = null,
         val action: T.(value: V) -> Unit,
-        var interpolator: ((startVal: V, progress: Float, endVal: V) -> V)
+        var interpolator: ((startVal: V, progress: Float, endVal: V) -> V),
+        var timeInterpolator: TimeInterpolator = defaultInterpolator
 ) {
+
+    companion object {
+        val defaultInterpolator = LinearInterpolator()
+    }
     private val weak: WeakReference<T> = WeakReference(target)
     private val handler: Handler = Handler(Looper.getMainLooper())
 
@@ -38,7 +45,7 @@ class ActionAnimator<T, V>(
     fun animate(
             to: V,
             newDuration: Long,
-            newDelta: Long = 20L
+            newDelta: Long = 10L
     ) {
         stop()
         if (startValue == null) {
@@ -70,7 +77,8 @@ class ActionAnimator<T, V>(
             if (!shouldRun || endValue == null || startValue == null) return
 
             timeElapsed = Math.min(timeElapsed + delta, duration)
-            val currentVal = interpolator(startValue!!, timeElapsed.toFloat() / duration, endValue!!)
+            val t = timeInterpolator.getInterpolation(timeElapsed.toFloat() / duration)
+            val currentVal = interpolator(startValue!!, t, endValue!!)
             weak.get()?.action(currentVal)
 
             if (timeElapsed < duration && weak.get() != null) {

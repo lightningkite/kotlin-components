@@ -51,7 +51,7 @@ inline fun rowOneLine(
     }
 }
 
-inline fun rowOneLineSelectable(
+inline fun rowOneLineRadio(
         context: Context,
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,

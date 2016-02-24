@@ -162,3 +162,27 @@ fun String.toLongMaybe():Long?{
         return null
     }
 }
+
+inline fun Collection<() -> Unit>.runAll() {
+    for (listener in this) {
+        listener()
+    }
+}
+
+inline fun <A> Collection<(A) -> Unit>.runAll(a: A) {
+    for (listener in this) {
+        listener(a)
+    }
+}
+
+inline fun <A, B> Collection<(A, B) -> Unit>.runAll(a: A, b: B) {
+    for (listener in this) {
+        listener(a, b)
+    }
+}
+
+inline fun <A, B, C> Collection<(A, B, C) -> Unit>.runAll(a: A, b: B, c: C) {
+    for (listener in this) {
+        listener(a, b, c)
+    }
+}

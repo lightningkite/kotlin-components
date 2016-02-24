@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.animation
 
+import android.animation.TimeInterpolator
 import android.view.View
 
 /**
@@ -23,6 +24,32 @@ fun View.animateHeightUpdate(duration: Long, startSize: Float? = null): () -> Un
         )
         val newHeight = measuredHeight
         heightAnimator.animate(newHeight.toFloat(), duration)
+    }
+}
+
+/**
+ * Creates a resizer function.
+ */
+fun View.makeHeightAnimator(
+        duration: Long,
+        startSize: Float? = null,
+        timeInterpolator: TimeInterpolator = ActionAnimator.defaultInterpolator
+): (toSize: Float?) -> Unit {
+
+    val heightAnimator = ActionAnimator(this, startSize, {
+        layoutParams.height = it.toInt()
+        requestLayout()
+    }, Interpolate.float, timeInterpolator)
+
+    return { toSize: Float? ->
+        if (toSize == null) {
+            this.measure(
+                    View.MeasureSpec.UNSPECIFIED,
+                    View.MeasureSpec.UNSPECIFIED
+            )
+        }
+        val newHeight = toSize ?: measuredHeight.toFloat()
+        heightAnimator.animate(newHeight, duration)
     }
 }
 

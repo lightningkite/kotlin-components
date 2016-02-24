@@ -73,6 +73,9 @@ inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableListInterface<T>,
     list.onChange.add { item, position ->
         adapter.notifyItemChanged(position)
     }
+    list.onReplace.add { list ->
+        adapter.notifyDataSetChanged()
+    }
     return newAdapter
 }
 

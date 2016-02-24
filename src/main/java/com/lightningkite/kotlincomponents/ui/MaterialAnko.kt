@@ -98,17 +98,15 @@ inline fun ViewManager.textInputLayout(hint: Int, init: TextInputLayout.() -> Un
     }
 }, init)
 
-fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}): Snackbar {
+fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()
-    return snack
 }
 
-fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}): Snackbar {
+fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()
-    return snack
 }
 

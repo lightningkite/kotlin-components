@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.observable
 
+import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
 /**
@@ -32,8 +33,6 @@ open class KObservable<T>(
     }
 
     override fun update() {
-        for (listener in list) {
-            listener(value)
-        }
+        list.runAll(value)
     }
 }

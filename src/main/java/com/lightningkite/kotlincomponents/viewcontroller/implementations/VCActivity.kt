@@ -1,8 +1,12 @@
 package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import java.util.*
@@ -63,5 +67,12 @@ abstract class VCActivity : Activity() {
         vcView.unmake()
         super.onDestroy()
     }
+}
 
+fun VCActivity.compatColor(colorResId :Int) :Int {
+    return ContextCompat.getColor(this, colorResId)
+}
+
+fun VCActivity.compatDrawable(drawableResId :Int) :Drawable {
+    return ContextCompat.getDrawable(this as Context, drawableResId)
 }

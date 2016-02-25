@@ -63,5 +63,4 @@ abstract class VCActivity : Activity() {
         vcView.unmake()
         super.onDestroy()
     }
-
 }

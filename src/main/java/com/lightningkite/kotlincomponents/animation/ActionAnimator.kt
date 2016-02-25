@@ -6,7 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.animation.LinearInterpolator
 import com.lightningkite.kotlincomponents.math.degreesTo
+import com.lightningkite.kotlincomponents.runAll
 import java.lang.ref.WeakReference
+import java.util.*
 
 /**
  * Animates pretty much anything.
@@ -23,7 +25,6 @@ class ActionAnimator<T, V>(
         var interpolator: ((startVal: V, progress: Float, endVal: V) -> V),
         var timeInterpolator: TimeInterpolator = defaultInterpolator
 ) {
-
     companion object {
         val defaultInterpolator = LinearInterpolator()
     }
@@ -35,6 +36,8 @@ class ActionAnimator<T, V>(
     private var delta: Long = 20
     private var timeElapsed: Long = 0
     private var shouldRun: Boolean = false
+
+    val onComplete = ArrayList<() -> Unit>()
 
     /**
      * Animates the property to the new value [to] over [newDuration] milliseconds with [newDelta] milliseconds of precision.
@@ -86,6 +89,7 @@ class ActionAnimator<T, V>(
             } else {
                 startValue = endValue!!
                 weak.get()?.action(endValue!!)
+                onComplete.runAll()
             }
         }
     }

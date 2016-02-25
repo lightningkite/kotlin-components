@@ -59,7 +59,7 @@ fun View.makeHeightAnimator(
 fun View.makeWidthAnimator(
         duration: Long,
         startSize: Float? = null,
-        onComplete: () -> Unit,
+        onComplete: () -> Unit = {},
         timeInterpolator: TimeInterpolator = ActionAnimator.defaultInterpolator
 ): (toSize: Float?) -> Unit {
 

@@ -1,12 +1,8 @@
 package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import java.util.*

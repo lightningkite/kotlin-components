@@ -68,11 +68,3 @@ abstract class VCActivity : Activity() {
         super.onDestroy()
     }
 }
-
-fun VCActivity.compatColor(colorResId :Int) :Int {
-    return ContextCompat.getColor(this, colorResId)
-}
-
-fun VCActivity.compatDrawable(drawableResId :Int) :Drawable {
-    return ContextCompat.getDrawable(this as Context, drawableResId)
-}

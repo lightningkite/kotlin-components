@@ -7,8 +7,10 @@ import android.content.ContextWrapper
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Build
+import android.support.v4.content.ContextCompat
 import android.text.Html
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -19,6 +21,7 @@ import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.kotlincomponents.viewcontroller.ViewController
+import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.*
 import java.util.*
 
@@ -151,6 +154,14 @@ fun Context.getActivity(): Activity? {
     } else {
         return null
     }
+}
+
+fun Context.compatColor(colorResId :Int) :Int {
+    return ContextCompat.getColor(this, colorResId)
+}
+
+fun Context.compatDrawable(drawableResId :Int) : Drawable {
+    return ContextCompat.getDrawable(this, drawableResId)
 }
 
 fun View.postDelayed(milliseconds: Long, action: () -> Unit) {

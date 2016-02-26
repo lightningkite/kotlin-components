@@ -66,7 +66,7 @@ object MyGson {
             if (!jsonElement.isString) throw IllegalArgumentException()
             val str = jsonElement.asString
             val result = format.parse(str.substring(0, str.length - 6))
-            println(result)
+
             result
         })
     }
@@ -121,7 +121,7 @@ inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? 
 }
 
 
-inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
     } catch(e: JsonParseException) {
@@ -132,7 +132,7 @@ inline fun <reified T : Any> String.gsonFromType(type: Class<T>, gson: Gson = My
     return null
 }
 
-inline fun <reified T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
     } catch(e: JsonParseException) {

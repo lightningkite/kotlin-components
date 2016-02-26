@@ -56,6 +56,34 @@ fun View.makeHeightAnimator(
 /**
  * Creates a resizer function.
  */
+fun View.makeWidthAnimator(
+        duration: Long,
+        startSize: Float? = null,
+        onComplete: () -> Unit = {},
+        timeInterpolator: TimeInterpolator = ActionAnimator.defaultInterpolator
+): (toSize: Float?) -> Unit {
+
+    val widthAnimator = ActionAnimator(this, startSize, {
+        layoutParams.width = it.toInt()
+        requestLayout()
+    }, Interpolate.float, timeInterpolator)
+    widthAnimator.onComplete.add(onComplete)
+
+    return { toSize: Float? ->
+        if (toSize == null) {
+            this.measure(
+                    View.MeasureSpec.UNSPECIFIED,
+                    View.MeasureSpec.UNSPECIFIED
+            )
+        }
+        val newWidth = toSize ?: measuredWidth.toFloat()
+        widthAnimator.animate(newWidth, duration)
+    }
+}
+
+/**
+ * Creates a resizer function.
+ */
 fun View.animateWidthUpdate(duration: Long, startSize: Float? = null): () -> Unit {
 
     val widthAnimator = ActionAnimator(this, startSize, {

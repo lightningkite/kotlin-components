@@ -15,6 +15,8 @@ import java.util.*
  */
 abstract class VCActivity : Activity() {
 
+    val backActions = Stack<() -> Unit>()
+
     companion object {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
@@ -53,6 +55,10 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onBackPressed() {
+        if(backActions.isNotEmpty()) {
+            backActions.pop()()
+            return
+        }
         vcView.container?.onBackPressed{
             super.onBackPressed()
         } ?: super.onBackPressed()

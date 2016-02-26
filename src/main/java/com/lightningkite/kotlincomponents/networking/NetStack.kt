@@ -71,6 +71,15 @@ interface NetStack {
      * @param headers The headers used in this request.
      * @param url The URL the request is made to.
      */
+    fun request(method: NetMethod, url: String, body: NetBody = NetBody.EMPTY, headers: Map<String, String> = NetHeader.EMPTY, onResult: (NetResponse) -> Unit): Unit {
+        doAsync({ sync(method, url, body, headers) }, onResult)
+    }
+
+    /**
+     * Asynchronously makes an HTTP GET request.
+     * @param headers The headers used in this request.
+     * @param url The URL the request is made to.
+     */
     fun get(url: String, headers: Map<String, String> = NetHeader.EMPTY, onResult: (NetResponse) -> Unit): Unit {
         doAsync({ sync(NetMethod.GET, url, NetBody.EMPTY, headers) }, onResult)
     }

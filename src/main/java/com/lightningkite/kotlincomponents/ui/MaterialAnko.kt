@@ -44,6 +44,26 @@ inline fun ViewManager.horizontalRecyclerView(init: RecyclerView.() -> Unit) = a
     }
 }, init)
 
+inline fun ViewManager.verticalGridRecyclerView(spanCount: Int) = verticalGridRecyclerView(spanCount) {}
+inline fun ViewManager.verticalGridRecyclerView(spanCount: Int, init: RecyclerView.() -> Unit) = ankoView({
+    val view = it.layoutInflater.inflate(R.layout.vertical_recycler_view, null) as RecyclerView
+    view.apply {
+        layoutManager = GridLayoutManager(it, spanCount).apply {
+            this.orientation = GridLayoutManager.VERTICAL
+        }
+    }
+}, init)
+
+inline fun ViewManager.horizontalGridRecyclerView(spanCount: Int) = horizontalGridRecyclerView(spanCount) {}
+inline fun ViewManager.horizontalGridRecyclerView(spanCount: Int, init: RecyclerView.() -> Unit) = ankoView({
+    val view = it.layoutInflater.inflate(R.layout.horizontal_recycler_view, null) as RecyclerView
+    view.apply {
+        layoutManager = GridLayoutManager(it, spanCount).apply {
+            this.orientation = GridLayoutManager.HORIZONTAL
+        }
+    }
+}, init)
+
 inline fun ViewManager.tabLayout() = tabLayout {}
 inline fun ViewManager.tabLayout(init: TabLayout.() -> Unit) = ankoView({ TabLayout(it) }, init)
 
@@ -91,6 +111,9 @@ inline fun ViewManager.textInputLayout(hint: String, init: TextInputLayout.() ->
         this.hint = hint
     }
 }, init)
+
+inline fun ViewManager.textInputEditText() = textInputEditText {}
+inline fun ViewManager.textInputEditText(init: TextInputEditText.() -> Unit) = ankoView({ TextInputEditText(it) }, init)
 
 var TextInputLayout.errorResource: Int
     get() = throw IllegalAccessException()

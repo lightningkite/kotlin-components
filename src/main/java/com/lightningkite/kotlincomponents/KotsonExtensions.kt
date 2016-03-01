@@ -67,7 +67,7 @@ object MyGson {
             if (!jsonElement.isString) throw IllegalArgumentException()
             val str = jsonElement.asString
             val result = format.parse(str.substring(0, str.length - 6))
-            println(result)
+
             result
         })
     }

@@ -38,21 +38,21 @@ inline fun ViewManager.horizontalRecyclerView(init: RecyclerView.() -> Unit) = a
     }
 }, init)
 
-inline fun ViewManager.verticalGridRecyclerView() = verticalGridRecyclerView() {}
-inline fun ViewManager.verticalGridRecyclerView(init: RecyclerView.() -> Unit) = ankoView({
+inline fun ViewManager.verticalGridRecyclerView(spanCount: Int) = verticalGridRecyclerView(spanCount) {}
+inline fun ViewManager.verticalGridRecyclerView(spanCount: Int, init: RecyclerView.() -> Unit) = ankoView({
     val view = it.layoutInflater.inflate(R.layout.vertical_recycler_view, null) as RecyclerView
     view.apply {
-        layoutManager = GridLayoutManager(it, 4).apply {
+        layoutManager = GridLayoutManager(it, spanCount).apply {
             this.orientation = GridLayoutManager.VERTICAL
         }
     }
 }, init)
 
-inline fun ViewManager.horizontalGridRecyclerView() = horizontalGridRecyclerView() {}
-inline fun ViewManager.horizontalGridRecyclerView(init: RecyclerView.() -> Unit) = ankoView({
+inline fun ViewManager.horizontalGridRecyclerView(spanCount: Int) = horizontalGridRecyclerView(spanCount) {}
+inline fun ViewManager.horizontalGridRecyclerView(spanCount: Int, init: RecyclerView.() -> Unit) = ankoView({
     val view = it.layoutInflater.inflate(R.layout.horizontal_recycler_view, null) as RecyclerView
     view.apply {
-        layoutManager = GridLayoutManager(it, 4).apply {
+        layoutManager = GridLayoutManager(it, spanCount).apply {
             this.orientation = GridLayoutManager.HORIZONTAL
         }
     }

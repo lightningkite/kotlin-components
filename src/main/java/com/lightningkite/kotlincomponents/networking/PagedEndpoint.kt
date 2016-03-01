@@ -1,12 +1,11 @@
 package com.lightningkite.kotlincomponents.networking
 
-import android.util.Log
 import com.github.salomonbrys.kotson.typeToken
+import com.google.gson.JsonObject
 import com.lightningkite.kotlincomponents.gsonFrom
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
-import com.lightningkite.kotlincomponents.runAll
 import java.lang.reflect.Type
 import java.util.*
 
@@ -14,16 +13,26 @@ import java.util.*
  * Created by jivie on 2/26/16.
  */
 inline fun <reified T : Any> PagedEndpoint(
-        url: String,
+        endpoint: NetEndpoint,
         listKey: String = "results"
-): PagedEndpoint<T> = PagedEndpoint(typeToken<T>(), url, listKey)
+): PagedEndpoint<T> = PagedEndpoint(typeToken<T>(), endpoint, listKey)
+
+inline fun <reified T : Any> PagedEndpoint(
+        endpoint: NetEndpoint,
+        listKey: String = "results",
+        noinline onError: (NetResponse) -> Boolean
+): PagedEndpoint<T> = PagedEndpoint(typeToken<T>(), endpoint, listKey, onError)
 
 class PagedEndpoint<T : Any>(
         val type: Type,
-        val url: String,
+        endpoint: NetEndpoint,
         val listKey: String = "results",
+        val onError: (NetResponse) -> Boolean = { true },
         val list: KObservableList<T> = KObservableList(ArrayList())
 ) : KObservableListInterface<T> by list {
+
+    var endpoint: NetEndpoint = endpoint
+        private set
 
     companion object {
         val PAGE_REGEX = "page=([0-9]+)".toRegex()
@@ -37,43 +46,37 @@ class PagedEndpoint<T : Any>(
     val pullingObservable = KObservable(false)
     var pulling by pullingObservable
 
-    var nextUrl: String? = url
-
-    val onError = ArrayList<(NetResponse) -> Unit>()
+    var nextEndpoint: NetEndpoint? = endpoint
 
     val isMoreObservable = KObservable(true)
 
+    fun reset(endpoint: NetEndpoint) = reset(endpoint.url)
+    fun reset(newUrl: String) {
+        isMoreObservable.set(true)
+        nextEndpoint = endpoint
+        pull()
+    }
+
     fun pull() {
         if (pulling) return
-        if (nextUrl == null) return
+        if (nextEndpoint == null) return
         pulling = true
-        var url = nextUrl!!
+        var currentEndpoint = nextEndpoint!!
 
-        Networking.get(url) {
-            if (it.isSuccessful) {
-                nextUrl = null
-                val result = it.jsonObject()
+        currentEndpoint.get<JsonObject>(onError = onError) { result ->
+            nextEndpoint = null
 
-                if (result.has("next")) {
-                    nextUrl = result.get("next").asString
-                }
-                if (result.has("num_pages")) {
-                    val pageResult = PAGE_REGEX.find(url)
-                    if (pageResult != null) {
-                        val num = pageResult.groupValues[1].toInt() + 1
-                        if (num <= result.get("num_pages").asInt) {
-                            nextUrl = PAGE_REGEX.replace(url) { "page=$num" }
-                        }
-                    }
-                }
+            if (result.has("num_pages")) {
+                val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
+                if (pageNum > result.get("num_pages").asString.toInt())
+                    nextEndpoint = currentEndpoint.query("page", pageNum)
+            } else if (result.has("next")) {
+                nextEndpoint = currentEndpoint.fromUrl(result.getAsJsonPrimitive("next").asString)
+            }
 
-                list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
-                if (nextUrl == null) {
-                    isMoreObservable.set(false)
-                }
-            } else {
-                Log.e("PagedEndpoint", "Couldn't get the page. $it")
-                onError.runAll(it)
+            list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
+            if (nextEndpoint == null) {
+                isMoreObservable.set(false)
             }
             pulling = false
         }

@@ -8,7 +8,7 @@ import java.util.*
  * Created by josep on 9/7/2015.
  */
 class KObservableList<E>(
-        val collection: MutableList<E>
+        val collection: MutableList<E> = mutableListOf()
 ) : KObservableListInterface<E> {
 
     override val onAdd = HashSet<(E, Int) -> Unit>()

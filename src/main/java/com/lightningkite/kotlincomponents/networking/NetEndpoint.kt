@@ -5,16 +5,35 @@ import com.lightningkite.kotlincomponents.runAll
 /**
  * Created by jivie on 2/26/16.
  */
-open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, val queryParams: List<String> = listOf()) {
-    val url: String = if (queryParams.isEmpty()) preQueryUrl else preQueryUrl + "?" + queryParams.joinToString("&")
+open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, val queryParams: Map<String, String> = mapOf()) {
+
+    companion object {
+        fun fromUrl(netInterface: NetInterface, url: String): NetEndpoint {
+            val index = url.indexOf('?')
+            return NetEndpoint(
+                    netInterface,
+                    url.substring(0, index),
+                    url.substring(index + 1)
+                            .split('&')
+                            .map { it.split('=') }
+                            .associateBy({ it[0] }, { it[1] })
+            )
+        }
+    }
+
+    fun fromUrl(url: String): NetEndpoint = fromUrl(netInterface, url)
+
+    val url: String = if (queryParams.isEmpty()) preQueryUrl else preQueryUrl + "?" + queryParams.entries.joinToString("&") { it.key + "=" + it.value }
 
     fun sub(subUrl: String) = NetEndpoint(netInterface, preQueryUrl + subUrl, queryParams)
     fun sub(id: Long) = NetEndpoint(netInterface, preQueryUrl + id.toString(), queryParams)
-    fun query(key: String) = NetEndpoint(netInterface, preQueryUrl, queryParams + key)
-    fun query(key: String, value: String) = NetEndpoint(netInterface, preQueryUrl, queryParams + (key + "=" + value))
+
+    fun query(key: String, value: Any) = NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString()))
+    fun queryOptional(key: String, value: Any?) = if (value != null) NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString())) else this
 
 
-    inline fun <reified T : Any> paged(listKey: String = "results") = PagedEndpoint<T>(url)
+    inline fun <reified T : Any> paged(listKey: String = "results"): PagedEndpoint<T> = PagedEndpoint(this)
+    inline fun <reified T : Any> paged(listKey: String = "results", noinline onError: (NetResponse) -> Boolean): PagedEndpoint<T> = PagedEndpoint(this, onError = onError)
 
     inline fun <reified T : Any> dealWithResult(response: NetResponse, onError: (NetResponse) -> Boolean): T? {
         if (response.isSuccessful) {
@@ -144,13 +163,13 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
 
 
     inline fun <reified T : Any> delete(
-            data: Any?,
+            data: Any? = null,
             specialHeaders: Map<String, String> = NetHeader.EMPTY,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.DELETE, data, specialHeaders, { true }, onResult)
 
     inline fun <reified T : Any> delete(
-            data: Any?,
+            data: Any? = null,
             specialHeaders: Map<String, String> = NetHeader.EMPTY,
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit

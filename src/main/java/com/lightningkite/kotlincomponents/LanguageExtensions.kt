@@ -163,6 +163,38 @@ fun String.toLongMaybe():Long?{
     }
 }
 
+fun String.toFloatMaybe(default: Float): Float {
+    try {
+        return toFloat()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toDoubleMaybe(default: Double): Double {
+    try {
+        return toDouble()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toIntMaybe(default: Int): Int {
+    try {
+        return toInt()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toLongMaybe(default: Long): Long {
+    try {
+        return toLong()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
 inline fun Collection<() -> Unit>.runAll() {
     for (listener in this) {
         listener()

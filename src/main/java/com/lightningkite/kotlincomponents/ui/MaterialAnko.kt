@@ -1,10 +1,7 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
-import android.support.design.widget.TabLayout
-import android.support.design.widget.TextInputLayout
+import android.support.design.widget.*
 import android.support.v7.widget.*
 import android.view.View
 import android.view.ViewManager
@@ -108,6 +105,9 @@ inline fun ViewManager.textInputLayout(hint: String, init: TextInputLayout.() ->
         this.hint = hint
     }
 }, init)
+
+inline fun ViewManager.textInputEditText() = textInputEditText {}
+inline fun ViewManager.textInputEditText(init: TextInputEditText.() -> Unit) = ankoView({ TextInputEditText(it) }, init)
 
 inline fun ViewManager.textInputLayout(hint: Int, init: TextInputLayout.() -> Unit) = ankoView({
     TextInputLayout(it).apply {

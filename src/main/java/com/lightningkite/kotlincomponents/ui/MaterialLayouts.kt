@@ -24,6 +24,12 @@ inline fun TextView.materialStyleTertiary(dark: Boolean) {
     ellipsize = TextUtils.TruncateAt.END
 }
 
+inline fun TextView.materialStyleSecondary(dark: Boolean) {
+    textColorResource = if (dark) R.color.secondary_text_dark else R.color.secondary_text_light
+    textSize = 16f
+    ellipsize = TextUtils.TruncateAt.END
+}
+
 inline fun TextView.materialStylePrimary(dark: Boolean) {
     textColorResource = if (dark) R.color.primary_text_dark else R.color.primary_text_light
     textSize = 16f

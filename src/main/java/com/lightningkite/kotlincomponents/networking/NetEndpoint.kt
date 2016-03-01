@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.networking
 
 import com.lightningkite.kotlincomponents.runAll
+import java.util.*
 
 /**
  * Created by jivie on 2/26/16.
@@ -25,8 +26,8 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
 
     val url: String = if (queryParams.isEmpty()) preQueryUrl else preQueryUrl + "?" + queryParams.entries.joinToString("&") { it.key + "=" + it.value }
 
-    fun sub(subUrl: String) = NetEndpoint(netInterface, preQueryUrl + subUrl, queryParams)
-    fun sub(id: Long) = NetEndpoint(netInterface, preQueryUrl + id.toString(), queryParams)
+    fun sub(subUrl: String) = NetEndpoint(netInterface, preQueryUrl + "/" + subUrl, queryParams)
+    fun sub(id: Long) = NetEndpoint(netInterface, preQueryUrl + "/" + id.toString(), queryParams)
 
     fun query(key: String, value: Any) = NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString()))
     fun queryOptional(key: String, value: Any?) = if (value != null) NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString())) else this
@@ -53,43 +54,16 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
         return null
     }
 
-    //-----------GENERATE-------------
-
-    inline fun <reified T : Any> generate(method: NetMethod)
-            = { data: Any?, onResult: (T) -> Unit ->
-        request(method, data, onResult = onResult)
-    }
-
-    inline fun <reified T : Any> generate(method: NetMethod, crossinline converter: () -> Any?)
-            = { onResult: (T) -> Unit ->
-        request(method, converter(), onResult = onResult)
-    }
-
-    inline fun <reified T : Any, A> generate(method: NetMethod, crossinline converter: (A) -> Any?)
-            = { a: A, onResult: (T) -> Unit ->
-        request(method, converter(a), onResult = onResult)
-    }
-
-    inline fun <reified T : Any, A, B> generate(method: NetMethod, crossinline converter: (A, B) -> Any?)
-            = { a: A, b: B, onResult: (T) -> Unit ->
-        request(method, converter(a, b), onResult = onResult)
-    }
-
-    inline fun <reified T : Any, A, B, C> generate(method: NetMethod, crossinline converter: (A, B, C) -> Any?)
-            = { a: A, b: B, c: C, onResult: (T) -> Unit ->
-        request(method, converter(a, b, c), onResult = onResult)
-    }
-
 
 
     //------------ASYNC---------------
 
-    inline fun <reified T : Any> request(
-            method: NetMethod,
-            data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(method, data, specialHeaders, { true }, onResult)
+    //    inline fun <reified T : Any> request(
+    //            method: NetMethod,
+    //            data: Any?,
+    //            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+    //            crossinline onResult: (T) -> Unit
+    //    ) = request(method, data, specialHeaders, { true }, onResult)
 
     inline fun <reified T : Any> request(
             method: NetMethod,
@@ -98,11 +72,13 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) {
+        val headers = HashMap(netInterface.defaultHeaders)
+        headers.plusAssign(specialHeaders)
         netInterface.stack.request(
                 method,
                 url,
                 data?.gsonToNetBody() ?: NetBody.EMPTY,
-                netInterface.defaultHeaders + specialHeaders
+                headers
         ) {
             val result = dealWithResult<T>(it, onError)
             if (result != null) onResult(result)
@@ -110,78 +86,46 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
     }
 
     inline fun <reified T : Any> get(
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.GET, null, specialHeaders, { true }, onResult)
-
-    inline fun <reified T : Any> get(
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.GET, null, specialHeaders, onError, onResult)
 
     inline fun <reified T : Any> post(
             data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.POST, data, specialHeaders, { true }, onResult)
-
-    inline fun <reified T : Any> post(
-            data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.POST, data, specialHeaders, onError, onResult)
 
-
     inline fun <reified T : Any> put(
             data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.PUT, data, specialHeaders, { true }, onResult)
-
-    inline fun <reified T : Any> put(
-            data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.PUT, data, specialHeaders, onError, onResult)
 
-
     inline fun <reified T : Any> patch(
             data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.PATCH, data, specialHeaders, { true }, onResult)
-
-    inline fun <reified T : Any> patch(
-            data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.PATCH, data, specialHeaders, onError, onResult)
 
-
     inline fun <reified T : Any> delete(
             data: Any? = null,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
-            crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.DELETE, data, specialHeaders, { true }, onResult)
-
-    inline fun <reified T : Any> delete(
-            data: Any? = null,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) = request(NetMethod.DELETE, data, specialHeaders, onError, onResult)
 
     //------------SYNC---------------
 
-    inline fun <reified T : Any> syncRequest(method: NetMethod, data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY): T? = syncGet(specialHeaders, { true })
+    inline fun <reified T : Any> syncRequest(method: NetMethod, data: Any?, specialHeaders: Map<String, String> = mapOf()): T? = syncGet(specialHeaders, { true })
     inline fun <reified T : Any> syncRequest(
             method: NetMethod,
             data: Any?,
-            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            specialHeaders: Map<String, String> = mapOf(),
             onError: (NetResponse) -> Boolean
     ): T? = dealWithResult(
             netInterface.stack.sync(
@@ -193,33 +137,33 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
             onError
     )
 
-    inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = NetHeader.EMPTY): T?
+    inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = mapOf()): T?
             = syncRequest(NetMethod.GET, null, specialHeaders)
 
-    inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = NetHeader.EMPTY, onError: (NetResponse) -> Boolean): T?
+    inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
             = syncRequest(NetMethod.GET, null, specialHeaders, onError)
 
-    inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY): T?
+    inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
             = syncRequest(NetMethod.POST, data, specialHeaders)
 
-    inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY, onError: (NetResponse) -> Boolean): T?
+    inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
             = syncRequest(NetMethod.POST, data, specialHeaders, onError)
 
-    inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY): T?
+    inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
             = syncRequest(NetMethod.PUT, data, specialHeaders)
 
-    inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY, onError: (NetResponse) -> Boolean): T?
+    inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
             = syncRequest(NetMethod.PUT, data, specialHeaders, onError)
 
-    inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY): T?
+    inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
             = syncRequest(NetMethod.PATCH, data, specialHeaders)
 
-    inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY, onError: (NetResponse) -> Boolean): T?
+    inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
             = syncRequest(NetMethod.PATCH, data, specialHeaders, onError)
 
-    inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY): T?
+    inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
             = syncRequest(NetMethod.DELETE, data, specialHeaders)
 
-    inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = NetHeader.EMPTY, onError: (NetResponse) -> Boolean): T?
+    inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
             = syncRequest(NetMethod.DELETE, data, specialHeaders, onError)
 }

@@ -92,6 +92,12 @@ inline fun ViewManager.textInputLayout(hint: String, init: TextInputLayout.() ->
     }
 }, init)
 
+var TextInputLayout.errorResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        error = resources.getString(value)
+    }
+
 inline fun ViewManager.textInputLayout(hint: Int, init: TextInputLayout.() -> Unit) = ankoView({
     TextInputLayout(it).apply {
         this.hint = it.getString(hint)

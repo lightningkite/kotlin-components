@@ -52,6 +52,7 @@ class PagedEndpoint<T : Any>(
 
     fun reset(endpoint: NetEndpoint) = reset(endpoint.url)
     fun reset(newUrl: String) {
+        list.clear()
         isMoreObservable.set(true)
         nextEndpoint = endpoint
         pull()

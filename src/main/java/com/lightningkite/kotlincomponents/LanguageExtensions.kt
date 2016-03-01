@@ -218,3 +218,8 @@ inline fun <A, B, C> Collection<(A, B, C) -> Unit>.runAll(a: A, b: B, c: C) {
         listener(a, b, c)
     }
 }
+
+val EmailRegularExpression: Regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}".toRegex(RegexOption.IGNORE_CASE)
+inline fun String.isEmail(): Boolean {
+    return matches(EmailRegularExpression)
+}

@@ -5,10 +5,7 @@ import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TabLayout
 import android.support.design.widget.TextInputLayout
-import android.support.v7.widget.ActionMenuView
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
+import android.support.v7.widget.*
 import android.view.View
 import android.view.ViewManager
 import com.lightningkite.kotlincomponents.R
@@ -40,6 +37,26 @@ inline fun ViewManager.horizontalRecyclerView(init: RecyclerView.() -> Unit) = a
     view.apply {
         layoutManager = LinearLayoutManager(it).apply {
             this.orientation = LinearLayoutManager.HORIZONTAL
+        }
+    }
+}, init)
+
+inline fun ViewManager.verticalGridRecyclerView() = verticalGridRecyclerView() {}
+inline fun ViewManager.verticalGridRecyclerView(init: RecyclerView.() -> Unit) = ankoView({
+    val view = it.layoutInflater.inflate(R.layout.vertical_recycler_view, null) as RecyclerView
+    view.apply {
+        layoutManager = GridLayoutManager(it, 4).apply {
+            this.orientation = GridLayoutManager.VERTICAL
+        }
+    }
+}, init)
+
+inline fun ViewManager.horizontalGridRecyclerView() = horizontalGridRecyclerView() {}
+inline fun ViewManager.horizontalGridRecyclerView(init: RecyclerView.() -> Unit) = ankoView({
+    val view = it.layoutInflater.inflate(R.layout.horizontal_recycler_view, null) as RecyclerView
+    view.apply {
+        layoutManager = GridLayoutManager(it, 4).apply {
+            this.orientation = GridLayoutManager.HORIZONTAL
         }
     }
 }, init)

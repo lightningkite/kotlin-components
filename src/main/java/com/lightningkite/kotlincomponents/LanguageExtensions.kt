@@ -163,6 +163,38 @@ fun String.toLongMaybe():Long?{
     }
 }
 
+fun String.toFloatMaybe(default: Float): Float {
+    try {
+        return toFloat()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toDoubleMaybe(default: Double): Double {
+    try {
+        return toDouble()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toIntMaybe(default: Int): Int {
+    try {
+        return toInt()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
+fun String.toLongMaybe(default: Long): Long {
+    try {
+        return toLong()
+    } catch(e: NumberFormatException) {
+        return default
+    }
+}
+
 inline fun Collection<() -> Unit>.runAll() {
     for (listener in this) {
         listener()
@@ -185,4 +217,9 @@ inline fun <A, B, C> Collection<(A, B, C) -> Unit>.runAll(a: A, b: B, c: C) {
     for (listener in this) {
         listener(a, b, c)
     }
+}
+
+val EmailRegularExpression: Regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}".toRegex(RegexOption.IGNORE_CASE)
+inline fun String.isEmail(): Boolean {
+    return matches(EmailRegularExpression)
 }

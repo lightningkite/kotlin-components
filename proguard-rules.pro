@@ -19,3 +19,4 @@
 
 -dontwarn okio.**
 -dontwarn kotlin.jvm.internal.Intrinsics
+-dontwarn kotlin.**

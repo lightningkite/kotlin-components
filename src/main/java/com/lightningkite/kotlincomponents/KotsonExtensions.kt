@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.*
+import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -120,8 +121,7 @@ inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? 
     return null
 }
 
-
-inline fun <T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <T : Any> String.gsonFrom(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
     } catch(e: JsonParseException) {
@@ -132,9 +132,31 @@ inline fun <T : Any> String.gsonFromType(type: Class<T>, gson: Gson = MyGson.gso
     return null
 }
 
-inline fun <T : Any> JsonElement.gsonFromType(type: Class<T>, gson: Gson = MyGson.gson): T? {
+inline fun <T : Any> JsonElement.gsonFrom(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+inline fun <T : Any> String.gsonFrom(type: Type, gson: Gson = MyGson.gson): T? {
+    try {
+        return gson.fromJson<T>(this, type)
+    } catch(e: JsonParseException) {
+        e.printStackTrace()
+    } catch(e: JsonSyntaxException) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+inline fun <T : Any> JsonElement.gsonFrom(type: Type, gson: Gson = MyGson.gson): T? {
+    try {
+        return gson.fromJson<T>(this, type)
     } catch(e: JsonParseException) {
         e.printStackTrace()
     } catch(e: JsonSyntaxException) {

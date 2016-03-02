@@ -109,19 +109,25 @@ inline fun ViewManager.textInputLayout(hint: String, init: TextInputLayout.() ->
 inline fun ViewManager.textInputEditText() = textInputEditText {}
 inline fun ViewManager.textInputEditText(init: TextInputEditText.() -> Unit) = ankoView({ TextInputEditText(it) }, init)
 
+var TextInputLayout.errorResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        error = resources.getString(value)
+    }
+
 inline fun ViewManager.textInputLayout(hint: Int, init: TextInputLayout.() -> Unit) = ankoView({
     TextInputLayout(it).apply {
         this.hint = it.getString(hint)
     }
 }, init)
 
-fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
+fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()
 }
 
-fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
+fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.lightningkite.kotlincomponents.animation.AnimationSet
+import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import java.util.*
 
@@ -19,6 +20,8 @@ abstract class VCActivity : Activity() {
         val returns: HashMap<Int, (Int, Intent?) -> Unit> = HashMap()
     }
 
+    val onActivityResult = ArrayList<(Int, Int, Intent?) -> Unit>()
+
     fun startIntent(intent: Intent, options: Bundle = Bundle.EMPTY, onResult: (Int, Intent?) -> Unit = { a, b -> }) {
         val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
         returns[generated] = onResult
@@ -26,6 +29,7 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        onActivityResult.runAll(requestCode, resultCode, data)
         returns[requestCode]?.invoke(resultCode, data)
         returns.remove(requestCode)
     }
@@ -53,7 +57,7 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        vcView.container?.onBackPressed{
+        vcView.container?.onBackPressed {
             super.onBackPressed()
         } ?: super.onBackPressed()
     }

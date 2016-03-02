@@ -1,14 +1,8 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
-import android.support.design.widget.TabLayout
-import android.support.design.widget.TextInputLayout
-import android.support.v7.widget.ActionMenuView
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
+import android.support.design.widget.*
+import android.support.v7.widget.*
 import android.view.View
 import android.view.ViewManager
 import com.lightningkite.kotlincomponents.R
@@ -127,13 +121,13 @@ inline fun ViewManager.textInputLayout(hint: Int, init: TextInputLayout.() -> Un
     }
 }, init)
 
-fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
+fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()
 }
 
-fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_SHORT, init: Snackbar.() -> Unit = {}) {
+fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
     val snack = Snackbar.make(this, text, duration)
     snack.init()
     snack.show()

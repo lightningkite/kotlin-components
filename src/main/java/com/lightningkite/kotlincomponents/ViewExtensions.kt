@@ -88,6 +88,10 @@ fun TextView.setFont(fileName: String) {
     }()
 }
 
+fun TextView.html(htmlString: String) {
+    text = Html.fromHtml(htmlString)
+}
+
 fun EditText.showSoftInput() {
     context.inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 }

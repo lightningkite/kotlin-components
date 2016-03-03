@@ -39,16 +39,16 @@ class PagedEndpoint<T : Any>(
         val PAGE_REPL = "page=$1"
     }
 
-    init {
-        pull()
-    }
-
     val pullingObservable = KObservable(false)
     var pulling by pullingObservable
 
     var nextEndpoint: NetEndpoint? = endpoint
 
     val isMoreObservable = KObservable(true)
+
+    init {
+        pull()
+    }
 
     fun reset(endpoint: NetEndpoint) = reset(endpoint.url)
     fun reset(newUrl: String) {
@@ -66,7 +66,7 @@ class PagedEndpoint<T : Any>(
 
         currentEndpoint.get<JsonObject>(onError = onError) { result ->
             nextEndpoint = null
-
+            println(result)
             if (result.has("num_pages")) {
                 val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
                 if (pageNum > result.get("num_pages").asString.toInt())
@@ -74,7 +74,7 @@ class PagedEndpoint<T : Any>(
             } else if (result.has("next")) {
                 nextEndpoint = currentEndpoint.fromUrl(result.getAsJsonPrimitive("next").asString)
             }
-
+            println("reading in list")
             list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
             if (nextEndpoint == null) {
                 isMoreObservable.set(false)

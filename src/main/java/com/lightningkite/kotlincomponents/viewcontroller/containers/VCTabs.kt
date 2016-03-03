@@ -10,7 +10,9 @@ import com.lightningkite.kotlincomponents.viewcontroller.ViewController
  * @param vcs The view controllers to display.
  * Created by jivie on 10/14/15.
  */
-class VCTabs(startIndex: Int, vararg vcs: ViewController) : VCContainerImpl() {
+class VCTabs(startIndex: Int, vcs: List<ViewController>) : VCContainerImpl() {
+
+    constructor(startIndex: Int, vararg vcs: ViewController) : this(startIndex, vcs.toList())
 
     val viewControllers: Array<ViewController> = Array(vcs.size, { vcs[it] })
     val indexObs: KObservable<Int> = KObservable(startIndex)

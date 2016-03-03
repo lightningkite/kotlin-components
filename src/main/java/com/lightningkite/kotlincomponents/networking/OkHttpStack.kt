@@ -15,8 +15,12 @@ object OkHttpStack : NetStack {
 
     override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
         try {
+            println(url)
             val requestBuilder = Request.Builder().url(url)
-            for ((key, value) in headers) requestBuilder.addHeader(key, value)
+            for ((key, value) in headers) {
+                requestBuilder.addHeader(key, value)
+                println("$key to $value")
+            }
             when (method) {
                 NetMethod.GET -> {
                 }

@@ -80,6 +80,7 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
                 data?.gsonToNetBody() ?: NetBody.EMPTY,
                 headers
         ) {
+            println(it.string())
             val result = dealWithResult<T>(it, onError)
             if (result != null) onResult(result)
         }

@@ -5,6 +5,7 @@ import android.support.design.widget.*
 import android.support.v7.widget.*
 import android.view.View
 import android.view.ViewManager
+import android.widget.FrameLayout
 import com.lightningkite.kotlincomponents.R
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.layoutInflater
@@ -97,6 +98,25 @@ class _CoordinatorLayout(context: Context) : CoordinatorLayout(context) {
 
 inline fun ViewManager.coordinatorLayout() = coordinatorLayout {}
 inline fun ViewManager.coordinatorLayout(init: _CoordinatorLayout.() -> Unit) = ankoView({ _CoordinatorLayout(it) }, init)
+
+class _CardView(context: Context) : CardView(context) {
+
+    inline fun <T : View> T.lparams(width: Int, height: Int): T {
+        val newParams = FrameLayout.LayoutParams(width, height)
+        layoutParams = newParams
+        return this
+    }
+
+    inline fun <T : View> T.lparams(width: Int, height: Int, init: FrameLayout.LayoutParams.() -> Unit): T {
+        val newParams = FrameLayout.LayoutParams(width, height)
+        newParams.init()
+        layoutParams = newParams
+        return this
+    }
+}
+
+inline fun ViewManager.cardView() = cardView {}
+inline fun ViewManager.cardView(init: _CardView.() -> Unit) = ankoView({ _CardView(it) }, init)
 
 inline fun ViewManager.textInputLayout() = textInputLayout {}
 inline fun ViewManager.textInputLayout(init: TextInputLayout.() -> Unit) = ankoView({ TextInputLayout(it) }, init)

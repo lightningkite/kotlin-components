@@ -12,9 +12,9 @@ import java.util.*
 
 object MyGson {
 
-    private val hierarchyAdapters = HashMap<Class<*>, Any>()
+    private val hierarchyAdapters = ArrayList<Pair<Class<*>, Any>>()
     fun registerHierarchy(type: Class<*>, adapter: Any) {
-        hierarchyAdapters[type] = adapter
+        hierarchyAdapters += type to adapter
         update()
     }
 
@@ -22,9 +22,9 @@ object MyGson {
     inline fun <reified T : Any> registerHierarchy(adapter: JsonSerializer<T>) = registerHierarchy(T::class.java, adapter)
     inline fun <reified T : Any> registerHierarchy(adapter: TypeAdapter<T>) = registerHierarchy(T::class.java, adapter)
 
-    private val adapters = HashMap<Class<*>, Any>()
+    private val adapters = ArrayList<Pair<Class<*>, Any>>()
     fun register(type: Class<*>, adapter: Any) {
-        adapters[type] = adapter
+        adapters += type to adapter
         update()
     }
 

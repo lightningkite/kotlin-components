@@ -75,7 +75,7 @@ class PagedEndpoint<T : Any>(
                 nextEndpoint = currentEndpoint.fromUrl(result.getAsJsonPrimitive("next").asString)
             }
             println("reading in list")
-            list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
+            list.addAll(result.getAsJsonArray(listKey).map { println(it); it.gsonFrom<T>(type)!! })
             if (nextEndpoint == null) {
                 isMoreObservable.set(false)
             }

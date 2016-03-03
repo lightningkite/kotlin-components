@@ -1,31 +1,15 @@
 package com.lightningkite.kotlincomponents.animation
 
 import android.animation.TimeInterpolator
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.view.View
+import com.lightningkite.kotlincomponents.postDelayed
 
 /**
  * Various functions to assist with animating things.
  */
 
-/**
- * Creates a resizer function.
- */
-fun View.animateHeightUpdate(duration: Long, startSize: Float? = null): () -> Unit {
-
-    val heightAnimator = ActionAnimator(this, startSize, {
-        layoutParams.height = it.toInt()
-        requestLayout()
-    }, Interpolate.float)
-
-    return {
-        this.measure(
-                View.MeasureSpec.UNSPECIFIED,
-                View.MeasureSpec.UNSPECIFIED
-        )
-        val newHeight = measuredHeight
-        heightAnimator.animate(newHeight.toFloat(), duration)
-    }
-}
 
 /**
  * Creates a resizer function.
@@ -81,9 +65,52 @@ fun View.makeWidthAnimator(
     }
 }
 
+fun View.animateHighlight(milliseconds: Long, color: Int, millisecondsTransition: Int = 200) {
+    assert(milliseconds > millisecondsTransition * 2) { "The time shown must be at least twice as much as the transition time" }
+    val originalBackground = background
+    val transition = TransitionDrawable(arrayOf(originalBackground, ColorDrawable(color)))
+    transition.isCrossFadeEnabled = false
+    background = transition
+    transition.startTransition(millisecondsTransition)
+    postDelayed(milliseconds - millisecondsTransition) {
+        transition.reverseTransition(millisecondsTransition)
+        postDelayed(millisecondsTransition.toLong()) {
+            background = originalBackground
+        }
+    }
+}
+
+
+
+
+//DEPRECATED
+
+
 /**
  * Creates a resizer function.
  */
+@Deprecated("Use makeHeightAnimator instead.")
+fun View.animateHeightUpdate(duration: Long, startSize: Float? = null): () -> Unit {
+
+    val heightAnimator = ActionAnimator(this, startSize, {
+        layoutParams.height = it.toInt()
+        requestLayout()
+    }, Interpolate.float)
+
+    return {
+        this.measure(
+                View.MeasureSpec.UNSPECIFIED,
+                View.MeasureSpec.UNSPECIFIED
+        )
+        val newHeight = measuredHeight
+        heightAnimator.animate(newHeight.toFloat(), duration)
+    }
+}
+
+/**
+ * Creates a resizer function.
+ */
+@Deprecated("Use makeWidthAnimator instead.")
 fun View.animateWidthUpdate(duration: Long, startSize: Float? = null): () -> Unit {
 
     val widthAnimator = ActionAnimator(this, startSize, {

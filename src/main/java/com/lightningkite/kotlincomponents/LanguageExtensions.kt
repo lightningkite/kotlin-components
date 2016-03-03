@@ -49,7 +49,9 @@ fun ClosedRange<Double>.random(): Double {
     return Math.random().times(this.endInclusive - start).plus(start)
 }
 
-fun <E> List<E>.splitIntoGroupsOf(maxInGroup: Int): ArrayList<List<E>> {
+@Deprecated("Renamed to partitionToSize.", ReplaceWith("partitionToSize(maxInGroup)"))
+fun <E> List<E>.splitIntoGroupsOf(maxInGroup: Int): ArrayList<List<E>> = partitionToSize(maxInGroup)
+fun <E> List<E>.partitionToSize(maxInGroup: Int): ArrayList<List<E>> {
     val whole = ArrayList<List<E>>()
     var first = 0;
     var last = Math.min(first + maxInGroup, size);
@@ -59,27 +61,6 @@ fun <E> List<E>.splitIntoGroupsOf(maxInGroup: Int): ArrayList<List<E>> {
         last = Math.min(first + maxInGroup, size);
     }
     return whole
-}
-
-fun <E> Collection<E>.stringJoin(separator: String, toStringFunc: (E) -> String): String {
-    val builder = StringBuilder()
-    for (item in this) {
-        builder.append(toStringFunc(item))
-        builder.append(separator)
-    }
-    builder.setLength(builder.length - separator.length)
-    return builder.toString()
-}
-
-fun <A, B> Collection<A>.mapOptional(toOtherFunc: (A) -> B?): ArrayList<B> {
-    val results = ArrayList<B>()
-    for (item in this) {
-        val other = toOtherFunc(item)
-        if (other != null) {
-            results.add(other)
-        }
-    }
-    return results
 }
 
 fun Date.toCalendar(): Calendar {

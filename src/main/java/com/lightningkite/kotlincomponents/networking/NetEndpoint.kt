@@ -35,23 +35,31 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
 
     inline fun <reified T : Any> paged(listKey: String = "results"): PagedEndpoint<T> = PagedEndpoint(this)
     inline fun <reified T : Any> paged(listKey: String = "results", noinline onError: (NetResponse) -> Boolean): PagedEndpoint<T> = PagedEndpoint(this, onError = onError)
+    inline fun <reified T : Any> paged(current: PagedEndpoint<T>, noinline onError: (NetResponse) -> Boolean): PagedEndpoint<T> = current.apply {
+        reset(this@NetEndpoint)
+    }
 
     inline fun <reified T : Any> dealWithResult(response: NetResponse, onError: (NetResponse) -> Boolean): T? {
         if (response.isSuccessful) {
-            if (T::class.java == Unit::class.java) return null
+            if (T::class.java == Unit::class.java) return Unit as T
             val result = response.result<T>()
             if (result != null) return result
             else {
                 if (onError(response)) {
                     netInterface.onError.runAll(response)
+                    return null
+                } else {
+                    return null
                 }
             }
         } else {
             if (onError(response)) {
                 netInterface.onError.runAll(response)
+                return null
+            } else {
+                return null
             }
         }
-        return null
     }
 
 

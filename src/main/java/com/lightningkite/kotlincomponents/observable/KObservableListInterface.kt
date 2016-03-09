@@ -8,7 +8,7 @@ interface KObservableListInterface<E> : MutableList<E> {
 
     val onAdd: MutableSet<(E, Int) -> Unit>
     val onChange: MutableSet<(E, Int) -> Unit>
-    val onUpdate: MutableSet<(KObservableListInterface<E>) -> Unit>
+    val onUpdate: KObservableInterface<KObservableList<E>>
     val onReplace: MutableSet<(KObservableListInterface<E>) -> Unit>
     val onRemove: MutableSet<(E, Int) -> Unit>
 

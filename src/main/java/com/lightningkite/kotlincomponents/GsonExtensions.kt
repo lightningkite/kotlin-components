@@ -33,6 +33,11 @@ fun Any.gsonTo(gson: Gson = MyGson.gson): String {
     return gson.toJson(this)
 }
 
+val JsonElement.asStringOptional: String?
+    get() = if (this is JsonPrimitive) asString else null
+val JsonElement.asIntOptional: Int?
+    get() = if (this is JsonPrimitive) asInt else null
+
 inline fun <reified T : Any> String.gsonFrom(gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson<T>(this)

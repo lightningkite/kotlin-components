@@ -13,7 +13,19 @@ class KObservableList<E>(
 
     override val onAdd = HashSet<(E, Int) -> Unit>()
     override val onChange = HashSet<(E, Int) -> Unit>()
-    override val onUpdate = HashSet<(KObservableListInterface<E>) -> Unit>()
+    override val onUpdate: KObservableInterface<KObservableList<E>> = object : KObservableInterface<KObservableList<E>>, MutableList<(KObservableList<E>) -> Unit> by mutableListOf() {
+        override fun get(): KObservableList<E> = this@KObservableList
+
+        override fun set(v: KObservableList<E>) {
+            replace(v)
+            update()
+        }
+
+        override fun update() {
+            runAll(this@KObservableList)
+        }
+
+    }//HashSet<(KObservableListInterface<E>) -> Unit>()
     override val onReplace = HashSet<(KObservableListInterface<E>) -> Unit>()
     override val onRemove = HashSet<(E, Int) -> Unit>()
 
@@ -92,10 +104,8 @@ class KObservableList<E>(
     }
 
     override fun clear() {
-        collection.forEachIndexed { i, e ->
-            onRemove.runAll(e, i)
-        }
         collection.clear()
+        onReplace.runAll(this)
         onUpdate.runAll(this)
     }
 
@@ -115,5 +125,6 @@ class KObservableList<E>(
         collection.clear()
         collection.addAll(newItems)
         onReplace.runAll(this)
+        onUpdate.runAll(this)
     }
 }

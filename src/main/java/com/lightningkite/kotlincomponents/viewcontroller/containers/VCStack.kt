@@ -11,6 +11,10 @@ import java.util.*
 open class VCStack() : VCContainerImpl() {
     override val current: ViewController get() = stack.peek()
 
+    var defaultPushAnimation = AnimationSet.slidePush
+    var defaultPopAnimation = AnimationSet.slidePop
+    var defaultSwapAnimation = AnimationSet.fade
+
     val size: Int get() = stack.size
     val isEmpty: Boolean get() = stack.isEmpty()
     var onEmptyListener: () -> Unit = {}
@@ -19,13 +23,13 @@ open class VCStack() : VCContainerImpl() {
     private val stack: Stack<ViewController> = Stack()
 
 
-    fun push(viewController: ViewController, animationSet: AnimationSet? = AnimationSet.slidePush) {
+    fun push(viewController: ViewController, animationSet: AnimationSet? = defaultPushAnimation) {
         stack.push(viewController)
         swapListener?.invoke(current, animationSet) {}
         onSwap.forEach { it(current) }
     }
 
-    fun pop(animationSet: AnimationSet? = AnimationSet.slidePop) {
+    fun pop(animationSet: AnimationSet? = defaultPopAnimation) {
         if (stack.size <= 1) {
             onEmptyListener()
         } else {
@@ -37,7 +41,7 @@ open class VCStack() : VCContainerImpl() {
         }
     }
 
-    fun back(predicate: (ViewController) -> Boolean, animationSet: AnimationSet? = AnimationSet.slidePop) {
+    fun back(predicate: (ViewController) -> Boolean, animationSet: AnimationSet? = defaultPopAnimation) {
         val toDispose = ArrayList<ViewController>()
         while (!predicate(stack.peek())) {
             toDispose.add(stack.pop())
@@ -51,7 +55,7 @@ open class VCStack() : VCContainerImpl() {
         onSwap.forEach { it(current) }
     }
 
-    fun swap(viewController: ViewController, animationSet: AnimationSet? = null) {
+    fun swap(viewController: ViewController, animationSet: AnimationSet? = defaultSwapAnimation) {
         val toDispose = stack.pop()
         stack.push(viewController)
         swapListener?.invoke(current, animationSet) {
@@ -60,7 +64,7 @@ open class VCStack() : VCContainerImpl() {
         onSwap.forEach { it(current) }
     }
 
-    fun reset(viewController: ViewController, animationSet: AnimationSet? = null) {
+    fun reset(viewController: ViewController, animationSet: AnimationSet? = defaultSwapAnimation) {
         val toDispose = ArrayList(stack)
         stack.clear()
         stack.push(viewController)

@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.networking
 
 import com.github.salomonbrys.kotson.typeToken
 import com.google.gson.JsonObject
+import com.lightningkite.kotlincomponents.asStringOptional
 import com.lightningkite.kotlincomponents.gsonFrom
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
@@ -50,9 +51,9 @@ class PagedEndpoint<T : Any>(
         pull()
     }
 
-    fun reset(endpoint: NetEndpoint) = reset(endpoint.url)
-    fun reset(newUrl: String) {
+    fun reset(endpoint: NetEndpoint) {
         list.clear()
+        pulling = false
         isMoreObservable.set(true)
         nextEndpoint = endpoint
         pull()
@@ -62,20 +63,28 @@ class PagedEndpoint<T : Any>(
         if (pulling) return
         if (nextEndpoint == null) return
         pulling = true
+
+        println("Pulling: ")
+        println(nextEndpoint?.url)
         var currentEndpoint = nextEndpoint!!
 
         currentEndpoint.get<JsonObject>(onError = onError) { result ->
+            if (currentEndpoint != nextEndpoint) {
+                pulling = false
+                return@get
+            }
             nextEndpoint = null
-            println(result)
             if (result.has("num_pages")) {
                 val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
                 if (pageNum > result.get("num_pages").asString.toInt())
                     nextEndpoint = currentEndpoint.query("page", pageNum)
             } else if (result.has("next")) {
-                nextEndpoint = currentEndpoint.fromUrl(result.getAsJsonPrimitive("next").asString)
+                val nextUrl = result.get("next").asStringOptional
+                if (nextUrl != null) {
+                    nextEndpoint = currentEndpoint.fromUrl(nextUrl)
+                }
             }
-            println("reading in list")
-            list.addAll(result.getAsJsonArray(listKey).map { println(it); it.gsonFrom<T>(type)!! })
+            list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
             if (nextEndpoint == null) {
                 isMoreObservable.set(false)
             }

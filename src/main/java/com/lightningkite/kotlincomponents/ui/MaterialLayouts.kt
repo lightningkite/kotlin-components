@@ -8,10 +8,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
-import com.lightningkite.kotlincomponents.linearLayout
-import com.lightningkite.kotlincomponents.selectableItemBackgroundBorderlessResource
-import com.lightningkite.kotlincomponents.textColorResource
-import com.lightningkite.kotlincomponents.verticalLayout
+import com.lightningkite.kotlincomponents.*
 import org.jetbrains.anko.*
 
 /**
@@ -47,6 +44,7 @@ inline fun rowOneLine(
         crossinline title: TextView.() -> Unit
 ): LinearLayout {
     return verticalLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
@@ -64,6 +62,7 @@ inline fun rowOneLineRadio(
         crossinline radioButtonInit: RadioButton.() -> Unit
 ): LinearLayout {
     return linearLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
@@ -90,6 +89,7 @@ inline fun rowTwoLine(
         crossinline subtitle: TextView.() -> Unit
 ): LinearLayout {
     return verticalLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
@@ -113,6 +113,7 @@ inline fun rowTwoLineAction(
         crossinline subtitle: TextView.() -> Unit
 ): LinearLayout {
     return linearLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER
@@ -145,6 +146,7 @@ inline fun rowTwoTwoLine(
         crossinline rightBottom: TextView.() -> Unit
 ): LinearLayout {
     return linearLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER
@@ -184,6 +186,7 @@ inline fun rowTwoTwoLineAction(
         crossinline rightBottom: TextView.() -> Unit
 ): LinearLayout {
     return linearLayout(context) {
+        backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
         gravity = Gravity.CENTER

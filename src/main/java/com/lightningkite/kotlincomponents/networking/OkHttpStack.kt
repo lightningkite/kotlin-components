@@ -32,12 +32,12 @@ object OkHttpStack : NetStack {
             }
             val response = client.newCall(requestBuilder.build()).execute()
             val responseBody = response.body()
-            val netResponse = NetResponse(response.code(), responseBody.bytes())
+            val netResponse = NetResponse(response.code(), responseBody.bytes(), method, url, body, headers)
             responseBody.close()
             return netResponse
 
         } catch (e: Exception) {
-            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "There was an exception.".toByteArray(Charset.forName("UTF-8")))
+            return NetResponse(0, e.message?.toByteArray(Charset.forName("UTF-8")) ?: "There was an exception.".toByteArray(Charset.forName("UTF-8")), method, url, body, headers)
         }
     }
 

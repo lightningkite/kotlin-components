@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.networking
 
+import android.graphics.Bitmap
 import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
@@ -11,6 +12,7 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
     companion object {
         fun fromUrl(netInterface: NetInterface, url: String): NetEndpoint {
             val index = url.indexOf('?')
+            if (index == -1) return NetEndpoint(netInterface, url)
             return NetEndpoint(
                     netInterface,
                     url.substring(0, index),
@@ -41,24 +43,25 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
 
     inline fun <reified T : Any> dealWithResult(response: NetResponse, onError: (NetResponse) -> Boolean): T? {
         if (response.isSuccessful) {
-            if (T::class.java == Unit::class.java) return Unit as T
-            val result = response.result<T>()
+            val result = when (T::class.java) {
+                Unit::class.java -> Unit as T
+                Bitmap::class.java -> response.bitmap() as T
+                else -> response.result<T>()
+            }
             if (result != null) return result
             else {
-                if (onError(response)) {
-                    netInterface.onError.runAll(response)
-                    return null
-                } else {
-                    return null
-                }
+                whenError(response, onError)
+                return null
             }
         } else {
-            if (onError(response)) {
-                netInterface.onError.runAll(response)
-                return null
-            } else {
-                return null
-            }
+            whenError(response, onError)
+            return null
+        }
+    }
+
+    inline fun whenError(response: NetResponse, onError: (NetResponse) -> Boolean) {
+        if (onError(response)) {
+            netInterface.onError.runAll(response)
         }
     }
 

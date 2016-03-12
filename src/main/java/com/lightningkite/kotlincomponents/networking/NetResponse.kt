@@ -16,7 +16,11 @@ import org.json.JSONObject
  */
 data class NetResponse(
         val code: Int,
-        val raw: ByteArray
+        val raw: ByteArray,
+        val method: NetMethod = NetMethod.GET,
+        val url: String = "",
+        val body: NetBody = NetBody.EMPTY,
+        val headers: Map<String, String> = mapOf()
 ) {
     val isSuccessful: Boolean get() = code / 100 == 2
     inline fun <reified T : Any> result(gson: Gson = MyGson.gson): T? {

@@ -12,5 +12,9 @@ open class NetInterface {
     open val defaultHeaders: Map<String, String> = mapOf()
     val onError = ArrayList<(NetResponse) -> Unit>()
 
-    fun endpoint(url: String) = NetEndpoint.fromUrl(this, url)
+    fun endpoint(url: String) = NetEndpoint.fromUrl(url, this)
+
+    companion object {
+        val default = NetInterface()
+    }
 }

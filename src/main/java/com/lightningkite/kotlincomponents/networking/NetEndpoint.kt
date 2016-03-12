@@ -7,10 +7,10 @@ import java.util.*
 /**
  * Created by jivie on 2/26/16.
  */
-open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, val queryParams: Map<String, String> = mapOf()) {
+open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, val preQueryUrl: String, val queryParams: Map<String, String> = mapOf()) {
 
     companion object {
-        fun fromUrl(netInterface: NetInterface, url: String): NetEndpoint {
+        fun fromUrl(url: String, netInterface: NetInterface = NetInterface.default): NetEndpoint {
             val index = url.indexOf('?')
             if (index == -1) return NetEndpoint(netInterface, url)
             return NetEndpoint(
@@ -24,7 +24,7 @@ open class NetEndpoint(val netInterface: NetInterface, val preQueryUrl: String, 
         }
     }
 
-    fun fromUrl(url: String): NetEndpoint = fromUrl(netInterface, url)
+    fun fromUrl(url: String): NetEndpoint = fromUrl(url, netInterface)
 
     val url: String = if (queryParams.isEmpty()) preQueryUrl else preQueryUrl + "?" + queryParams.entries.joinToString("&") { it.key + "=" + it.value }
 

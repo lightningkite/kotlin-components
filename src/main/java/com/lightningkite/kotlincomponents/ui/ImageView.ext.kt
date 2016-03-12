@@ -31,3 +31,23 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
         }
     }
 }
+
+fun ImageView.imageLoad(url: String) {
+    NetEndpoint.fromUrl(url).get<Bitmap>(onError = { true }) {
+        if (isAttachedToWindow) {
+            var oldBitmap = bitmaps[this]
+            if (oldBitmap != null) oldBitmap.recycle()
+            else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewDetachedFromWindow(v: View?) {
+                    bitmaps[this@imageLoad]?.recycle()
+                    bitmaps.remove(this@imageLoad)
+                }
+
+                override fun onViewAttachedToWindow(v: View?) {
+                }
+            })
+            bitmaps[this] = it
+            imageBitmap = it
+        }
+    }
+}

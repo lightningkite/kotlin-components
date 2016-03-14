@@ -61,12 +61,14 @@ open class FileMockStack(
                     fullPath += if (args.isNotEmpty()) args.joinToString(".", ".") { it.first + "." + it.second } + "." else ""
                     fullPath += method.toString()
                     fullPath += ".json"
+                    if (fullPath.startsWith('/')) fullPath = fullPath.substring(1)
 
                     var shortPath = "src/main/assets/"
                     shortPath += url.replace(restUrl, "")
                     shortPath += "."
                     shortPath += method.toString()
                     shortPath += ".json"
+                    if (shortPath.startsWith('/')) shortPath = shortPath.substring(1)
 
                     if (File(fullPath).exists())
                         fullPath

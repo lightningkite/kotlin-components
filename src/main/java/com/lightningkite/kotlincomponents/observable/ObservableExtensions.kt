@@ -4,6 +4,9 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
+import com.lightningkite.kotlincomponents.toDoubleMaybe
+import com.lightningkite.kotlincomponents.toFloatMaybe
+import com.lightningkite.kotlincomponents.toIntMaybe
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.*
 import java.text.NumberFormat
@@ -242,7 +245,7 @@ inline fun EditText.bindInt(bond: KObservableInterface<Int>) {
         }
     }
     bind(bond) {
-        if (!bond.get().toString().equals(text.toString())) {
+        if (bond.get() != text.toString().toIntMaybe()) {
             this.setText(bond.get())
         }
     }
@@ -271,8 +274,36 @@ inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberF
         }
     }
     bind(bond) {
-        val value = text.toString().toFloat()
-        if (bond.get() != value) {
+        if (bond.get() != text.toString().toFloatMaybe()) {
+            this.setText(format.format(bond.get()))
+        }
+    }
+}
+
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the number here will be updated.
+ */
+inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: NumberFormat) {
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+    val originalTextColor = this.textColors.defaultColor
+    textChangedListener {
+        onTextChanged { charSequence, start, before, count ->
+            try {
+                val value = charSequence.toString().toDouble()
+                textColor = originalTextColor
+                if (bond.get() != value) {
+                    bond.set(charSequence.toString().toDouble())
+                }
+            } catch(e: NumberFormatException) {
+                //do nothing.
+                textColor = 0xFF0000.opaque
+            }
+        }
+    }
+    bind(bond) {
+        if (bond.get() != text.toString().toDoubleMaybe()) {
             this.setText(format.format(bond.get()))
         }
     }

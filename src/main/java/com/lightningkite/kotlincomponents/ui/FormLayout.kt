@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import com.lightningkite.kotlincomponents.isEmail
 import com.lightningkite.kotlincomponents.observable.KObservable
+import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.bind
 import com.lightningkite.kotlincomponents.observable.bindString
 import org.jetbrains.anko.*
@@ -36,7 +37,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         isPassingObs.set(!errors.values.any { it != null })
     }
 
-    inline fun field(obs: KObservable<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
+    inline fun field(obs: KObservableInterface<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
         return textInputLayout {
             hintResource = hint
             textInputEditText {
@@ -48,7 +49,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }.lparams(matchParent, wrapContent) { margin = dip(4) }
     }
 
-    inline fun email(obs: KObservable<String>, hint: Int, blankError: Int, notEmailError: Int) = field(
+    inline fun email(obs: KObservableInterface<String>, hint: Int, blankError: Int, notEmailError: Int) = field(
             obs,
             hint,
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
@@ -62,7 +63,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             }
     )
 
-    inline fun password(obs: KObservable<String>, hint: Int, blankError: Int) = field(
+    inline fun password(obs: KObservableInterface<String>, hint: Int, blankError: Int) = field(
             obs,
             hint,
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
@@ -75,7 +76,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             }
     )
 
-    inline fun password(obs: KObservable<String>, hint: Int, blankError: Int, minLength: Int, tooShortError: Int) = field(
+    inline fun password(obs: KObservableInterface<String>, hint: Int, blankError: Int, minLength: Int, tooShortError: Int) = field(
             obs,
             hint,
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
@@ -89,7 +90,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             }
     )
 
-    inline fun confirmPassword(password: KObservable<String>, confirm: KObservable<String>, hint: Int, blankError: Int, notMatchingError: Int) = field(
+    inline fun confirmPassword(password: KObservableInterface<String>, confirm: KObservable<String>, hint: Int, blankError: Int, notMatchingError: Int) = field(
             confirm,
             hint,
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,

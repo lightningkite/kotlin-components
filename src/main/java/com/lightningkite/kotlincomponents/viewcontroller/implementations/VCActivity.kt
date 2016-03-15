@@ -42,18 +42,46 @@ abstract class VCActivity : Activity() {
 
     lateinit var vcView: VCView
 
+    var savedInstanceState: Bundle? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.savedInstanceState = savedInstanceState
         vcView = VCView(this)
         setContentView(vcView)
     }
 
     fun onCreate(savedInstanceState: Bundle?, shouldSetContent: Boolean) {
         super.onCreate(savedInstanceState)
+        this.savedInstanceState = savedInstanceState
         vcView = VCView(this)
         if (shouldSetContent) {
             setContentView(vcView)
         }
+    }
+
+    val onResume = HashSet<()->Unit>()
+    override fun onResume() {
+        super.onResume()
+        onResume.runAll()
+    }
+
+    val onPause = HashSet<()->Unit>()
+    override fun onPause() {
+        onPause.runAll()
+        super.onPause()
+    }
+
+    val onSaveInstanceState = HashSet<(outState: Bundle)->Unit>()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        onSaveInstanceState.runAll(outState)
+    }
+
+    val onLowMemory = HashSet<()->Unit>()
+    override fun onLowMemory() {
+        super.onLowMemory()
+        onLowMemory.runAll()
     }
 
     override fun onBackPressed() {
@@ -62,9 +90,11 @@ abstract class VCActivity : Activity() {
         } ?: super.onBackPressed()
     }
 
+    val onDestroy = HashSet<()->Unit>()
     override fun onDestroy() {
         vcView.detatch()
         vcView.unmake()
+        onDestroy.runAll()
         super.onDestroy()
     }
 }

@@ -30,7 +30,7 @@ class KFilterObservableList<E>(
     }
 
     //filtering
-    val passing = (full.indices).toSortedSet()
+    var passing = (full.indices).toSortedSet()
 
     init {
         filterObs.add {
@@ -56,11 +56,51 @@ class KFilterObservableList<E>(
             onUpdate.runAll(this)
         }
         bind(full.onAdd) { item, index ->
-
+            val passes = filter(item)
+            if (passes) {
+                passing.add(index)
+                val iterator = passing.iterator()
+                val toAdd = ArrayList<Int>()
+                while (iterator.hasNext()) {
+                    val i = iterator.next()
+                    if (i > index) {
+                        iterator.remove()
+                        toAdd += i + 1
+                    }
+                }
+                passing.addAll(toAdd)
+                onAdd.runAll(item, passing.indexOf(index))
+            }
         }
         bind(full.onChange) { item, index ->
+            val passes = filter(item)
+            val passed = passing.contains(index)
+            if (passes != passed) {
+                if (passes) {
+                    passing.add(index)
+                    onAdd.runAll(item, index)
+                } else {
+                    passing.remove(index)
+                    onRemove.runAll(item, index)
+                }
+            }
         }
         bind(full.onRemove) { item, index ->
+            val passes = filter(item)
+            if (passes) {
+                passing.remove(index)
+                val iterator = passing.iterator()
+                val toAdd = ArrayList<Int>()
+                while (iterator.hasNext()) {
+                    val i = iterator.next()
+                    if (i > index) {
+                        iterator.remove()
+                        toAdd += i - 1
+                    }
+                }
+                passing.addAll(toAdd)
+                onRemove.runAll(item, passing.indexOf(index))
+            }
         }
         bind(full.onReplace) {
             passing.clear()

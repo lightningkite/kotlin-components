@@ -39,7 +39,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     inline fun field(obs: KObservable<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
         return textInputLayout {
             hintResource = hint
-            editText {
+            textInputEditText {
                 inputType = type
                 bindString(obs)
 

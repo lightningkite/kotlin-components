@@ -106,4 +106,4 @@ inline fun <T : Any> JsonElement.gsonFrom(type: Type, gson: Gson = MyGson.gson):
 }
 
 inline fun SharedPreferences.Editor.putGson(key: String, value: Any) = putString(key, value.gsonTo())
-inline fun <reified T : Any> SharedPreferences.getGson(key: String, value: Any) = getString(key, null)?.gsonFrom<T>()
+inline fun <reified T : Any> SharedPreferences.getGson(key: String) = getString(key, null)?.gsonFrom<T>()

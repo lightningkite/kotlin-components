@@ -17,6 +17,7 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
+
 fun <T> View.listen(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
@@ -40,6 +41,25 @@ fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T)
         override fun onViewAttachedToWindow(v: View?) {
             observable.add(item)
             item(init)
+        }
+    })
+}
+
+fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObservableInterface<B>, action: (A, B) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+
+        val itemA = { item: A -> action(item, observableB.get()) }
+        val itemB = { item: B -> action(observableA.get(), item) }
+
+        override fun onViewDetachedFromWindow(v: View?) {
+            observableA.remove(itemA)
+            observableB.remove(itemB)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            observableA.add(itemA)
+            observableB.add(itemB)
         }
     })
 }
@@ -68,25 +88,6 @@ fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
         override fun onViewAttachedToWindow(v: View?) {
             item(observable.get())
             observable.add(item)
-        }
-    })
-}
-
-fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObservableInterface<B>, action: (A, B) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-
-        val itemA = { item: A -> action(item, observableB.get()) }
-        val itemB = { item: B -> action(observableA.get(), item) }
-
-        override fun onViewDetachedFromWindow(v: View?) {
-            observableA.remove(itemA)
-            observableB.remove(itemB)
-            //this@bind.removeOnAttachStateChangeListener(this)
-        }
-
-        override fun onViewAttachedToWindow(v: View?) {
-            observableA.add(itemA)
-            observableB.add(itemB)
         }
     })
 }

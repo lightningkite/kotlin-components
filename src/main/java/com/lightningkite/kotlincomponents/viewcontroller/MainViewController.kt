@@ -4,7 +4,7 @@ import android.support.v7.widget.ActionMenuView
 import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.View
-import android.view.ViewManager
+import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.bind
 import com.lightningkite.kotlincomponents.ui.elevationCompat
@@ -58,7 +58,7 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
         }.lparams(matchParent, 0, 1f)
     }
 
-    abstract fun ViewManager.makeSubview(activity: VCActivity): View
+    abstract fun ViewGroup.makeSubview(activity: VCActivity): View
 
     fun attach(activity: VCActivity, stack: VCStack) {
         bind(alwaysShowBackObs) {

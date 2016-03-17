@@ -58,7 +58,6 @@ class KFilterObservableList<E>(
         bind(full.onAdd) { item, index ->
             val passes = filter(item)
             if (passes) {
-                passing.add(index)
                 val iterator = passing.iterator()
                 val toAdd = ArrayList<Int>()
                 while (iterator.hasNext()) {
@@ -69,7 +68,9 @@ class KFilterObservableList<E>(
                     }
                 }
                 passing.addAll(toAdd)
+                passing.add(index)
                 onAdd.runAll(item, passing.indexOf(index))
+                onUpdate.runAll(this)
             }
         }
         bind(full.onChange) { item, index ->
@@ -79,15 +80,18 @@ class KFilterObservableList<E>(
                 if (passes) {
                     passing.add(index)
                     onAdd.runAll(item, index)
+                    onUpdate.runAll(this)
                 } else {
                     passing.remove(index)
                     onRemove.runAll(item, index)
+                    onUpdate.runAll(this)
                 }
             }
         }
         bind(full.onRemove) { item, index ->
             val passes = filter(item)
             if (passes) {
+                val oldIndexOf = passing.indexOf(index)
                 passing.remove(index)
                 val iterator = passing.iterator()
                 val toAdd = ArrayList<Int>()
@@ -99,7 +103,8 @@ class KFilterObservableList<E>(
                     }
                 }
                 passing.addAll(toAdd)
-                onRemove.runAll(item, passing.indexOf(index))
+                onRemove.runAll(item, oldIndexOf)
+                onUpdate.runAll(this)
             }
         }
         bind(full.onReplace) {
@@ -119,20 +124,24 @@ class KFilterObservableList<E>(
     override val onReplace = HashSet<(KObservableListInterface<E>) -> Unit>()
     override val onRemove = HashSet<(E, Int) -> Unit>()
 
-    override fun set(index: Int, element: E): E = throw IllegalAccessException()
-    override fun add(element: E): Boolean = throw IllegalAccessException()
-    override fun add(index: Int, element: E): Unit = throw IllegalAccessException()
-    override fun addAll(elements: Collection<E>): Boolean = throw IllegalAccessException()
-    override fun addAll(index: Int, elements: Collection<E>): Boolean = throw IllegalAccessException()
-    @Suppress("UNCHECKED_CAST")
-    override fun remove(element: E): Boolean = throw IllegalAccessException()
+    override fun set(index: Int, element: E): E {
+        full[passing.elementAt(index)] = element
+        return element
+    }
 
-    override fun removeAt(index: Int): E = throw IllegalAccessException()
+    override fun add(element: E): Boolean = full.add(element)
+    override fun add(index: Int, element: E): Unit = full.add(passing.elementAt(index), element)
+    override fun addAll(elements: Collection<E>): Boolean = full.addAll(elements)
+    override fun addAll(index: Int, elements: Collection<E>): Boolean = full.addAll(passing.elementAt(index), elements)
+    @Suppress("UNCHECKED_CAST")
+    override fun remove(element: E): Boolean = full.remove(element)
+
+    override fun removeAt(index: Int): E = full.removeAt(passing.elementAt(index))
     @Suppress("UNCHECKED_CAST")
     override fun removeAll(elements: Collection<E>): Boolean = throw IllegalAccessException()
 
     override fun retainAll(elements: Collection<E>): Boolean = throw IllegalAccessException()
-    override fun clear(): Unit = throw IllegalAccessException()
+    override fun clear(): Unit = full.clear()
 
     override fun isEmpty(): Boolean = passing.isEmpty()
     override fun contains(element: E): Boolean = passing.contains(full.indexOf(element))

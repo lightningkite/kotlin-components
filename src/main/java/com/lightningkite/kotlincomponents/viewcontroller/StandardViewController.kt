@@ -9,8 +9,11 @@ import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCView
 import java.util.*
 
 /**
+ *
  * Created by jivie on 1/19/16.
+ *
  */
+
 abstract class StandardViewController() : ViewController {
 
     val onMake: ArrayList<(View) -> Unit> = ArrayList()

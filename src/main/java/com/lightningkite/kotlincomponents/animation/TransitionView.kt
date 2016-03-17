@@ -16,6 +16,7 @@ import java.util.*
 class TransitionView(context: Context) : _FrameLayout(context) {
     private val views: HashMap<String, View> = HashMap()
     private var currentView: View = View(context)
+    fun getCurrentView() :View { return currentView}
     var defaultAnimation: AnimationSet = AnimationSet.fade
 
     fun addView(tag: String, child: View) {

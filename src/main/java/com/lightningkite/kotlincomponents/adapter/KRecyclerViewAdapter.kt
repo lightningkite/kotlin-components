@@ -9,8 +9,11 @@ import com.lightningkite.kotlincomponents.observable.KObservableListInterface
 import com.lightningkite.kotlincomponents.observable.bind
 
 /**
+ *
  * Created by jivie on 2/11/16.
+ *
  */
+
 open class KRecyclerViewAdapter<T : Any>(
         list: List<T>,
         val defaultValue: T?,

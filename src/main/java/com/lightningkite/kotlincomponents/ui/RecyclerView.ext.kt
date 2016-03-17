@@ -1,15 +1,15 @@
 package com.lightningkite.kotlincomponents.ui
 
+import com.lightningkite.kotlincomponents.R
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.ViewManager
-import com.lightningkite.kotlincomponents.R
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.layoutInflater
 
 /**
- * Created by josep on 3/3/2016.
+ * Created by joseph on 3/3/2016.
  */
 
 inline fun ViewManager.verticalRecyclerView() = verticalRecyclerView {}

@@ -3,17 +3,19 @@ package com.lightningkite.kotlincomponents.adapter
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.lightningkite.kotlincomponents.observable.KLateInitObservable
 import com.lightningkite.kotlincomponents.observable.KObservable
+import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
 import com.lightningkite.kotlincomponents.observable.bind
+import com.lightningkite.kotlincomponents.runAll
+import java.util.*
 
 /**
  * Created by jivie on 2/11/16.
  */
-open class KRecyclerViewAdapter<T : Any>(
+open class KRecyclerViewAdapter<T>(
         list: List<T>,
-        val defaultValue: T?,
+        val defaultValue: T,
         val makeView: (ItemObservable<T>) -> View
 ) : RecyclerView.Adapter<KRecyclerViewAdapter.ViewHolder<T>>(), List<T> by list {
 
@@ -26,24 +28,39 @@ open class KRecyclerViewAdapter<T : Any>(
     override fun getItemCount(): Int = list.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T>? {
-        val observable = ItemObservable<T>()
-        if (defaultValue != null) observable.set(defaultValue)
+        val observable = ItemObservable(this)
         val newView = makeView(observable)
         val holder = ViewHolder(newView, observable)
         observable.viewHolder = holder
         return holder
     }
 
-    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
-        holder.observable.set(list[position])
-    }
+    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) = holder.observable.update()
 
-    class ItemObservable<T: Any>() : KLateInitObservable<T>(){
+    class ItemObservable<T>(val parent: KRecyclerViewAdapter<T>) : ArrayList<(T) -> Unit>(), KObservableInterface<T> {
         lateinit var viewHolder:ViewHolder<T>
         val position:Int get() = viewHolder.adapterPosition
+
+        override fun get(): T {
+            if (position >= 0 && position < parent.list.size) {
+                return parent.list[position]
+            } else return parent.defaultValue ?: throw IllegalAccessException()
+        }
+
+        override fun set(v: T): Unit {
+            if (position < 0 || position >= parent.list.size) return
+            val list = parent.list as? MutableList<T> ?: throw IllegalAccessException()
+            list[position] = v
+            update()
+        }
+
+        override fun update() {
+            runAll(get())
+        }
+
     }
 
-    class ViewHolder<T : Any>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder<T>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
 }
 
 object RecyclerViewParamAdder {
@@ -59,7 +76,7 @@ object RecyclerViewParamAdder {
     }
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defaultValue: T? = null, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
+inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
         RecyclerViewParamAdder.makeView(it)
     }
@@ -79,7 +96,7 @@ inline fun <T : Any> RecyclerView.makeAdapter(list: KObservableListInterface<T>,
     return newAdapter
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(list: List<T>, defaultValue: T? = null, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
+inline fun <T> RecyclerView.makeAdapter(list: List<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
         RecyclerViewParamAdder.makeView(it)
     }
@@ -87,7 +104,7 @@ inline fun <T : Any> RecyclerView.makeAdapter(list: List<T>, defaultValue: T? = 
     return newAdapter
 }
 
-inline fun <T : Any> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultValue: T? = null, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
+inline fun <T> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(listObs.get(), defaultValue) {
         RecyclerViewParamAdder.makeView(it)
     }

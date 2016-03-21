@@ -8,6 +8,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.lightningkite.kotlincomponents.MyGson
+import com.lightningkite.kotlincomponents.image.BitmapFactory_decodeByteArraySized
 import org.json.JSONObject
 
 /**
@@ -31,9 +32,18 @@ data class NetResponse(
         return gson.fromJson<T>(string(), type)
     }
 
-    fun bitmap(): Bitmap? {
+    fun bitmap(options: BitmapFactory.Options = BitmapFactory.Options()): Bitmap? {
         try {
             return BitmapFactory.decodeByteArray(raw, 0, raw.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    fun bitmapSized(maxWidth: Int, maxHeight: Int): Bitmap? {
+        try {
+            return BitmapFactory_decodeByteArraySized(raw, 0, raw.size)
         } catch (e: Exception) {
             e.printStackTrace()
             return null

@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.ui
 
 import android.R
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.view.Gravity
 import android.widget.ImageButton
@@ -12,7 +13,9 @@ import com.lightningkite.kotlincomponents.*
 import org.jetbrains.anko.*
 
 /**
+ *
  * Created by jivie on 2/15/16.
+ *
  */
 
 inline fun TextView.materialStyleTertiary(dark: Boolean) {
@@ -100,6 +103,74 @@ inline fun rowTwoLine(
         textView() {
             materialStyleTertiary(dark)
             subtitle()
+        }
+    }
+}
+
+inline fun rowTwoLineDrawableRight(
+        context: Context,
+        dark: Boolean = false,
+        crossinline title: TextView.() -> Unit,
+        crossinline subtitle: TextView.() -> Unit,
+        drawable: Drawable
+): LinearLayout {
+    return linearLayout(context) {
+        verticalLayout {
+            backgroundResource = selectableItemBackgroundResource
+            minimumHeight = dip(72)
+            padding = dip(16)
+            gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
+            textView() {
+                materialStylePrimary(dark)
+                title()
+            }.lparams { bottomMargin = dip(4) }
+            textView() {
+                materialStyleTertiary(dark)
+                subtitle()
+            }
+        }.lparams(dip(0), wrapContent) {
+            weight = 1f
+        }
+
+        imageView(drawable) {
+            padding = dip(8)
+            gravity = Gravity.CENTER
+        }.lparams {
+            gravity = Gravity.CENTER
+        }
+    }
+}
+
+inline fun rowTwoLineDrawableLeft(
+        context: Context,
+        dark: Boolean = false,
+        crossinline title: TextView.() -> Unit,
+        crossinline subtitle: TextView.() -> Unit,
+        drawable: Drawable
+): LinearLayout {
+    return linearLayout(context) {
+        imageView(drawable) {
+            padding = dip(8)
+            gravity = Gravity.CENTER
+        }.lparams {
+            gravity = Gravity.CENTER
+        }
+
+        verticalLayout {
+            backgroundResource = selectableItemBackgroundResource
+            minimumHeight = dip(72)
+            padding = dip(16)
+            gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
+            textView() {
+                materialStylePrimary(dark)
+                title()
+            }.lparams { bottomMargin = dip(4) }
+            textView() {
+                materialStyleTertiary(dark)
+                subtitle()
+            }
+        }.lparams(dip(0), wrapContent) {
+            weight = 1f
         }
     }
 }

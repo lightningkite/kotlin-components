@@ -11,7 +11,9 @@ import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
 /**
+ *
  * Created by jivie on 2/11/16.
+ *
  */
 open class KRecyclerViewAdapter<T>(
         list: List<T>,

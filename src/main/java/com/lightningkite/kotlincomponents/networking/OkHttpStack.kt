@@ -43,7 +43,7 @@ object OkHttpStack : NetStack {
     }
 
     fun image(url: String, onResult: (Bitmap?) -> Unit) {
-        doAsync {  }
+        doAsync({ imageSync(url) }, onResult)
     }
 
     val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }

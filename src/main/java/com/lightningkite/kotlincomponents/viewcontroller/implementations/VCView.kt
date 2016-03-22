@@ -25,6 +25,9 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         swap(newContainer.current, null){}
     }
     fun detatch(){
+        current?.unmake(currentView!!)
+        currentView = null
+        current = null
         container?.swapListener = null
     }
     fun unmake(){

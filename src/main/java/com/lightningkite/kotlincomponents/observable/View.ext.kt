@@ -4,12 +4,10 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
-import com.lightningkite.kotlincomponents.toDoubleMaybe
-import com.lightningkite.kotlincomponents.toFloatMaybe
-import com.lightningkite.kotlincomponents.toIntMaybe
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.*
 import java.text.NumberFormat
+import java.text.ParseException
 import java.util.*
 
 /**
@@ -254,47 +252,39 @@ inline fun EditText.bindNullableString(bond: KObservableInterface<String?>) {
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the integer here will be updated.
  */
-inline fun EditText.bindInt(bond: KObservableInterface<Int>) {
-    inputType = (inputType and 0xFFFFFFF0.toInt()) or InputType.TYPE_CLASS_NUMBER
-    setText(bond.get().toString())
-    textChangedListener {
-        onTextChanged { charSequence, start, before, count ->
-            if (!bond.get().toString().equals(charSequence)) {
-                bond.set(charSequence.toString().toInt())
-            }
-        }
-    }
-    bind(bond) {
-        if (bond.get() != text.toString().toIntMaybe()) {
-            this.setText(bond.get())
-        }
-    }
-}
-
-/**
- * Binds this [EditText] two way to the bond.
- * When the user edits this, the value of the bond will change.
- * When the value of the bond changes, the number here will be updated.
- */
-inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberFormat) {
+inline fun EditText.bindInt(bond: KObservableInterface<Int>, format: NumberFormat = NumberFormat.getNumberInstance()) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
+    var value: Int? = null
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
+
+            value = null
+
             try {
-                val value = charSequence.toString().toFloat()
-                textColor = originalTextColor
-                if (bond.get() != value) {
-                    bond.set(charSequence.toString().toFloat())
-                }
+                value = format.parse(charSequence.toString()).toInt()
+            } catch(e: ParseException) {
+                //do nothing.
+            }
+
+            try {
+                value = charSequence.toString().toInt()
             } catch(e: NumberFormatException) {
                 //do nothing.
+            }
+
+            if (value == null) {
                 textColor = 0xFF0000.opaque
+            } else {
+                textColor = originalTextColor
+                if (bond.get() != value) {
+                    bond.set(value!!)
+                }
             }
         }
     }
     bind(bond) {
-        if (bond.get() != text.toString().toFloatMaybe()) {
+        if (bond.get() != value) {
             this.setText(format.format(bond.get()))
         }
     }
@@ -305,25 +295,82 @@ inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberF
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the number here will be updated.
  */
-inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: NumberFormat) {
+inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberFormat = NumberFormat.getNumberInstance()) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
+    var value = Float.NaN
     textChangedListener {
         onTextChanged { charSequence, start, before, count ->
+
+            value = Float.NaN
+
             try {
-                val value = charSequence.toString().toDouble()
-                textColor = originalTextColor
-                if (bond.get() != value) {
-                    bond.set(charSequence.toString().toDouble())
-                }
+                value = format.parse(charSequence.toString()).toFloat()
+            } catch(e: ParseException) {
+                //do nothing.
+            }
+
+            try {
+                value = charSequence.toString().toFloat()
             } catch(e: NumberFormatException) {
                 //do nothing.
+            }
+
+            if (value.isNaN()) {
                 textColor = 0xFF0000.opaque
+            } else {
+                textColor = originalTextColor
+                if (bond.get() != value) {
+                    bond.set(value)
+                }
             }
         }
     }
     bind(bond) {
-        if (bond.get() != text.toString().toDoubleMaybe()) {
+        if (bond.get() != value) {
+            this.setText(format.format(bond.get()))
+        }
+    }
+}
+
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the number here will be updated.
+ */
+inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: NumberFormat = NumberFormat.getNumberInstance()) {
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+    val originalTextColor = this.textColors.defaultColor
+    var value = Double.NaN
+    textChangedListener {
+        onTextChanged { charSequence, start, before, count ->
+
+            value = Double.NaN
+
+            try {
+                value = format.parse(charSequence.toString()).toDouble()
+            } catch(e: ParseException) {
+                //do nothing.
+            }
+
+            try {
+                value = charSequence.toString().toDouble()
+            } catch(e: NumberFormatException) {
+                //do nothing.
+            }
+
+            if (value.isNaN()) {
+                textColor = 0xFF0000.opaque
+            } else {
+                textColor = originalTextColor
+                if (bond.get() != value) {
+                    bond.set(value)
+                }
+            }
+        }
+    }
+    bind(bond) {
+        if (bond.get() != value) {
             this.setText(format.format(bond.get()))
         }
     }

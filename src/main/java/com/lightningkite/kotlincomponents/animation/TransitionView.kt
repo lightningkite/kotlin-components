@@ -46,16 +46,23 @@ class TransitionView(context: Context) : _FrameLayout(context) {
 
     /**
      * Animates using [set] to the view designated by [tag].
-     * @param tag The view to animate to.
+     * @param tag The view to animate to.  You can tag views using [tag].
      * @param set The animation set for animating.
      */
-    fun animate(tag: String, set: AnimationSet = defaultAnimation) {
-        if (views[tag] == currentView) return;
-        //val (animateIn, animateOut) = set
+    fun animate(tag: String, set: AnimationSet = defaultAnimation) = animate(views[tag] ?: throw IllegalArgumentException(), set)
+
+    inline fun animate(index: Int, set: AnimationSet = defaultAnimation) = animate(getChildAt(index), set)
+
+    /**
+     * Animates using [set] to the given view.
+     * @param view The view to animate to.
+     * @param set The animation set for animating.
+     */
+    fun animate(newView: View, set: AnimationSet = defaultAnimation) {
+        if (newView == currentView) return;
         val animateIn = set.animateIn
         val animateOut = set.animateOut
         val oldView = currentView
-        val newView = views[tag] ?: return
 
         newView.visibility = View.VISIBLE
         newView.animateIn(this).start()
@@ -66,14 +73,18 @@ class TransitionView(context: Context) : _FrameLayout(context) {
         currentView = newView
     }
 
-    fun jump(tag: String) {
+    fun jump(view: View) {
         currentView.visibility = View.INVISIBLE
-        currentView = views[tag]!!
+        currentView = view
         currentView.visibility = View.VISIBLE
     }
+
+    fun jump(tag: String) = jump(views[tag] ?: throw IllegalArgumentException())
+    inline fun jump(index: Int) = jump(getChildAt(index))
 }
 
 @Suppress("NOTHING_TO_INLINE") inline fun ViewManager.transitionView() = transitionView {}
+
 inline fun ViewManager.transitionView(init: TransitionView.() -> Unit): TransitionView {
     return ankoView({ TransitionView(it) }, init)
 }

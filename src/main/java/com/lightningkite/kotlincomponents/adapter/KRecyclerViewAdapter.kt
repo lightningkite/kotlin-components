@@ -38,8 +38,8 @@ open class KRecyclerViewAdapter<T>(
     override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) = holder.observable.update()
 
     class ItemObservable<T>(val parent: KRecyclerViewAdapter<T>) : ArrayList<(T) -> Unit>(), KObservableInterface<T> {
-        lateinit var viewHolder:ViewHolder<T>
-        val position:Int get() = viewHolder.adapterPosition
+        lateinit var viewHolder: ViewHolder<T>
+        val position: Int get() = viewHolder.adapterPosition
 
         override fun get(): T {
             if (position >= 0 && position < parent.list.size) {
@@ -55,7 +55,9 @@ open class KRecyclerViewAdapter<T>(
         }
 
         override fun update() {
-            runAll(get())
+            if (position >= 0 && position < parent.list.size) {
+                runAll(parent.list[position])
+            }
         }
 
     }

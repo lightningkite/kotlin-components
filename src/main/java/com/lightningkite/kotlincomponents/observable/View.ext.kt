@@ -17,15 +17,18 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
+var bindings = 0
 
 fun <T> View.listen(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observable.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observable.add(item)
         }
     })
@@ -34,11 +37,13 @@ fun <T> View.listen(observable: MutableCollection<T>, item: T) {
 fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T) -> Unit) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observable.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observable.add(item)
             item(init)
         }
@@ -52,12 +57,14 @@ fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObser
         val itemB = { item: B -> action(observableA.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observableA.add(itemA)
             observableB.add(itemB)
         }
@@ -67,11 +74,13 @@ fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObser
 fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
-            observable.onUpdate.add(item)
+            //println("bindings: ${--bindings}")
+            observable.onUpdate.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             item(observable)
             observable.onUpdate.add(item)
         }
@@ -81,11 +90,13 @@ fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableLis
 fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observable.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             item(observable.get())
             observable.add(item)
         }
@@ -99,12 +110,14 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         val itemB = { item: B -> action(observableA.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action(observableA.get(), observableB.get())
             observableA.add(itemA)
             observableB.add(itemB)
@@ -125,6 +138,7 @@ fun <A, B, C> View.bind(
         val itemC = { item: C -> action(observableA.get(), observableB.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
@@ -132,6 +146,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action(observableA.get(), observableB.get(), observableC.get())
             observableA.add(itemA)
             observableB.add(itemB)
@@ -147,12 +162,14 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         val itemB = { item: B -> action() }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action()
             observableA.add(itemA)
             observableB.add(itemB)
@@ -173,6 +190,7 @@ fun <A, B, C> View.bind(
         val itemC = { item: C -> action() }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
@@ -180,6 +198,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action()
             observableA.add(itemA)
             observableB.add(itemB)

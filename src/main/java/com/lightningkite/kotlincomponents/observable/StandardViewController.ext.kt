@@ -40,7 +40,7 @@ fun <A, B> StandardViewController.listen(observableA: KObservableInterface<A>, o
 
 fun <T> StandardViewController.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
     onUnmake.add {
-        observable.onUpdate.add(item)
+        observable.onUpdate.remove(item)
 
     }
 

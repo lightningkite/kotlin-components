@@ -27,8 +27,23 @@ object OkHttpStack : NetStack {
         }
     }
 
+    fun imageSync(url: String): Bitmap? {
+        val response = client.newCall(Request.Builder().url(url).build()).execute()
+        val body = response.body()
+        val opts = BitmapFactory.Options()
+        try {
+            return BitmapFactory.decodeStream(body.byteStream(), null, opts)
+        } catch(e: Exception) {
+            return null
+        }
+    }
+
     fun image(url: String, minBytes: Long, onResult: (Bitmap?) -> Unit) {
         doAsync({ imageSync(url, minBytes) }, onResult)
+    }
+
+    fun image(url: String, onResult: (Bitmap?) -> Unit) {
+        doAsync {  }
     }
 
     val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }

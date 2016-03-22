@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
 fun ImageView.imageLoad(endpoint: NetEndpoint) {
-    endpoint.get<Bitmap>(onError = { true }) {
+    OkHttpStack.image(endpoint.url) {
         if (isAttachedToWindow) {
             var oldBitmap = bitmaps[endpoint.url]
             if (oldBitmap != null) oldBitmap.recycle()
@@ -35,8 +35,10 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
                 override fun onViewAttachedToWindow(v: View?) {
                 }
             })
-            bitmaps[endpoint.url] = it
-            imageBitmap = it
+            if(it != null) {
+                bitmaps[endpoint.url] = it
+                imageBitmap = it
+            }
         }
     }
 }
@@ -46,7 +48,7 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
  * imageLoadInList
  */
 fun ImageView.imageLoad(url: String) {
-    NetEndpoint.fromUrl(url).get<Bitmap>(onError = { true }) {
+    OkHttpStack.image(url) {
         if (isAttachedToWindow) {
             var oldBitmap = bitmaps[url]
             if (oldBitmap != null) oldBitmap.recycle()
@@ -60,8 +62,10 @@ fun ImageView.imageLoad(url: String) {
                 override fun onViewAttachedToWindow(v: View?) {
                 }
             })
-            bitmaps[url] = it
-            imageBitmap = it
+            if(it != null) {
+                bitmaps[url] = it
+                imageBitmap = it
+            }
         }
     }
 }
@@ -80,12 +84,14 @@ fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadSta
         return;
     } else {
         onLoadState(ImageLoadState.LOADING)
-        NetEndpoint.fromUrl(url).get<Bitmap>(onError = { true }) {
-            if(!unmakeCalled.get()) {
-                bitmaps[url] = it
-                imageBitmap = it
-                onLoadState(ImageLoadState.NEW_IMAGE_LOADED)
+        OkHttpStack.image(url) {
+            if(it != null) {
+                if(!unmakeCalled.get()) {
+                    bitmaps[url] = it
+                    imageBitmap = it
+                }
             }
+            onLoadState(ImageLoadState.NEW_IMAGE_LOADED)
         }
     }
 

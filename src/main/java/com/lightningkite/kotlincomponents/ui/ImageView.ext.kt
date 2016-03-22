@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageView
 import kotlin.concurrent.schedule
 import com.lightningkite.kotlincomponents.networking.NetEndpoint
+import com.lightningkite.kotlincomponents.networking.OkHttpStack
 import com.lightningkite.kotlincomponents.viewcontroller.StandardViewController
 import org.jetbrains.anko.imageBitmap
 import java.util.*
@@ -65,7 +66,7 @@ fun ImageView.imageLoad(url: String) {
     }
 }
 
-fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onSuccess: () -> Unit = {}) {
+fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadState: (ImageLoadState) -> Unit = {}) {
     var oldBitmap = bitmaps[url]
     var unmakeCalled :AtomicBoolean = AtomicBoolean(false)
     val handler = Handler(Looper.getMainLooper())
@@ -73,15 +74,17 @@ fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onSuccess
         this.imageBitmap = oldBitmap
         Timer().schedule(100) {
             handler.post {
-                onSuccess()
+                onLoadState(ImageLoadState.EXISTING_LOADED)
             }
         }
+        return;
     } else {
+        onLoadState(ImageLoadState.LOADING)
         NetEndpoint.fromUrl(url).get<Bitmap>(onError = { true }) {
             if(!unmakeCalled.get()) {
                 bitmaps[url] = it
                 imageBitmap = it
-                onSuccess()
+                onLoadState(ImageLoadState.NEW_IMAGE_LOADED)
             }
         }
     }
@@ -90,4 +93,10 @@ fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onSuccess
         unmakeCalled.set(true)
         bitmaps.remove(url)
     }
+}
+
+enum class ImageLoadState {
+    LOADING,
+    NEW_IMAGE_LOADED,
+    EXISTING_LOADED
 }

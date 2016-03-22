@@ -180,7 +180,18 @@ private fun lessResolution(context: Context, fileUri: Uri, width: Int, height: I
     return null
 }
 
-private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+fun BitmapFactory_decodeByteArraySized(array: ByteArray, reqWidth: Int, reqHeight: Int): Bitmap {
+    val measureOptions = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeByteArray(array, 0, array.size, measureOptions)
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = calculateInSampleSize(measureOptions, reqWidth, reqHeight)
+    }
+    return BitmapFactory.decodeByteArray(array, 0, array.size, options)
+}
+
+fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
 
     val height = options.outHeight
     val width = options.outWidth
@@ -195,6 +206,22 @@ private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int,
         // a final image with both dimensions larger than or equal to the
         // requested height and width.
         inSampleSize = if (heightRatio < widthRatio) heightRatio else widthRatio
+    }
+    return inSampleSize
+}
+
+inline fun calculateInSampleSizeMax(options: BitmapFactory.Options, maxWidth: Int, maxHeight: Int): Int {
+    var inSampleSize = 1
+
+    if (options.outHeight > maxHeight || options.outWidth > maxWidth) {
+        // Calculate ratios of height and width to requested height and width
+        val heightRatio = Math.ceil(options.outHeight / maxHeight.toDouble()).toInt()
+        val widthRatio = Math.ceil(options.outWidth / maxWidth.toDouble()).toInt()
+
+        // Choose the bigger ratio as inSampleSize value, this will guarantee
+        // a final image with both dimensions smaller than or equal to the
+        // requested height and width.
+        inSampleSize = if (heightRatio > widthRatio) heightRatio else widthRatio
     }
     return inSampleSize
 }

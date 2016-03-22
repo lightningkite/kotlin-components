@@ -1,5 +1,7 @@
 package com.lightningkite.kotlincomponents.viewcontroller
 
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
@@ -24,6 +26,7 @@ abstract class StandardViewController() : ViewController {
      * Adds the item to the collection immediately, but removes it when [unmake] is called.
      * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
      */
+    @Deprecated("Use [StandardViewController.listen] instead.")
     fun <T> connectVC(collection: MutableCollection<T>, item: T): T {
         collection.add(item)
         onUnmake.add {
@@ -36,6 +39,7 @@ abstract class StandardViewController() : ViewController {
      * Adds the item to the collections immediately, but removes the item from all of the collections when [unmake] is called.
      * The primary use of this is binding things in [make] that need to be removed when [unmake] is called.
      */
+    @Deprecated("Use [StandardViewController.listen] instead.")
     fun <T> connectManyVC(vararg collections: MutableCollection<T>, item: T): T {
         for (collection in collections) {
             collection.add(item)
@@ -46,6 +50,32 @@ abstract class StandardViewController() : ViewController {
             }
         }
         return item
+    }
+
+    inline fun Menu.item(textRes: String, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
+        var menuItem: MenuItem? = null
+        onMake.add {
+            menuItem = add(textRes).apply {
+                setIcon(iconRes)
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            }.apply(setup)
+        }
+        onUnmake.add {
+            removeItem((menuItem ?: return@add).itemId)
+        }
+    }
+
+    inline fun Menu.item(textRes: Int, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
+        var menuItem: MenuItem? = null
+        onMake.add {
+            menuItem = add(textRes).apply {
+                setIcon(iconRes)
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            }.apply(setup)
+        }
+        onUnmake.add {
+            removeItem((menuItem ?: return@add).itemId)
+        }
     }
 
     abstract fun makeView(activity: VCActivity): View

@@ -3,6 +3,8 @@ package com.lightningkite.kotlincomponents.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ListView
+import android.widget.Spinner
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.bind
@@ -53,5 +55,17 @@ fun <T, C : List<T>> View.lightningAdapter(listObs: KObservableInterface<C>, mak
     bind(listObs) {
         result.list = it
     }
+    return result
+}
+
+fun <T> ListView.makeAdapter(list: List<T>, makeView: (LightningAdapter.ItemObservable<T>) -> View): LightningAdapter<T> {
+    val result = LightningAdapter(list, makeView)
+    adapter = result
+    return result
+}
+
+fun <T> Spinner.makeAdapter(list: List<T>, makeView: (LightningAdapter.ItemObservable<T>) -> View): LightningAdapter<T> {
+    val result = LightningAdapter(list, makeView)
+    adapter = result
     return result
 }

@@ -1,5 +1,8 @@
 package com.lightningkite.kotlincomponents.networking
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.lightningkite.kotlincomponents.async.doAsync
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
@@ -10,6 +13,23 @@ import java.nio.charset.Charset
  * Created by jivie on 1/13/16.
  */
 object OkHttpStack : NetStack {
+
+    fun imageSync(url: String, minBytes: Long): Bitmap? {
+        val response = client.newCall(Request.Builder().url(url).build()).execute()
+        val body = response.body()
+        val opts = BitmapFactory.Options().apply {
+            inSampleSize = (body.contentLength() / minBytes).toInt()
+        }
+        try {
+            return BitmapFactory.decodeStream(body.byteStream(), null, opts)
+        } catch(e: Exception) {
+            return null
+        }
+    }
+
+    fun image(url: String, minBytes: Long, onResult: (Bitmap?) -> Unit) {
+        doAsync({ imageSync(url, minBytes) }, onResult)
+    }
 
     val client: OkHttpClient by lazy(LazyThreadSafetyMode.NONE) { OkHttpClient() }
 

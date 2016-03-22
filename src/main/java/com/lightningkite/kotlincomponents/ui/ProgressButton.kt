@@ -21,6 +21,7 @@ class ProgressButton(context: Context) : FrameLayout(context){
     val progress:ProgressBar = ProgressBar(context)
 
     init{
+        clipToPadding = false
         progress.visibility = View.INVISIBLE
         val params = generateDefaultLayoutParams()
         params.gravity = Gravity.CENTER

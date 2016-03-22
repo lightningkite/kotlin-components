@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents
 
+import android.content.SharedPreferences
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.*
 import java.lang.reflect.Type
@@ -103,3 +104,6 @@ inline fun <T : Any> JsonElement.gsonFrom(type: Type, gson: Gson = MyGson.gson):
     }
     return null
 }
+
+inline fun SharedPreferences.Editor.putGson(key: String, value: Any) = putString(key, value.gsonTo())
+inline fun <reified T : Any> SharedPreferences.getGson(key: String) = getString(key, null)?.gsonFrom<T>()

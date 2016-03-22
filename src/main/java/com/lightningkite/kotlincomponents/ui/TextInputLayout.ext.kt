@@ -1,6 +1,9 @@
 package com.lightningkite.kotlincomponents.ui
 
+import android.support.design.widget.TextInputEditText
 import android.support.design.widget.TextInputLayout
+import android.view.ViewManager
+import org.jetbrains.anko.custom.ankoView
 
 /**
  * Created by josep on 3/3/2016.
@@ -15,3 +18,6 @@ var TextInputLayout.errorResource: Int
     set(value) {
         error = resources.getString(value)
     }
+inline fun TextInputLayout.textInputEditText(init: TextInputEditText.()->Unit) = ankoView({
+    TextInputEditText(it)
+}, init)

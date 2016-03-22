@@ -193,3 +193,27 @@ fun ListView.getView(pos: Int): View? {
         return getChildAt(childIndex);
     }
 }
+
+inline fun View.onDetached(crossinline action: () -> Unit) {
+    this.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            action()
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+        }
+
+    })
+}
+
+inline fun View.onAttached(crossinline action: () -> Unit) {
+    this.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            action()
+        }
+
+    })
+}

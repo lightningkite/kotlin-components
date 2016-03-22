@@ -58,12 +58,14 @@ open class AndroidFileMockStack(
                     fullPath += "."
                     fullPath += method.toString()
                     fullPath += ".json"
+                    if (fullPath.startsWith('/')) fullPath = fullPath.substring(1)
 
                     var shortPath = ""
                     shortPath += url.replace(restUrl, "")
                     shortPath += "."
                     shortPath += method.toString()
                     shortPath += ".json"
+                    if (shortPath.startsWith('/')) shortPath = shortPath.substring(1)
 
                     if (File(fullPath).exists())
                         fullPath

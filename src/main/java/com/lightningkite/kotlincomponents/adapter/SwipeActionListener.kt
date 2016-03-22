@@ -1,19 +1,17 @@
 package com.lightningkite.kotlincomponents.adapter
 
 import android.graphics.Canvas
-import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import com.lightningkite.kotlincomponents.alpha
-import com.lightningkite.kotlincomponents.logging.logD
 import com.lightningkite.kotlincomponents.ui.setBoundsCentered
 
 /**
  * Created by jivie on 2/11/16.
  */
-open class ActionItemTouchHelperListener(
+open class SwipeActionListener(
         val leftAction: SwipeAction? = null,
         val rightAction: SwipeAction? = null,
         val drawablePadding: Int = 0
@@ -106,8 +104,7 @@ open class ActionItemTouchHelperListener(
     }
 }
 
-fun RecyclerView.swipe(leftAction: ActionItemTouchHelperListener.SwipeAction?, rightAction: ActionItemTouchHelperListener.SwipeAction?, padding: Int) {
-    val listener = ActionItemTouchHelperListener(leftAction, rightAction, padding)
+fun RecyclerView.swipe(leftAction: SwipeActionListener.SwipeAction?, rightAction: SwipeActionListener.SwipeAction?, padding: Int) {
+    val listener = SwipeActionListener(leftAction, rightAction, padding)
     ItemTouchHelper(listener).attachToRecyclerView(this)
-    itemAnimator
 }

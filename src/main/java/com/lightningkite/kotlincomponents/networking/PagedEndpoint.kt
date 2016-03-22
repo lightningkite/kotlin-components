@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.networking
 
 import com.github.salomonbrys.kotson.typeToken
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.lightningkite.kotlincomponents.asStringOptional
 import com.lightningkite.kotlincomponents.gsonFrom
@@ -24,11 +25,12 @@ inline fun <reified T : Any> PagedEndpoint(
         noinline onError: (NetResponse) -> Boolean
 ): PagedEndpoint<T> = PagedEndpoint(typeToken<T>(), endpoint, listKey, onError)
 
-class PagedEndpoint<T : Any>(
+open class PagedEndpoint<T : Any>(
         val type: Type,
         endpoint: NetEndpoint,
         val listKey: String = "results",
         val onError: (NetResponse) -> Boolean = { true },
+        val isPaged: Boolean = true, //only exists for rapid prototyping
         val list: KObservableList<T> = KObservableList(ArrayList())
 ) : KObservableListInterface<T> by list {
 
@@ -40,12 +42,14 @@ class PagedEndpoint<T : Any>(
         val PAGE_REPL = "page=$1"
     }
 
+
     val pullingObservable = KObservable(false)
     var pulling by pullingObservable
 
     var nextEndpoint: NetEndpoint? = endpoint
 
     val isMoreObservable = KObservable(true)
+    val firstLoadFinishedObservable = KObservable(false)
 
     init {
         pull()
@@ -55,6 +59,7 @@ class PagedEndpoint<T : Any>(
         list.clear()
         pulling = false
         isMoreObservable.set(true)
+        firstLoadFinishedObservable.set(false)
         nextEndpoint = endpoint
         pull()
     }
@@ -63,32 +68,42 @@ class PagedEndpoint<T : Any>(
         if (pulling) return
         if (nextEndpoint == null) return
         pulling = true
-
-        println("Pulling: ")
-        println(nextEndpoint?.url)
         var currentEndpoint = nextEndpoint!!
 
-        currentEndpoint.get<JsonObject>(onError = onError) { result ->
-            if (currentEndpoint != nextEndpoint) {
-                pulling = false
-                return@get
-            }
-            nextEndpoint = null
-            if (result.has("num_pages")) {
-                val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
-                if (pageNum > result.get("num_pages").asString.toInt())
-                    nextEndpoint = currentEndpoint.query("page", pageNum)
-            } else if (result.has("next")) {
-                val nextUrl = result.get("next").asStringOptional
-                if (nextUrl != null) {
-                    nextEndpoint = currentEndpoint.fromUrl(nextUrl)
+        if (isPaged) {
+            currentEndpoint.get<JsonObject>(onError = onError) { result ->
+                if (currentEndpoint != nextEndpoint) {
+                    pulling = false
+                    return@get
                 }
+                nextEndpoint = null
+                if (result.has("num_pages")) {
+                    val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
+                    if (pageNum > result.get("num_pages").asString.toInt())
+                        nextEndpoint = currentEndpoint.query("page", pageNum)
+                } else if (result.has("next")) {
+                    val nextUrl = result.get("next").asStringOptional
+                    if (nextUrl != null) {
+                        nextEndpoint = currentEndpoint.fromUrl(nextUrl)
+                    }
+                }
+                list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
+                if (nextEndpoint == null) {
+                    isMoreObservable.set(false)
+                }
+
+                firstLoadFinishedObservable.set(true)
+                pulling = false
             }
-            list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
-            if (nextEndpoint == null) {
-                isMoreObservable.set(false)
+        } else {
+            //option only exists for rapid prototyping purposes.  Servers often add pagination late.
+            currentEndpoint.get<JsonArray>(onError = onError) { result ->
+                list.addAll(result.map { it.gsonFrom<T>(type)!! })
+
+                firstLoadFinishedObservable.set(true)
+                nextEndpoint = null
+                pulling = false
             }
-            pulling = false
         }
     }
 }

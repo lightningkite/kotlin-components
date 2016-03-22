@@ -4,6 +4,9 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
+import com.lightningkite.kotlincomponents.toDoubleMaybe
+import com.lightningkite.kotlincomponents.toFloatMaybe
+import com.lightningkite.kotlincomponents.toIntMaybe
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.*
 import java.text.NumberFormat
@@ -14,14 +17,18 @@ import java.util.*
  * Created by jivie on 7/22/15.
  */
 
+var bindings = 0
+
 fun <T> View.listen(observable: MutableCollection<T>, item: T) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observable.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observable.add(item)
         }
     })
@@ -30,41 +37,15 @@ fun <T> View.listen(observable: MutableCollection<T>, item: T) {
 fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T) -> Unit) {
     addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observable.remove(item)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observable.add(item)
             item(init)
-        }
-    })
-}
-
-fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-        override fun onViewDetachedFromWindow(v: View?) {
-            observable.onUpdate.add(item)
-            //this@bind.removeOnAttachStateChangeListener(this)
-        }
-
-        override fun onViewAttachedToWindow(v: View?) {
-            item(observable)
-            observable.onUpdate.add(item)
-        }
-    })
-}
-
-fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-        override fun onViewDetachedFromWindow(v: View?) {
-            observable.remove(item)
-            //this@bind.removeOnAttachStateChangeListener(this)
-        }
-
-        override fun onViewAttachedToWindow(v: View?) {
-            item(observable.get())
-            observable.add(item)
         }
     })
 }
@@ -76,14 +57,48 @@ fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObser
         val itemB = { item: B -> action(observableA.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             observableA.add(itemA)
             observableB.add(itemB)
+        }
+    })
+}
+
+fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
+            observable.onUpdate.remove(item)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
+            item(observable)
+            observable.onUpdate.add(item)
+        }
+    })
+}
+
+fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
+            observable.remove(item)
+            //this@bind.removeOnAttachStateChangeListener(this)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
+            item(observable.get())
+            observable.add(item)
         }
     })
 }
@@ -95,12 +110,14 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         val itemB = { item: B -> action(observableA.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action(observableA.get(), observableB.get())
             observableA.add(itemA)
             observableB.add(itemB)
@@ -121,6 +138,7 @@ fun <A, B, C> View.bind(
         val itemC = { item: C -> action(observableA.get(), observableB.get(), item) }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
@@ -128,6 +146,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action(observableA.get(), observableB.get(), observableC.get())
             observableA.add(itemA)
             observableB.add(itemB)
@@ -143,12 +162,14 @@ fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObserva
         val itemB = { item: B -> action() }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             //this@bind.removeOnAttachStateChangeListener(this)
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action()
             observableA.add(itemA)
             observableB.add(itemB)
@@ -169,6 +190,7 @@ fun <A, B, C> View.bind(
         val itemC = { item: C -> action() }
 
         override fun onViewDetachedFromWindow(v: View?) {
+            //println("bindings: ${--bindings}")
             observableA.remove(itemA)
             observableB.remove(itemB)
             observableC.remove(itemC)
@@ -176,6 +198,7 @@ fun <A, B, C> View.bind(
         }
 
         override fun onViewAttachedToWindow(v: View?) {
+            //println("bindings: ${++bindings}")
             action()
             observableA.add(itemA)
             observableB.add(itemB)
@@ -242,7 +265,7 @@ inline fun EditText.bindInt(bond: KObservableInterface<Int>) {
         }
     }
     bind(bond) {
-        if (!bond.get().toString().equals(text.toString())) {
+        if (bond.get() != text.toString().toIntMaybe()) {
             this.setText(bond.get())
         }
     }
@@ -271,8 +294,36 @@ inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberF
         }
     }
     bind(bond) {
-        val value = text.toString().toFloat()
-        if (bond.get() != value) {
+        if (bond.get() != text.toString().toFloatMaybe()) {
+            this.setText(format.format(bond.get()))
+        }
+    }
+}
+
+/**
+ * Binds this [EditText] two way to the bond.
+ * When the user edits this, the value of the bond will change.
+ * When the value of the bond changes, the number here will be updated.
+ */
+inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: NumberFormat) {
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+    val originalTextColor = this.textColors.defaultColor
+    textChangedListener {
+        onTextChanged { charSequence, start, before, count ->
+            try {
+                val value = charSequence.toString().toDouble()
+                textColor = originalTextColor
+                if (bond.get() != value) {
+                    bond.set(charSequence.toString().toDouble())
+                }
+            } catch(e: NumberFormatException) {
+                //do nothing.
+                textColor = 0xFF0000.opaque
+            }
+        }
+    }
+    bind(bond) {
+        if (bond.get() != text.toString().toDoubleMaybe()) {
             this.setText(format.format(bond.get()))
         }
     }

@@ -7,7 +7,7 @@ import java.util.*
  */
 
 open class NetInterface {
-    val customStack: NetStack? = null
+    var customStack: NetStack? = null
     val stack: NetStack get() = customStack ?: Networking.stack
     open val defaultHeaders: Map<String, String> = mapOf()
     val onError = ArrayList<(NetResponse) -> Unit>()

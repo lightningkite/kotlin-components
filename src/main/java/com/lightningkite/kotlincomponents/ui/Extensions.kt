@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -8,6 +9,7 @@ import android.support.design.widget.TabLayout
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.lightningkite.kotlincomponents.versionOn
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCTabs
 
@@ -15,6 +17,21 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCTabs
  * Various helper functions
  * Created by jivie on 2/9/16.
  */
+
+var TextView.textElevationCompat: Float
+    get() {
+        versionOn(Build.VERSION_CODES.LOLLIPOP) {
+            return elevation
+        }
+        return shadowDx
+    }
+
+    set(value) {
+        versionOn(Build.VERSION_CODES.LOLLIPOP) {
+            elevation = value
+        }
+        setShadowLayer(value, value, value, Color.BLACK)
+    }
 
 var View.elevationCompat: Float
     get() {

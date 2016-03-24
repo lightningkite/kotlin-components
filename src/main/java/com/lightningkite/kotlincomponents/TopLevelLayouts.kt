@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import org.jetbrains.anko._FrameLayout
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko._RelativeLayout
@@ -14,7 +15,7 @@ import org.jetbrains.anko._RelativeLayout
 
 fun verticalLayout(context: Context, setup: _LinearLayout.() -> Unit): _LinearLayout {
     return _LinearLayout(context).apply {
-        orientation = vertical
+        orientation = LinearLayout.VERTICAL
         setup()
     }
 }

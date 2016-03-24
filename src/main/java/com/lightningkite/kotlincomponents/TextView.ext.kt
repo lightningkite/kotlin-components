@@ -19,6 +19,16 @@ var TextView.hintTextColorResource: Int
     set(value) {
         setHintTextColor(resources.getColor(value))
     }
+var TextView.textColorsResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        setTextColor(resources.getColorStateList(value))
+    }
+var TextView.hintTextColorsResource: Int
+    get() = throw IllegalAccessException()
+    set(value) {
+        setHintTextColor(resources.getColorStateList(value))
+    }
 
 val fontCache: HashMap<String, Typeface> = HashMap()
 fun TextView.setFont(fileName: String) {

@@ -411,6 +411,22 @@ inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: I
     }
 }
 
+inline fun CheckBox.bindBoolean(bond: KObservableInterface<Boolean>) {
+    this.onCheckedChange {
+        buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
+        Unit
+        if (isChecked != bond.get()) {
+            bond.set(isChecked)
+        }
+    }
+    bind(bond) {
+        val value = bond.get()
+        if (isChecked != value) {
+            isChecked = value;
+        }
+    }
+}
+
 inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->

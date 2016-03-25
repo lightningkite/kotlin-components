@@ -31,6 +31,7 @@ open class KRecyclerViewAdapter<T>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T>? {
         val observable = ItemObservable(this)
+        itemObservables.add(observable)
         val newView = makeView(observable)
         val holder = ViewHolder(newView, observable)
         observable.viewHolder = holder
@@ -38,6 +39,8 @@ open class KRecyclerViewAdapter<T>(
     }
 
     override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) = holder.observable.update()
+
+    val itemObservables = ArrayList<ItemObservable<T>>()
 
     class ItemObservable<T>(val parent: KRecyclerViewAdapter<T>) : ArrayList<(T) -> Unit>(), KObservableInterface<T> {
         lateinit var viewHolder: ViewHolder<T>
@@ -65,6 +68,14 @@ open class KRecyclerViewAdapter<T>(
     }
 
     class ViewHolder<T>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
+
+    fun update(position: Int) {
+        for (obs in itemObservables) {
+            if (obs.position == position) {
+                obs.update()
+            }
+        }
+    }
 }
 
 object RecyclerViewParamAdder {
@@ -92,7 +103,8 @@ inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defau
         adapter.notifyItemRemoved(position)
     }
     list.onChange.add { item, position ->
-        adapter.notifyItemChanged(position)
+        //adapter.notifyItemChanged(position)
+        newAdapter.update(position)
     }
     list.onReplace.add { list ->
         adapter.notifyDataSetChanged()

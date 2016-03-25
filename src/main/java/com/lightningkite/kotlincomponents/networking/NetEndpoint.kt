@@ -28,8 +28,8 @@ open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, va
 
     val url: String = if (queryParams.isEmpty()) preQueryUrl else preQueryUrl + "?" + queryParams.entries.joinToString("&") { it.key + "=" + it.value }
 
-    fun sub(subUrl: String) = NetEndpoint(netInterface, preQueryUrl + "/" + subUrl, queryParams)
-    fun sub(id: Long) = NetEndpoint(netInterface, preQueryUrl + "/" + id.toString(), queryParams)
+    fun sub(subUrl: String) = NetEndpoint(netInterface, preQueryUrl + (if (preQueryUrl.endsWith('/')) "" else "/") + subUrl, queryParams)
+    fun sub(id: Long) = NetEndpoint(netInterface, preQueryUrl + (if (preQueryUrl.endsWith('/')) "" else "/") + id.toString(), queryParams)
 
     fun query(key: String, value: Any) = NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString()))
     fun queryOptional(key: String, value: Any?) = if (value != null) NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString())) else this
@@ -83,6 +83,7 @@ open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, va
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) {
+        println(url)
         val headers = HashMap(netInterface.defaultHeaders)
         headers.plusAssign(specialHeaders)
         netInterface.stack.request(

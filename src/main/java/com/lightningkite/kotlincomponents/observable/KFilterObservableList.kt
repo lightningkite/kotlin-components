@@ -75,7 +75,8 @@ class KFilterObservableList<E>(
         }
         bind(full.onChange) { item, index ->
             val passes = filter(item)
-            val passed = passing.contains(index)
+            val indexOf = passing.indexOf(index)
+            val passed = indexOf != -1
             if (passes != passed) {
                 if (passes) {
                     passing.add(index)
@@ -86,6 +87,8 @@ class KFilterObservableList<E>(
                     onRemove.runAll(item, index)
                     onUpdate.runAll(this)
                 }
+            } else {
+                onChange.runAll(item, indexOf)
             }
         }
         bind(full.onRemove) { item, index ->

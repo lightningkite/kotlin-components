@@ -2,7 +2,10 @@ package com.lightningkite.kotlincomponents.viewcontroller.implementations
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
@@ -96,5 +99,54 @@ abstract class VCActivity : Activity() {
         vcView.unmake()
         onDestroy.runAll()
         super.onDestroy()
+    }
+
+    val requestReturns: HashMap<Int, (Map<String, Int>) -> Unit> = HashMap()
+
+    /**
+     * Requests a bunch of permissions and returns a map of permissions that were previously ungranted and their new status.
+     */
+    fun requestPermissions(permission: Array<String>, onResult: (Map<String, Int>) -> Unit) {
+        val ungranted = permission.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (ungranted.isNotEmpty()) {
+            val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
+
+            requestReturns[generated] = onResult
+
+            ActivityCompat.requestPermissions(this, ungranted.toTypedArray(), generated)
+
+        }
+    }
+
+    /**
+     * Requests a single permissiona and returns whether it was granted or not.
+     */
+    fun requestPermission(permission: String, onResult: (Boolean) -> Unit) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+
+            val generated: Int = (Math.random() * Int.MAX_VALUE).toInt()
+            requestReturns[generated] = {
+                onResult(it[permission] == PackageManager.PERMISSION_GRANTED)
+            }
+            ActivityCompat.requestPermissions(this, arrayOf(permission), generated)
+
+        } else {
+            onResult(true)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        val map = HashMap<String, Int>()
+        for (i in permissions.indices) {
+            map[permissions[i]] = grantResults[i]
+        }
+        requestReturns[requestCode]?.invoke(map)
+
+        requestReturns.remove(requestCode)
     }
 }

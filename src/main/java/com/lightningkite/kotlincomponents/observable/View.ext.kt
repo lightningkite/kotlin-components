@@ -17,8 +17,13 @@ import java.util.*
 
 var bindings = 0
 
+inline private fun View.addAttachListener(listener: View.OnAttachStateChangeListener) {
+    if (isAttachedToWindow) listener.onViewAttachedToWindow(this)
+    addOnAttachStateChangeListener(listener)
+}
+
 fun <T> View.listen(observable: MutableCollection<T>, item: T) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
             //println("bindings: ${--bindings}")
             observable.remove(item)
@@ -33,7 +38,7 @@ fun <T> View.listen(observable: MutableCollection<T>, item: T) {
 }
 
 fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
             //println("bindings: ${--bindings}")
             observable.remove(item)
@@ -49,7 +54,7 @@ fun <T> View.bind(observable: MutableCollection<(T) -> Unit>, init: T, item: (T)
 }
 
 fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObservableInterface<B>, action: (A, B) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
 
         val itemA = { item: A -> action(item, observableB.get()) }
         val itemB = { item: B -> action(observableA.get(), item) }
@@ -70,23 +75,11 @@ fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObser
 }
 
 fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-        override fun onViewDetachedFromWindow(v: View?) {
-            //println("bindings: ${--bindings}")
-            observable.onUpdate.remove(item)
-            //this@bind.removeOnAttachStateChangeListener(this)
-        }
-
-        override fun onViewAttachedToWindow(v: View?) {
-            //println("bindings: ${++bindings}")
-            item(observable)
-            observable.onUpdate.add(item)
-        }
-    })
+    bind(observable.onUpdate, item)
 }
 
 fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
         override fun onViewDetachedFromWindow(v: View?) {
             //println("bindings: ${--bindings}")
             observable.remove(item)
@@ -102,7 +95,7 @@ fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {
 }
 
 fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObservableInterface<B>, action: (A, B) -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
 
         val itemA = { item: A -> action(item, observableB.get()) }
         val itemB = { item: B -> action(observableA.get(), item) }
@@ -129,7 +122,7 @@ fun <A, B, C> View.bind(
         observableC: KObservableInterface<C>,
         action: (A, B, C) -> Unit
 ) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
 
         val itemA = { item: A -> action(item, observableB.get(), observableC.get()) }
         val itemB = { item: B -> action(observableA.get(), item, observableC.get()) }
@@ -154,7 +147,7 @@ fun <A, B, C> View.bind(
 }
 
 fun <A, B> View.bind(observableA: KObservableInterface<A>, observableB: KObservableInterface<B>, action: () -> Unit) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
 
         val itemA = { item: A -> action() }
         val itemB = { item: B -> action() }
@@ -181,7 +174,7 @@ fun <A, B, C> View.bind(
         observableC: KObservableInterface<C>,
         action: () -> Unit
 ) {
-    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+    addAttachListener(object : View.OnAttachStateChangeListener {
 
         val itemA = { item: A -> action() }
         val itemB = { item: B -> action() }

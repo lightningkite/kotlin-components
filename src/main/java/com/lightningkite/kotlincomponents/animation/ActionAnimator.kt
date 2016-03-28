@@ -48,7 +48,7 @@ class ActionAnimator<T, V>(
     fun animate(
             to: V,
             newDuration: Long,
-            newDelta: Long = 10L
+            newDelta: Long = 20L
     ) {
         stop()
         if (startValue == null) {

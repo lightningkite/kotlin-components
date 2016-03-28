@@ -4,6 +4,7 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import com.lightningkite.kotlincomponents.adapter.LightningAdapter
+import com.lightningkite.kotlincomponents.ui.isAttachedToWindowCompat
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.*
 import java.text.NumberFormat
@@ -18,7 +19,7 @@ import java.util.*
 var bindings = 0
 
 inline private fun View.addAttachListener(listener: View.OnAttachStateChangeListener) {
-    if (isAttachedToWindow) listener.onViewAttachedToWindow(this)
+    if (isAttachedToWindowCompat()) listener.onViewAttachedToWindow(this)
     addOnAttachStateChangeListener(listener)
 }
 

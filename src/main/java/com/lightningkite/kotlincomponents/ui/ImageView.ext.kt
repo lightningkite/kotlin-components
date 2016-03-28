@@ -23,7 +23,7 @@ private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
 fun ImageView.imageLoad(endpoint: NetEndpoint) {
     OkHttpStack.image(endpoint.url) {
-        if (isAttachedToWindow) {
+        if (isAttachedToWindowCompat()) {
             var oldBitmap = bitmaps[endpoint.url]
             if (oldBitmap != null) oldBitmap.recycle()
             else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -49,7 +49,7 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
  */
 fun ImageView.imageLoad(url: String) {
     OkHttpStack.image(url) {
-        if (isAttachedToWindow) {
+        if (isAttachedToWindowCompat()) {
             var oldBitmap = bitmaps[url]
             if (oldBitmap != null) oldBitmap.recycle()
             else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {

@@ -15,12 +15,12 @@ import java.nio.charset.Charset
 object OkHttpStack : NetStack {
 
     fun imageSync(url: String, minBytes: Long): Bitmap? {
-        val response = client.newCall(Request.Builder().url(url).build()).execute()
-        val body = response.body()
-        val opts = BitmapFactory.Options().apply {
+        try {
+            val response = client.newCall(Request.Builder().url(url).build()).execute()
+            val body = response.body()
+            val opts = BitmapFactory.Options().apply {
             inSampleSize = (body.contentLength() / minBytes).toInt()
         }
-        try {
             return BitmapFactory.decodeStream(body.byteStream(), null, opts)
         } catch(e: Exception) {
             return null
@@ -28,10 +28,10 @@ object OkHttpStack : NetStack {
     }
 
     fun imageSync(url: String): Bitmap? {
-        val response = client.newCall(Request.Builder().url(url).build()).execute()
-        val body = response.body()
-        val opts = BitmapFactory.Options()
         try {
+            val response = client.newCall(Request.Builder().url(url).build()).execute()
+            val body = response.body()
+            val opts = BitmapFactory.Options()
             return BitmapFactory.decodeStream(body.byteStream(), null, opts)
         } catch(e: Exception) {
             return null

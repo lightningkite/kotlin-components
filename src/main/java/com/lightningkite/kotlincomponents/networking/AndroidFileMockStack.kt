@@ -13,28 +13,30 @@ import java.io.IOException
 
 open class AndroidFileMockStack(
         val context: Context,
-        val responseCodeForUrl: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> Int,
-        val urlToAssetPath: (String, List<Pair<String, String?>>, NetMethod, NetBody?) -> String
+        val responseCodeForUrl: (NetRequest) -> Int,
+        val urlToAssetPath: (String, List<Pair<String, String?>>, NetRequest) -> String
 ) : NetStack {
 
-    fun readTextFile(successCode: Int, assetPath: String): NetResponse {
+    fun readTextFile(successCode: Int, assetPath: String, request: NetRequest): NetStream {
         try {
-            return NetResponse(successCode, context.assets.open(assetPath).toByteArray())
+            val data = context.assets.open(assetPath).toByteArray()
+            return NetStream.fromByteArray(successCode, data, request)
         } catch (e: IOException) {
             e.printStackTrace()
-            return NetResponse(404, ByteArray(0))
+            return NetStream.fromByteArray(404, ByteArray(0), request)
         }
     }
 
-    override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
-        val i = url.indexOf('?')
-        var justUrl = ""
+
+    override fun stream(request: NetRequest): NetStream {
+        val i = request.url.indexOf('?')
+        var justUrl: String
         var args = listOf<Pair<String, String?>>()
         if (i == -1) {
-            justUrl = url
+            justUrl = request.url
         } else {
-            justUrl = url.substring(0, i)
-            args = url.substring(i + 1).split('&').map {
+            justUrl = request.url.substring(0, i)
+            args = request.url.substring(i + 1).split('&').map {
                 var pair = it.split('=')
                 if (pair.size == 2) {
                     pair[0] to pair[1]
@@ -43,29 +45,28 @@ open class AndroidFileMockStack(
                 } else throw IllegalArgumentException()
             }
         }
-        return readTextFile(responseCodeForUrl(justUrl, args, method, body), urlToAssetPath(justUrl, args, method, body))
+        return readTextFile(responseCodeForUrl(request), urlToAssetPath(justUrl, args, request), request)
     }
 
     companion object {
         fun simple(context: Context, restUrl: String): AndroidFileMockStack = AndroidFileMockStack(
                 context,
-                { url, args, method, body -> 200 },
-                { url, args, method, body ->
-                    var fullPath = ""
+                { request -> 200 },
+                { url, args, request ->
+                    var fullPath = "src/main/assets/"
                     fullPath += url.replace(restUrl, "")
                     if (fullPath.endsWith('/')) fullPath = fullPath.substring(0, fullPath.length - 1)
                     fullPath += "."
-                    fullPath += args.joinToString(".") { it.first + "." + it.second }
-                    fullPath += "."
-                    fullPath += method.toString()
+                    fullPath += if (args.isNotEmpty()) args.joinToString(".", ".") { it.first + "." + it.second } + "." else ""
+                    fullPath += request.method.toString()
                     fullPath += ".json"
                     if (fullPath.startsWith('/')) fullPath = fullPath.substring(1)
 
-                    var shortPath = ""
+                    var shortPath = "src/main/assets/"
                     shortPath += url.replace(restUrl, "")
                     if (shortPath.endsWith('/')) shortPath = shortPath.substring(0, shortPath.length - 1)
                     shortPath += "."
-                    shortPath += method.toString()
+                    shortPath += request.method.toString()
                     shortPath += ".json"
                     if (shortPath.startsWith('/')) shortPath = shortPath.substring(1)
 

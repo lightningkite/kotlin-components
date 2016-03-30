@@ -210,6 +210,7 @@ fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeig
     return inSampleSize
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun calculateInSampleSizeMax(options: BitmapFactory.Options, maxWidth: Int, maxHeight: Int): Int {
     var inSampleSize = 1
 

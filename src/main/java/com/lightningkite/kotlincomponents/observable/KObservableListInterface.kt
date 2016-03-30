@@ -12,4 +12,5 @@ interface KObservableListInterface<E> : MutableList<E> {
     val onReplace: MutableSet<(KObservableListInterface<E>) -> Unit>
     val onRemove: MutableSet<(E, Int) -> Unit>
 
+    fun replace(list: List<E>)
 }

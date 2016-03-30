@@ -18,37 +18,10 @@ import org.json.JSONObject
 data class NetResponse(
         val code: Int,
         val raw: ByteArray,
-        val method: NetMethod = NetMethod.GET,
-        val url: String = "",
-        val body: NetBody = NetBody.EMPTY,
-        val headers: Map<String, String> = mapOf()
+        val request: NetRequest
 ) {
     val isSuccessful: Boolean get() = code / 100 == 2
-    inline fun <reified T : Any> result(gson: Gson = MyGson.gson): T? {
-        return gson.fromJson<T>(string())
-    }
 
-    fun <T : Any> result(type: Class<T>, gson: Gson = MyGson.gson): T? {
-        return gson.fromJson<T>(string(), type)
-    }
-
-    fun bitmap(options: BitmapFactory.Options = BitmapFactory.Options()): Bitmap? {
-        try {
-            return BitmapFactory.decodeByteArray(raw, 0, raw.size)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
-        }
-    }
-
-    fun bitmapSized(maxWidth: Int, maxHeight: Int): Bitmap? {
-        try {
-            return BitmapFactory_decodeByteArraySized(raw, 0, raw.size)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
-        }
-    }
 
     override fun toString(): String {
         return string()
@@ -70,6 +43,41 @@ data class NetResponse(
         } catch(e: Exception) {
             e.printStackTrace()
             return JSONObject()
+        }
+    }
+
+    inline fun <reified T : Any> gson(gson: Gson = MyGson.gson): T? {
+        return gson.fromJson<T>(string())
+    }
+
+    fun <T : Any> gson(type: Class<T>, gson: Gson = MyGson.gson): T? {
+        return gson.fromJson<T>(string(), type)
+    }
+
+    fun bitmap(options: BitmapFactory.Options = BitmapFactory.Options()): Bitmap? {
+        try {
+            return BitmapFactory.decodeByteArray(raw, 0, raw.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    fun bitmapSized(maxWidth: Int, maxHeight: Int): Bitmap? {
+        try {
+            return BitmapFactory_decodeByteArraySized(raw, 0, raw.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+
+    inline fun <reified T : Any> auto(): T? {
+        return when (T::class.java) {
+            Unit::class.java -> Unit as T
+            Bitmap::class.java -> bitmap() as T
+            else -> gson<T>()
         }
     }
 }

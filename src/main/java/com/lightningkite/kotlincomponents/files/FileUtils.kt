@@ -8,11 +8,16 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import java.io.File
 
 /**
  * Functions for dealing with files.
  * Created by jivie on 8/14/15.
  */
+
+fun File.child(name: String): File {
+    return File(this, name)
+}
 
 /**
  * Gets the actual path of the [Uri].
@@ -45,7 +50,7 @@ fun Uri.getRealPath(context: Context): String? {
             val split = docId.split(":".toRegex())
             val type = split[0]
 
-            var contentUri: Uri? = null
+            var contentUri: Uri?
             if ("image" == type) {
                 contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             } else if ("video" == type) {

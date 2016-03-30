@@ -9,7 +9,7 @@ object Networking : NetStack {
 
     var stack: NetStack = OkHttpStack
 
-    override fun sync(method: NetMethod, url: String, body: NetBody, headers: Map<String, String>): NetResponse {
-        return stack.sync(method, url, body, headers)
+    override fun stream(request: NetRequest): NetStream {
+        return stack.stream(request)
     }
 }

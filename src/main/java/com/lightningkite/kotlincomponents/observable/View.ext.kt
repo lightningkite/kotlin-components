@@ -18,6 +18,7 @@ import java.util.*
 
 var bindings = 0
 
+@Suppress("NOTHING_TO_INLINE")
 inline private fun View.addAttachListener(listener: View.OnAttachStateChangeListener) {
     if (isAttachedToWindowCompat()) listener.onViewAttachedToWindow(this)
     addOnAttachStateChangeListener(listener)
@@ -204,6 +205,7 @@ fun <A, B, C> View.bind(
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the text here will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun EditText.bindString(bond: KObservableInterface<String>) {
     setText(bond.get())
     textChangedListener {
@@ -225,6 +227,7 @@ inline fun EditText.bindString(bond: KObservableInterface<String>) {
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the text here will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun EditText.bindNullableString(bond: KObservableInterface<String?>) {
     setText(bond.get())
     textChangedListener {
@@ -246,6 +249,7 @@ inline fun EditText.bindNullableString(bond: KObservableInterface<String?>) {
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the integer here will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun EditText.bindInt(bond: KObservableInterface<Int>, format: NumberFormat = NumberFormat.getNumberInstance()) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
@@ -289,6 +293,7 @@ inline fun EditText.bindInt(bond: KObservableInterface<Int>, format: NumberForma
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the number here will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberFormat = NumberFormat.getNumberInstance()) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
@@ -332,6 +337,7 @@ inline fun EditText.bindFloat(bond: KObservableInterface<Float>, format: NumberF
  * When the user edits this, the value of the bond will change.
  * When the value of the bond changes, the number here will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: NumberFormat = NumberFormat.getNumberInstance()) {
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
     val originalTextColor = this.textColors.defaultColor
@@ -373,6 +379,7 @@ inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: Numbe
 /**
  * Binds this [Switch] two way to the bond.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun Switch.bind(bond: KObservableInterface<Boolean>) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
@@ -388,6 +395,7 @@ inline fun Switch.bind(bond: KObservableInterface<Boolean>) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
@@ -405,6 +413,7 @@ inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: I
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun CheckBox.bindBoolean(bond: KObservableInterface<Boolean>) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
@@ -421,6 +430,7 @@ inline fun CheckBox.bindBoolean(bond: KObservableInterface<Boolean>) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
@@ -441,6 +451,7 @@ inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index:
 /**
  * Makes this [TextView] display the value of the bond.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun TextView.bindString(bond: KObservableInterface<String>) {
     bind(bond) {
         this.text = bond.get()
@@ -450,6 +461,7 @@ inline fun TextView.bindString(bond: KObservableInterface<String>) {
 /**
  * Makes this [TextView] display the value of the bond.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> TextView.bindAny(bond: KObservableInterface<T>) {
     bind(bond) {
         this.text = bond.get().toString()
@@ -461,6 +473,7 @@ inline fun <T : Any> TextView.bindAny(bond: KObservableInterface<T>) {
  * When the user picks a new value from the spinner, the value of the bond will change to the index of the new value.
  * When the value of the bond changes, the item will shown will be updated.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun Spinner.bindIndex(bond: KObservableInterface<Int>) {
     bind(bond) {
         if (selectedItemPosition != it) {
@@ -480,6 +493,7 @@ inline fun Spinner.bindIndex(bond: KObservableInterface<Int>) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List<T>) {
     this.onItemSelectedListener {
         onItemSelected { adapterView, view, index, id ->
@@ -499,6 +513,7 @@ inline fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List<T>) {
  * When the user picks this radio button, [bond] is set to [value]
  * When the value of the bond changes, it will be shown as checked if they are equal.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value: T) {
     bind(bond) {
         isChecked = value == bond.get()
@@ -515,6 +530,7 @@ inline fun <T> RadioButton.bindValue(bond: KObservableInterface<T>, value: T) {
  * When the user picks this radio button, [bond] is set to [value]
  * When the value of the bond changes, it will be shown as checked if they are equal.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T, A : T> RadioButton.bindValue(bond: KObservableInterface<T>, otherBond: KObservableInterface<A>) {
     bind(bond, otherBond) { currentValue, myValue ->
         isChecked = currentValue == myValue
@@ -526,6 +542,7 @@ inline fun <T, A : T> RadioButton.bindValue(bond: KObservableInterface<T>, other
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T> ListView.bindArray(activity: VCActivity, bond: KObservableInterface<Array<T>>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
@@ -534,6 +551,7 @@ inline fun <T> ListView.bindArray(activity: VCActivity, bond: KObservableInterfa
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond: KObservableInterface<L>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter
@@ -542,6 +560,7 @@ inline fun <T, L : List<T>> ListView.bindList(activity: VCActivity, bond: KObser
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T, L : List<T>> ListView.bindNullableList(activity: VCActivity, bond: KObservableInterface<L?>, noinline makeView: (KObservableInterface<T>) -> View) {
     val thisAdapter = LightningAdapter(ArrayList(), makeView)
     adapter = thisAdapter

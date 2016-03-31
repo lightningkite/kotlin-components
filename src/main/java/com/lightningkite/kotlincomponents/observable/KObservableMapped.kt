@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Created by jivie on 2/22/16.
  */
-class KObservableMapped<T, A>(val actualObservable: KObservableInterface<A>, val mapper: (A) -> T) : KObservableInterface<T> {
+class KObservableMapped<T, A>(val actualObservable: KObservableInterface<A>, val mapper: (A) -> T, val reverseMapper: (T) -> A) : KObservableInterface<T> {
 
     val actionToWrapper = HashMap<(T) -> Unit, Wrapper>()
 
@@ -68,8 +68,16 @@ class KObservableMapped<T, A>(val actualObservable: KObservableInterface<A>, val
     override fun get(): T = mapper(actualObservable.get())
 
     override fun set(v: T) {
-        throw IllegalArgumentException()
+        actualObservable.set(reverseMapper(v))
     }
 
     override fun update() = actualObservable.update()
+}
+
+inline fun <T, A> KObservableInterface<A>.map(noinline mapper: (A) -> T, noinline reverseMapper: (T) -> A): KObservableMapped<T, A> {
+    return KObservableMapped(this, mapper, reverseMapper)
+}
+
+inline fun <T> KObservableInterface<T?>.notNull(default: T): KObservableMapped<T, T?> {
+    return KObservableMapped(this, { it ?: default }, { it })
 }

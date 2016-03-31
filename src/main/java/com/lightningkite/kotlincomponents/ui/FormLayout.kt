@@ -102,6 +102,19 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }
     }
 
+    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
+        return textInputLayout {
+            formPadding()
+            hintResource = hint
+            textInputEditText {
+                bindNullableInt(obs, format)
+                editTextStyle()
+                setup()
+            }
+            inputLayoutStyle()
+        }
+    }
+
     inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
         return textInputLayout {
             formPadding()

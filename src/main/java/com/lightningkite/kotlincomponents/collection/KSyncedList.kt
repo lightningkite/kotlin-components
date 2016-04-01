@@ -6,6 +6,8 @@ import com.lightningkite.kotlincomponents.files.load
 import com.lightningkite.kotlincomponents.files.save
 import com.lightningkite.kotlincomponents.gsonTo
 import com.lightningkite.kotlincomponents.networking.NetEndpoint
+import com.lightningkite.kotlincomponents.networking.NetMethod
+import com.lightningkite.kotlincomponents.networking.Networking
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
 import java.io.BufferedWriter
@@ -18,12 +20,12 @@ import java.util.*
 /**
  * Created by jivie on 3/29/16.
  */
-inline fun <reified T : Any> KSyncedList(folder: File, noinline same: (T, T) -> Boolean): KSyncedList<T> = KSyncedList(folder, typeToken<T>(), same)
+inline fun <reified T : Any, reified K : Any> KSyncedList(folder: File, noinline getKey: (T) -> K): KSyncedList<T, K> = KSyncedList(folder, typeToken<T>(), getKey)
 
-open class KSyncedList<T : Any>(
-        val folder: File,
+open class KSyncedList<T : Any, K : Any>(
+        folder: File,
         val type: Type,
-        val same: (T, T) -> Boolean,
+        val getKey: (T) -> K,
         val innerList: KObservableListInterface<T> = KObservableList()
 ) : KObservableListInterface<T> by innerList {
 
@@ -31,8 +33,20 @@ open class KSyncedList<T : Any>(
         folder.mkdirs()
     }
 
-    val file = folder.child("data.json")
-    val changesFile = folder.child("changes.json")
+    var folder: File = folder
+        set(newFolder) {
+            //move backup and changes file
+            if (folder == newFolder) return
+            if (file.exists()) {
+                file.renameTo(newFolder.child("data.json"))
+            }
+            if (changesFile.exists()) {
+                changesFile.renameTo(newFolder.child("changes.json"))
+            }
+            field = newFolder
+        }
+    val file: File get() = folder.child("data.json")
+    val changesFile: File get() = folder.child("changes.json")
 
     val changeType: ParameterizedType = object : ParameterizedType {
         override fun getRawType(): Type? = ItemChange::class.java
@@ -46,24 +60,29 @@ open class KSyncedList<T : Any>(
         override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
     }
 
-    fun syncREST(endpoint: NetEndpoint, sub: (T) -> String): List<ItemChange<T>> {
+    fun syncREST(
+            endpoint: NetEndpoint,
+            syncPull: () -> List<T> = {
+                Networking.stream(endpoint.request(NetMethod.GET)).gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data")
+            },
+            merge: ((T, T) -> T)? = null
+    ): List<ItemChange<T>> {
         val failed = processChanges {
             var success = true
             if (it.isAdd) {
                 endpoint.syncPost<Unit>(it.new) { success = false; true }
             } else if (it.isChange) {
-                endpoint.sub(sub(it.old!!)).syncPut<Unit>(it.new) { success = false; true }
+                endpoint.sub(getKey(it.old!!).toString()).syncPut<Unit>(it.new) { success = false; true }
             } else if (it.isRemove) {
-                endpoint.sub(sub(it.old!!)).syncDelete<Unit>(null) { success = false; true }
+                endpoint.sub(getKey(it.old!!).toString()).syncDelete<Unit>(null) { success = false; true }
             } else if (it.isClear) {
                 endpoint.syncDelete<Unit>(null) { success = false; true }
             }
             success
         }
-        //        val newData = endpoint.syncGetGson(listType)
-        //        replaceFromServer(listType, true)
 
-        //TODO
+        val newData = syncPull()
+        updateFromServer(newData, merge, false)
         return failed
     }
 
@@ -90,7 +109,11 @@ open class KSyncedList<T : Any>(
      **/
     fun processChanges(forChange: (ItemChange<T>) -> Boolean): List<ItemChange<T>> {
         val changes: ArrayList<ItemChange<T>> = ArrayList()
-        changes.load(changesFile, changeType)
+        try {
+            changes.load(changesFile, changeType)
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
         val failedChanges = ArrayList<ItemChange<T>>()
         for (change in changes) {
             if (!forChange(change)) {
@@ -105,9 +128,26 @@ open class KSyncedList<T : Any>(
         return failedChanges
     }
 
-    fun replaceFromServer(list: List<T>, clearChanges: Boolean = false) {
-        this.innerList.clear()
-        this.innerList.addAll(list)
+    fun updateFromServer(list: List<T>, merge: ((T, T) -> T)? = null, clearChanges: Boolean = false) {
+        if (merge == null) {
+            innerList.clear()
+            innerList.addAll(list)
+        } else {
+            var toDelete = HashSet<K>(innerList.map { getKey(it) })
+            for (new in list) {
+                toDelete.remove(getKey(new))
+                val index = innerList.indexOfFirst { getKey(it) == getKey(new) }
+                if (index == -1) {
+                    //new item from server
+                    innerList.add(new)
+                } else {
+                    //updated item from server
+                    innerList[index] = merge(innerList[index], new)
+                }
+            }
+            innerList.removeAll { toDelete.contains(getKey(it)) }
+        }
+
         if (clearChanges) {
             modifyChangeFile(false) {}
         }
@@ -128,13 +168,13 @@ open class KSyncedList<T : Any>(
             } else {
                 if (change.new == null) {
                     //remove
-                    val index = indexOfFirst { same(change.old!!, it) }
+                    val index = indexOfFirst { getKey(change.old!!) == getKey(it) }
                     if (index != -1) {
                         innerList.removeAt(index)
                     }
                 } else {
                     //change
-                    val index = indexOfFirst { same(change.old!!, it) }
+                    val index = indexOfFirst { getKey(change.old!!) == getKey(it) }
                     if (index != -1) {
                         innerList[index] = change.new!!
                     }

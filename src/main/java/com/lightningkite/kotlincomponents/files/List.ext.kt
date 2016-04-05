@@ -13,6 +13,8 @@ import java.lang.reflect.Type
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun <E> List<E>.save(file: File) {
+    file.parentFile.mkdirs()
+    if (!file.exists()) file.createNewFile()
     FileOutputStream(file).bufferedWriter().use {
         for (item in this) {
             it.appendln(item.gsonToOptional())
@@ -46,14 +48,12 @@ inline fun <E : Any> MutableList<E>.load(file: File, type: Type) {
 @Suppress("NOTHING_TO_INLINE")
 inline fun <E> List<E>.save(context: Context, name: String) {
     val folder = context.filesDir.child("lists")
-    folder.mkdir()
     val file = folder.child(name + ".json")
     save(file)
 }
 
 inline fun <reified E : Any> MutableList<E>.load(context: Context, name: String) {
     val folder = context.filesDir.child("lists")
-    folder.mkdir()
     val file = folder.child(name + ".json")
     load(file)
 }
@@ -61,7 +61,6 @@ inline fun <reified E : Any> MutableList<E>.load(context: Context, name: String)
 @Suppress("NOTHING_TO_INLINE")
 inline fun <E : Any> MutableList<E>.load(context: Context, name: String, type: Type) {
     val folder = context.filesDir.child("lists")
-    folder.mkdir()
     val file = folder.child(name + ".json")
     load(file, type)
 }

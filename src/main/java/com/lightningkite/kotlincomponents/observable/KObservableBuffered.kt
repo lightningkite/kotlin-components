@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Created by jivie on 2/22/16.
  */
-abstract class KObservableBase<T>() : KObservableInterface<T> {
+abstract class KObservableBuffered<T>() : KObservableInterface<T> {
 
     abstract fun getter(): T
     abstract fun setter(value: T)

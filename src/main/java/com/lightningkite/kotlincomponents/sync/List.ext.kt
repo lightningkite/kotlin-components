@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.collection
+package com.lightningkite.kotlincomponents.sync
 
 import java.util.*
 

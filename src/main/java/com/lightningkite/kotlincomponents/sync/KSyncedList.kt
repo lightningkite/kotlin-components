@@ -1,7 +1,6 @@
-package com.lightningkite.kotlincomponents.collection
+package com.lightningkite.kotlincomponents.sync
 
 import com.github.salomonbrys.kotson.typeToken
-import com.lightningkite.kotlincomponents.Disposable
 import com.lightningkite.kotlincomponents.async.doAsync
 import com.lightningkite.kotlincomponents.async.doUiThread
 import com.lightningkite.kotlincomponents.files.child
@@ -12,7 +11,7 @@ import com.lightningkite.kotlincomponents.networking.NetEndpoint
 import com.lightningkite.kotlincomponents.networking.NetMethod
 import com.lightningkite.kotlincomponents.networking.Networking
 import com.lightningkite.kotlincomponents.networking.sync
-import com.lightningkite.kotlincomponents.observable.KObservableBase
+import com.lightningkite.kotlincomponents.observable.KObservableBuffered
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
@@ -27,26 +26,78 @@ import java.util.*
  * Created by jivie on 3/29/16.
  */
 inline fun <reified T : Mergeable<K, T>, reified K : Any> KSyncedList(
-        folder: File
-): KSyncedList<T, K> = KSyncedList(folder, typeToken<T>(), { it.getKey() }, { a, b -> a.merge(b); a })
-
-inline fun <reified T : Any, reified K : Any> KSyncedList(
         folder: File,
-        noinline getKey: (T) -> K,
-        noinline merge: ((T, T) -> T)?
-): KSyncedList<T, K> = KSyncedList(folder, typeToken<T>(), getKey)
-
-open class KSyncedList<T : Any, K : Any>(
-        folder: File,
-        val type: Type,
-        val getKey: (T) -> K,
-        val merge: ((T, T) -> T)? = null,
-        val innerList: KObservableListInterface<T> = KObservableList()
-) : KObservableListInterface<T> by innerList {
-
-    init {
-        folder.mkdirs()
+        endpoint: NetEndpoint
+): KSyncedList<T, K> {
+    val listType: ParameterizedType = object : ParameterizedType {
+        override fun getRawType(): Type? = ArrayList::class.java
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(typeToken<T>())
     }
+    return KSyncedList(
+            typeToken<T>(),
+            folder,
+            {
+                val response = Networking.sync(endpoint.request(NetMethod.GET))
+                try {
+                    response.gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data: $$response")
+                } catch(e: Exception) {
+                    throw IllegalArgumentException("Could not parse data: $response", e)
+                }
+            },
+            {
+                var success = true
+                if (it.isAdd) {
+                    endpoint.syncPost<Unit>(it.new) { success = false; true }
+                } else if (it.isChange) {
+                    endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
+                } else if (it.isRemove) {
+                    endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
+                } else if (it.isClear) {
+                    endpoint.syncDelete<Unit>(null) { success = false; true }
+                }
+                success
+            }
+    )
+}
+
+inline fun <reified T : Mergeable<K, T>, reified K : Any> KSyncedList(
+        folder: File,
+        endpoint: NetEndpoint,
+        noinline customPull: () -> List<T>?
+): KSyncedList<T, K> {
+    val listType: ParameterizedType = object : ParameterizedType {
+        override fun getRawType(): Type? = ArrayList::class.java
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(typeToken<T>())
+    }
+    return KSyncedList(
+            typeToken<T>(),
+            folder,
+            customPull,
+            {
+                var success = true
+                if (it.isAdd) {
+                    endpoint.syncPost<Unit>(it.new) { success = false; true }
+                } else if (it.isChange) {
+                    endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
+                } else if (it.isRemove) {
+                    endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
+                } else if (it.isClear) {
+                    endpoint.syncDelete<Unit>(null) { success = false; true }
+                }
+                success
+            }
+    )
+}
+
+open class KSyncedList<T : Mergeable<K, T>, K : Any>(
+        val type: Type,
+        folder: File,
+        val syncPull: () -> List<T>?,
+        val syncPush: (ItemChange<T>) -> Boolean,
+        val innerList: KObservableListInterface<T> = KObservableList()
+) : KObservableListInterface<T> by innerList, Syncable {
 
     var folder: File = folder
         set(newFolder) {
@@ -60,97 +111,84 @@ open class KSyncedList<T : Any, K : Any>(
             }
             field = newFolder
         }
-    val file: File get() = folder.child("data.json")
-    val changesFile: File get() = folder.child("changes.json")
+    private val file: File get() = folder.child("data.json")
+    private val changesFile: File get() = folder.child("changes.json")
 
-    val changeType: ParameterizedType = object : ParameterizedType {
+    private val changeType: ParameterizedType = object : ParameterizedType {
         override fun getRawType(): Type? = ItemChange::class.java
         override fun getOwnerType(): Type? = null
         override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
     }
 
-    val listType: ParameterizedType = object : ParameterizedType {
-        override fun getRawType(): Type? = ArrayList::class.java
-        override fun getOwnerType(): Type? = null
-        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
-    }
-
     fun observable(key: K): KObservableInterface<T> {
-        return object : KObservableBase<T>(), Disposable {
+        return object : KObservableBuffered<T>() {
 
-            var index: Int = this@KSyncedList.indexOfFirst { getKey(it) == key }
+            var index: Int = this@KSyncedList.indexOfFirst { it.getKey() == key }
 
             val listener = { it: KObservableListInterface<T> ->
-                index = this@KSyncedList.indexOfFirst { getKey(it) == key }
+                index = this@KSyncedList.indexOfFirst { it.getKey() == key }
             }
 
-            init {
-                this@KSyncedList.onUpdate.add(listener)
+            override fun add(element: (T) -> Unit): Boolean {
+                if (isEmpty()) {
+                    this@KSyncedList.onUpdate.add(listener)
+                }
+                return super.add(element)
             }
 
-            override fun dispose() {
-                this@KSyncedList.onUpdate.remove(listener)
+            override fun remove(element: (T) -> Unit): Boolean {
+                if (size <= 1) {
+                    this@KSyncedList.onUpdate.remove(listener)
+                }
+                return super.remove(element)
             }
 
             override fun getter(): T {
+                if (isEmpty()) index = this@KSyncedList.indexOfFirst { it.getKey() == key }
                 return this@KSyncedList[index]
             }
 
             override fun setter(value: T) {
                 this@KSyncedList[index] = value
             }
-        }
-    }
 
-    fun asyncREST(
-            endpoint: NetEndpoint,
-            syncPull: () -> List<T> = {
-                val response = Networking.sync(endpoint.request(NetMethod.GET))
-                try {
-                    response.gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data: $$response")
-                } catch(e: Exception) {
-                    throw IllegalArgumentException("Could not parse data: $response", e)
-                }
-            },
-            onMerged: (KSyncedList<T, K>) -> Unit,
-            onResult: (List<ItemChange<T>>) -> Unit
-    ) = doAsync({ syncREST(endpoint, syncPull, onMerged) }, onResult)
-
-    fun syncREST(
-            endpoint: NetEndpoint,
-            syncPull: () -> List<T> = {
-                val response = Networking.sync(endpoint.request(NetMethod.GET))
-                try {
-                    response.gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data: $$response")
-                } catch(e: Exception) {
-                    throw IllegalArgumentException("Could not parse data: $response", e)
-                }
-            },
-            onMerged: (KSyncedList<T, K>) -> Unit = {}
-    ): List<ItemChange<T>> {
-        val failed = processChanges {
-            var success = true
-            if (it.isAdd) {
-                endpoint.syncPost<Unit>(it.new) { success = false; true }
-            } else if (it.isChange) {
-                endpoint.sub(getKey(it.old!!).toString()).syncPut<Unit>(it.new) { success = false; true }
-            } else if (it.isRemove) {
-                endpoint.sub(getKey(it.old!!).toString()).syncDelete<Unit>(null) { success = false; true }
-            } else if (it.isClear) {
-                endpoint.syncDelete<Unit>(null) { success = false; true }
+            override fun update() {
+                //This may look redundant, but it's not.  This is very important.  It fires the
+                //write command on this list, writing the update to the local cache, ensuring it
+                //will make it back to the server eventually.
+                this@KSyncedList[index] = this@KSyncedList[index]
+                super.update()
             }
-            success
         }
-
-        val newData = syncPull()
-        doUiThread {
-            updateFromServer(newData, false)
-            onMerged(this)
-        }
-        return failed
     }
 
-    fun load() {
+    override fun sync(onComplete: () -> Unit) {
+        //online sync
+        doAsync {
+            processChanges(syncPush)
+
+            val newData = syncPull()
+            if (newData != null) {
+                doUiThread {
+                    update(newData)
+                    try {
+                        save(file)
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                    }
+                    try {
+                        loadChanges()
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                    }
+                    onComplete()
+                }
+            }
+        }
+    }
+
+    override fun loadLocal() {
+        //local load
         try {
             load(file, type)
             loadChanges()
@@ -159,21 +197,34 @@ open class KSyncedList<T : Any, K : Any>(
         }
     }
 
-    fun save(clearChanges: Boolean) {
-        try {
-            save(file)
-            if (clearChanges) {
-                modifyChangeFile(false) {}
-            }
-        } catch(e: Exception) {
-            e.printStackTrace()
+    override fun saveLocal() {
+        //We don't have to do anything for this, because it saves changes as it goes.
+    }
+
+    fun update(list: List<T>) {
+        innerList.merge(list)
+    }
+
+    fun update(item: T) {
+        val index = this.indexOfFirst { item.getKey() == it.getKey() }
+        this[index].merge(item)
+        modifyChangeFile {
+            it.appendln(ItemChange(item, item).gsonTo())
+        }
+    }
+
+    fun update(index: Int) {
+        val item = this[index]
+        modifyChangeFile {
+            it.appendln(ItemChange(item, item).gsonTo())
         }
     }
 
     /**
-     * Does something on all of the changes, returning any that failed.  The successful changes are deleted.
+     * Does something on all of the changes.  The successful changes are deleted.
      **/
-    fun processChanges(forChange: (ItemChange<T>) -> Boolean): List<ItemChange<T>> {
+    private fun processChanges(forChange: (ItemChange<T>) -> Boolean) {
+        if (!changesFile.exists()) return
         val changes: ArrayList<ItemChange<T>> = ArrayList()
         try {
             changes.load(changesFile, changeType)
@@ -191,21 +242,10 @@ open class KSyncedList<T : Any, K : Any>(
                 it.appendln(change.gsonTo())
             }
         }
-        return failedChanges
-    }
-
-    fun updateFromServer(list: List<T>, clearChanges: Boolean = false) {
-        if (merge == null) {
-            innerList.clear()
-            innerList.addAll(list)
-        } else {
-            innerList.merge(list, getKey, merge)
-        }
-
-        save(clearChanges)
     }
 
     private fun loadChanges() {
+        if (!changesFile.exists()) return
         val changes: ArrayList<ItemChange<T>> = ArrayList()
         changes.load(changesFile, changeType)
         for (change in changes) {
@@ -220,13 +260,13 @@ open class KSyncedList<T : Any, K : Any>(
             } else {
                 if (change.new == null) {
                     //remove
-                    val index = indexOfFirst { getKey(change.old!!) == getKey(it) }
+                    val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList.removeAt(index)
                     }
                 } else {
                     //change
-                    val index = indexOfFirst { getKey(change.old!!) == getKey(it) }
+                    val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList[index] = change.new!!
                     }
@@ -316,6 +356,8 @@ open class KSyncedList<T : Any, K : Any>(
 
     private inline fun modifyChangeFile(append: Boolean = true, todo: (BufferedWriter) -> Unit) {
         try {
+            changesFile.parentFile.mkdirs()
+            if (!changesFile.exists()) changesFile.createNewFile()
             FileOutputStream(changesFile, append).bufferedWriter().use(todo)
         } catch(e: Exception) {
             e.printStackTrace()

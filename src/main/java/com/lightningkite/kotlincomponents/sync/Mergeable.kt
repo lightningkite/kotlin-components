@@ -1,4 +1,4 @@
-package com.lightningkite.kotlincomponents.collection
+package com.lightningkite.kotlincomponents.sync
 
 /**
  * Created by jivie on 4/4/16.

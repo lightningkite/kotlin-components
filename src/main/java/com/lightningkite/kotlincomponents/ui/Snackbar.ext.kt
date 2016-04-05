@@ -19,3 +19,11 @@ fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_LONG, init: Snackba
     snack.init()
     snack.show()
 }
+
+fun Snackbar.onDismissed(lambda: (event: Int) -> Unit) {
+    setCallback(object : Snackbar.Callback() {
+        override fun onDismissed(snackbar: Snackbar?, event: Int) {
+            lambda(event)
+        }
+    })
+}

@@ -10,12 +10,13 @@ import com.google.gson.JsonParser
 import com.lightningkite.kotlincomponents.MyGson
 import com.lightningkite.kotlincomponents.image.BitmapFactory_decodeByteArraySized
 import org.json.JSONObject
+import java.lang.reflect.Type
 
 /**
  * Represents a response from the network.  It can be anything, so it's stored in a byte array.
  * Created by jivie on 9/23/15.
  */
-data class NetResponse(
+class NetResponse(
         val code: Int,
         val raw: ByteArray,
         val request: NetRequest
@@ -24,7 +25,7 @@ data class NetResponse(
 
 
     override fun toString(): String {
-        return string()
+        return "NetResponse($request, $code, ${string()})"
     }
 
     fun string(): String {
@@ -51,6 +52,10 @@ data class NetResponse(
     }
 
     fun <T : Any> gson(type: Class<T>, gson: Gson = MyGson.gson): T? {
+        return gson.fromJson<T>(string(), type)
+    }
+
+    fun <T : Any> gson(type: Type, gson: Gson = MyGson.gson): T? {
         return gson.fromJson<T>(string(), type)
     }
 

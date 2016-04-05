@@ -1,9 +1,6 @@
 package com.lightningkite.kotlincomponents
 
-import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.*
-import java.lang.reflect.Type
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -55,21 +52,6 @@ object MyGson {
         val gson = builder.create()
         gsonInternal = gson
         return gson
-    }
-
-    init {
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        register(JsonSerializer<Date> { item, type, jsonSerializationContext ->
-            JsonPrimitive(format.format(item) + "+00:00")
-        })
-        register(JsonDeserializer { jsonElement, type, jsonDeserializationContext ->
-            if (jsonElement !is JsonPrimitive) throw IllegalArgumentException()
-            if (!jsonElement.isString) throw IllegalArgumentException()
-            val str = jsonElement.asString
-            val result = format.parse(str.substring(0, str.length - 6))
-
-            result
-        })
     }
 
 }

@@ -11,6 +11,7 @@ import com.lightningkite.kotlincomponents.gsonTo
 import com.lightningkite.kotlincomponents.networking.NetEndpoint
 import com.lightningkite.kotlincomponents.networking.NetMethod
 import com.lightningkite.kotlincomponents.networking.Networking
+import com.lightningkite.kotlincomponents.networking.sync
 import com.lightningkite.kotlincomponents.observable.KObservableBase
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableList
@@ -104,16 +105,28 @@ open class KSyncedList<T : Any, K : Any>(
     fun asyncREST(
             endpoint: NetEndpoint,
             syncPull: () -> List<T> = {
-                Networking.stream(endpoint.request(NetMethod.GET)).gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data")
+                val response = Networking.sync(endpoint.request(NetMethod.GET))
+                try {
+                    response.gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data: $$response")
+                } catch(e: Exception) {
+                    throw IllegalArgumentException("Could not parse data: $response", e)
+                }
             },
+            onMerged: (KSyncedList<T, K>) -> Unit,
             onResult: (List<ItemChange<T>>) -> Unit
-    ) = doAsync({ syncREST(endpoint, syncPull) }, onResult)
+    ) = doAsync({ syncREST(endpoint, syncPull, onMerged) }, onResult)
 
     fun syncREST(
             endpoint: NetEndpoint,
             syncPull: () -> List<T> = {
-                Networking.stream(endpoint.request(NetMethod.GET)).gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data")
-            }
+                val response = Networking.sync(endpoint.request(NetMethod.GET))
+                try {
+                    response.gson<ArrayList<T>>(listType) ?: throw IllegalArgumentException("Could not parse data: $$response")
+                } catch(e: Exception) {
+                    throw IllegalArgumentException("Could not parse data: $response", e)
+                }
+            },
+            onMerged: (KSyncedList<T, K>) -> Unit = {}
     ): List<ItemChange<T>> {
         val failed = processChanges {
             var success = true
@@ -132,6 +145,7 @@ open class KSyncedList<T : Any, K : Any>(
         val newData = syncPull()
         doUiThread {
             updateFromServer(newData, false)
+            onMerged(this)
         }
         return failed
     }
@@ -145,10 +159,12 @@ open class KSyncedList<T : Any, K : Any>(
         }
     }
 
-    fun saveClearingChanges() {
+    fun save(clearChanges: Boolean) {
         try {
             save(file)
-            modifyChangeFile(false) {}
+            if (clearChanges) {
+                modifyChangeFile(false) {}
+            }
         } catch(e: Exception) {
             e.printStackTrace()
         }
@@ -186,9 +202,7 @@ open class KSyncedList<T : Any, K : Any>(
             innerList.merge(list, getKey, merge)
         }
 
-        if (clearChanges) {
-            modifyChangeFile(false) {}
-        }
+        save(clearChanges)
     }
 
     private fun loadChanges() {

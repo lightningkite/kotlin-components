@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.sync
 
+import android.util.Log
 import com.github.salomonbrys.kotson.typeToken
 import com.lightningkite.kotlincomponents.async.doAsync
 import com.lightningkite.kotlincomponents.async.doUiThread
@@ -49,12 +50,16 @@ inline fun <reified T : Mergeable<K, T>, reified K : Any> KSyncedList(
                 var success = true
                 if (it.isAdd) {
                     endpoint.syncPost<Unit>(it.new) { success = false; true }
+                    Log.i("KSyncedList", "Posting new item: ${it.new}")
                 } else if (it.isChange) {
                     endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
+                    Log.i("KSyncedList", "Putting change: ${it.new}")
                 } else if (it.isRemove) {
                     endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
+                    Log.i("KSyncedList", "Deleting item: ${it.old}")
                 } else if (it.isClear) {
                     endpoint.syncDelete<Unit>(null) { success = false; true }
+                    Log.i("KSyncedList", "Clearing items.")
                 }
                 success
             }
@@ -79,12 +84,16 @@ inline fun <reified T : Mergeable<K, T>, reified K : Any> KSyncedList(
                 var success = true
                 if (it.isAdd) {
                     endpoint.syncPost<Unit>(it.new) { success = false; true }
+                    Log.i("KSyncedList", "Posting new item: ${it.new}")
                 } else if (it.isChange) {
                     endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
+                    Log.i("KSyncedList", "Putting change: ${it.new}")
                 } else if (it.isRemove) {
                     endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
+                    Log.i("KSyncedList", "Deleting item: ${it.old}")
                 } else if (it.isClear) {
                     endpoint.syncDelete<Unit>(null) { success = false; true }
+                    Log.i("KSyncedList", "Clearing items.")
                 }
                 success
             }
@@ -167,6 +176,7 @@ open class KSyncedList<T : Mergeable<K, T>, K : Any>(
         doAsync {
             processChanges(syncPush)
 
+            Log.i("KSyncedList", "Pulling new data...")
             val newData = syncPull()
             if (newData != null) {
                 doUiThread {
@@ -183,6 +193,8 @@ open class KSyncedList<T : Mergeable<K, T>, K : Any>(
                     }
                     onComplete()
                 }
+            } else {
+                Log.e("KSyncedList", "Failed to pull new data.")
             }
         }
     }
@@ -263,16 +275,26 @@ open class KSyncedList<T : Mergeable<K, T>, K : Any>(
                     val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList.removeAt(index)
+                    } else {
+                        //remove the useless deletion
+                        Log.i("KSyncedList", "Removing useless deletion.")
+                        changes.remove(change)
                     }
                 } else {
                     //change
                     val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList[index] = change.new!!
+                    } else {
+                        //remove the useless change
+                        Log.i("KSyncedList", "Removing useless change.")
+                        changes.remove(change)
                     }
                 }
             }
         }
+        //write changes
+        changes.save(changesFile)
     }
 
     override fun add(element: T): Boolean {

@@ -20,7 +20,18 @@ open class VCStack() : VCContainerImpl() {
     var onEmptyListener: () -> Unit = {}
 
 
-    private val stack: Stack<ViewController> = Stack()
+    private var stack: Stack<ViewController> = Stack()
+
+    fun setStack(newStack: Stack<ViewController>, animationSet: AnimationSet? = defaultPushAnimation): Unit {
+        val toDispose = stack.filter { !newStack.contains(it) }
+        stack = newStack
+        swapListener?.invoke(current, animationSet) {
+            toDispose.forEach {
+                it.dispose()
+            }
+        }
+        onSwap.forEach { it(current) }
+    }
 
 
     fun push(viewController: ViewController, animationSet: AnimationSet? = defaultPushAnimation) {
@@ -39,6 +50,17 @@ open class VCStack() : VCContainerImpl() {
             }
             onSwap.forEach { it(current) }
         }
+    }
+
+    fun root(animationSet: AnimationSet? = defaultPopAnimation) {
+        val toDispose = ArrayList<ViewController>(stack)
+        toDispose.removeAt(0)
+        swapListener?.invoke(current, animationSet) {
+            toDispose.forEach {
+                it.dispose()
+            }
+        }
+        onSwap.forEach { it(current) }
     }
 
     fun back(predicate: (ViewController) -> Boolean, animationSet: AnimationSet? = defaultPopAnimation) {

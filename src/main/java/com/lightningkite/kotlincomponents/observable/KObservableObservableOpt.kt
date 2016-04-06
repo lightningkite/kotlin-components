@@ -28,7 +28,6 @@ class KObservableObservableOpt<T>(initObservable: KObservableInterface<T>? = nul
 
 
     override fun getter(): T? {
-        println("get")
         return observable?.get()
     }
 

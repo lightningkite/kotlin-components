@@ -6,10 +6,14 @@ import kotlin.reflect.KMutableProperty1
 /**
  * Created by jivie on 2/22/16.
  */
-class KObservableReference<T>(val getterFun: () -> T, val setterFun: (T) -> Unit) : KObservableBuffered<T>() {
-    override fun setter(value: T) = setterFun(value)
+class KObservableReference<T>(val getterFun: () -> T, val setterFun: (T) -> Unit) : KObservableBase<T>() {
+    override fun update() {
+        super.update(getterFun())
+    }
 
-    override fun getter(): T = getterFun()
+    override fun get(): T = getterFun()
+
+    override fun set(v: T) = setterFun(v)
 
 }
 

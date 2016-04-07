@@ -157,16 +157,21 @@ inline fun <reified T : Any> NetStack.autoAsync(
 ): Unit {
     var result: T? = null
     doAsync({
-        val stream = stream(request)
-        if (stream.isSuccessful) {
-            result = stream.auto<T>()
+        val response = sync(request)
+        if (response.isSuccessful) {
+            try {
+                result = response.auto<T>()
+            } catch (e: Exception) {
+                println(response.string())
+                e.printStackTrace()
+            }
         }
-        stream
+        response
     }, {
         if (result != null) {
             onResult(result!!)
         } else {
-            onError(it.response())
+            onError(it)
         }
     })
 }

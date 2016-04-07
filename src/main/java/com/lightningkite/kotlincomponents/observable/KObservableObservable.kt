@@ -5,9 +5,9 @@ import com.lightningkite.kotlincomponents.Disposable
 /**
  * Created by jivie on 4/5/16.
  */
-class KObservableObservable<T>(initialObservable: KObservableInterface<T>) : KObservableBuffered<T>(), Disposable {
+class KObservableObservable<T>(initialObservable: KObservableInterface<T>) : KObservableBase<T>(), Disposable {
     val myListener: (T) -> Unit = {
-        super.update()
+        super.update(it)
     }
 
 
@@ -20,24 +20,24 @@ class KObservableObservable<T>(initialObservable: KObservableInterface<T>) : KOb
             field.remove(myListener)
             field = value
             field.add(myListener)
-            super.update()
+            super.update(value.get())
         }
 
     override fun dispose() {
         observable.remove(myListener)
     }
 
-
-    override fun getter(): T {
+    override fun get(): T {
         return observable.get()
     }
 
-    override fun setter(value: T) {
-        observable.set(value)
+    override fun set(v: T) {
+        observable.set(v)
+        update(v)
     }
 
     override fun update() {
         observable.update() //"Why?" you may ask.  It's because this allows the KSyncedList to store the change.
-        super.update()
+        super.update(get())
     }
 }

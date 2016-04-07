@@ -200,6 +200,22 @@ inline fun <A, B, C> Collection<(A, B, C) -> Unit>.runAll(a: A, b: B, c: C) {
     }
 }
 
+inline fun <T> List<T>.withEachAsync(doTask: T.(() -> Unit) -> Unit, crossinline onAllComplete: () -> Unit) {
+    if (isEmpty()) {
+        onAllComplete()
+        return
+    }
+    var itemsToGo = size
+    for (item in this) {
+        item.doTask {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onAllComplete()
+            }
+        }
+    }
+}
+
 val EmailRegularExpression: Regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}".toRegex(RegexOption.IGNORE_CASE)
 inline fun String.isEmail(): Boolean {
     return matches(EmailRegularExpression)

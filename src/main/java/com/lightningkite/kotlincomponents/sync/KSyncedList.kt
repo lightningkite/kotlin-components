@@ -117,6 +117,12 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val innerList: KObservableListInterface<T> = KObservableList()
 ) : KObservableListInterface<T> by innerList, Syncable {
 
+    init {
+        innerList.onAdd.add { item, index ->
+            item.parent = this
+        }
+    }
+
     var numChanges = 0
 
     private var folder: File = getFolder()

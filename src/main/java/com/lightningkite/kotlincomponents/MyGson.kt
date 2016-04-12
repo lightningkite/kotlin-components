@@ -29,6 +29,12 @@ object MyGson {
     inline fun <reified T : Any> register(adapter: JsonSerializer<T>) = register(T::class.java, adapter)
     inline fun <reified T : Any> register(adapter: TypeAdapter<T>) = register(T::class.java, adapter)
 
+    private val factories = ArrayList<TypeAdapterFactory>()
+    fun registerFactory(factory: TypeAdapterFactory) {
+        factories.add(factory)
+        update()
+    }
+
     val json: JsonParser = JsonParser()
 
     private var gsonInternal: Gson? = null
@@ -43,6 +49,9 @@ object MyGson {
 
         val builder = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        for (factory in factories) {
+            builder.registerTypeAdapterFactory(factory)
+        }
         for ((type, adapter) in hierarchyAdapters) {
             builder.registerTypeHierarchyAdapter(type, adapter)
         }

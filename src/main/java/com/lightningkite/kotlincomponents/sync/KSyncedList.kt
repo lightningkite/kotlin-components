@@ -16,7 +16,7 @@ import com.lightningkite.kotlincomponents.observable.KObservableBase
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
-import com.lightningkite.kotlincomponents.withEachAsync
+import com.lightningkite.kotlincomponents.withReduceAsync
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
@@ -40,36 +40,41 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
             typeToken<T>(),
             getFolder,
             {
+                var result = PullResult<T>(null, null)
+                var list: List<T>? = null
                 val endpoint = getEndpoint()
-                var result: List<T>? = null
                 val response = Networking.sync(endpoint.request(NetMethod.GET))
                 try {
-                    result = response.gson<ArrayList<T>>(listType)
-                    if (result == null) {
+                    list = response.gson<ArrayList<T>>(listType)
+                    if (list == null) {
                         IllegalArgumentException("Could not parse data: $response").printStackTrace()
+                        result = PullResult(SyncError("Could not parse data.", null, response))
+                    } else {
+                        result = PullResult(list)
                     }
                 } catch(e: Exception) {
                     IllegalArgumentException("Could not parse data: $response", e).printStackTrace()
+                    result = PullResult(SyncError("Could not parse data.", null, response))
                 }
                 result
             },
-            {
+            syncPush = { change ->
                 val endpoint = getEndpoint()
-                var success = true
-                if (it.isAdd) {
-                    endpoint.syncPost<Unit>(it.new) { success = false; true }
-                    Log.i("KSyncedList", "Posting new item: ${it.new}")
-                } else if (it.isChange) {
-                    endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
-                    Log.i("KSyncedList", "Putting change: ${it.new}")
-                } else if (it.isRemove) {
-                    endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
-                    Log.i("KSyncedList", "Deleting item: ${it.old}")
-                } else if (it.isClear) {
-                    endpoint.syncDelete<Unit>(null) { success = false; true }
+                var error: SyncError? = null
+                if (change.isAdd) {
+                    Log.i("KSyncedList", "Posting new item: ${change.new!!.gsonTo()}")
+                    endpoint.syncPost<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isChange) {
+                    Log.i("KSyncedList", "Putting change: ${change.new!!.gsonTo()}")
+                    endpoint.sub(change.old!!.getKey().toString()).syncPatch<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isRemove) {
+                    Log.i("KSyncedList", "Deleting item: ${change.old!!.gsonTo()}")
+                    endpoint.sub(change.old!!.getKey().toString()).syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isClear) {
                     Log.i("KSyncedList", "Clearing items.")
+                    endpoint.syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
                 }
-                success
+                error
             }
     )
 }
@@ -77,7 +82,7 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
 inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
         noinline getFolder: () -> File,
         noinline getEndpoint: () -> NetEndpoint,
-        noinline customPull: () -> List<T>?
+        noinline customPull: () -> PullResult<T>
 ): KSyncedList<T, K> {
     val listType: ParameterizedType = object : ParameterizedType {
         override fun getRawType(): Type? = ArrayList::class.java
@@ -88,23 +93,23 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
             typeToken<T>(),
             getFolder,
             customPull,
-            {
+            syncPush = { change ->
                 val endpoint = getEndpoint()
-                var success = true
-                if (it.isAdd) {
-                    endpoint.syncPost<Unit>(it.new) { success = false; true }
-                    Log.i("KSyncedList", "Posting new item: ${it.new}")
-                } else if (it.isChange) {
-                    endpoint.sub(it.old!!.getKey().toString()).syncPut<Unit>(it.new) { success = false; true }
-                    Log.i("KSyncedList", "Putting change: ${it.new}")
-                } else if (it.isRemove) {
-                    endpoint.sub(it.old!!.getKey().toString()).syncDelete<Unit>(null) { success = false; true }
-                    Log.i("KSyncedList", "Deleting item: ${it.old}")
-                } else if (it.isClear) {
-                    endpoint.syncDelete<Unit>(null) { success = false; true }
+                var error: SyncError? = null
+                if (change.isAdd) {
+                    Log.i("KSyncedList", "Posting new item: ${change.new!!.gsonTo()}")
+                    endpoint.syncPost<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isChange) {
+                    Log.i("KSyncedList", "Putting change: ${change.new!!.gsonTo()}")
+                    endpoint.sub(change.old!!.getKey().toString()).syncPatch<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isRemove) {
+                    Log.i("KSyncedList", "Deleting item: ${change.old!!.gsonTo()}")
+                    endpoint.sub(change.old!!.getKey().toString()).syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
+                } else if (change.isClear) {
                     Log.i("KSyncedList", "Clearing items.")
+                    endpoint.syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
                 }
-                success
+                error
             }
     )
 }
@@ -112,8 +117,8 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
 open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val type: Type,
         val getFolder: () -> File,
-        val syncPull: () -> List<T>?,
-        val syncPush: (ItemChange<T>) -> Boolean,
+        val syncPull: () -> PullResult<T>,
+        val syncPush: (ItemChange<T, K>) -> SyncError?,
         val innerList: KObservableListInterface<T> = KObservableList()
 ) : KObservableListInterface<T> by innerList, Syncable {
 
@@ -193,17 +198,17 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         }
     }
 
-    override fun sync(onComplete: () -> Unit) {
+    override fun sync(onComplete: (List<SyncError>) -> Unit) {
         //online sync
         doAsync {
-            processChanges(syncPush)
+            val failed = processChanges(syncPush)
 
             Log.i("KSyncedList", "Pulling new data...")
-            val newData = syncPull()
-            if (newData != null) {
+            val pullResult = syncPull()
+            if (pullResult.list != null) {
                 doUiThread {
-                    Log.i("KSyncedList", "Merging new data of size ${newData.size}...")
-                    innerList.merge(newData)
+                    Log.i("KSyncedList", "Merging new data of size ${pullResult.list.size}...")
+                    innerList.merge(pullResult.list)
                     try {
                         save(file)
                     } catch(e: Exception) {
@@ -214,13 +219,19 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
                     } catch(e: Exception) {
                         e.printStackTrace()
                     }
-                    this@KSyncedList.withEachAsync({
-                        Log.i("KSyncedList", "Syncing child ${getKey()}...")
-                        sync(it)
-                    }, onComplete)
+                    this@KSyncedList.withReduceAsync(
+                            {
+                                Log.i("KSyncedList", "Syncing child ${getKey()}...")
+                                sync(it)
+                            },
+                            ArrayList<SyncError>(failed),
+                            { it: List<SyncError> -> addAll(it) },
+                            onComplete
+                    )
                 }
             } else {
                 Log.e("KSyncedList", "Failed to pull new data.")
+                onComplete(listOf(pullResult.error ?: SyncError("No error data given")))
             }
         }
     }
@@ -239,20 +250,41 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         //We don't have to do anything for this, because it saves changes as it goes.
     }
 
-    /**
-     * Does something on all of the changes.  The successful changes are deleted.
-     **/
-    private fun processChanges(forChange: (ItemChange<T>) -> Boolean) {
+    fun clearFailingChanges() {
         if (!changesFile.exists()) return
-        val changes: ArrayList<ItemChange<T>> = ArrayList()
+        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
         try {
             changes.load(changesFile, changeType)
         } catch(e: Exception) {
             e.printStackTrace()
         }
-        val failedChanges = ArrayList<ItemChange<T>>()
+        val notFailedChanges = changes.filter { it.error == null }
+        modifyChangeFile(false) {
+            numChanges = notFailedChanges.size
+            for (change in notFailedChanges) {
+                it.appendln(change.gsonTo())
+            }
+        }
+    }
+
+    /**
+     * Does something on all of the changes.  The successful changes are deleted.
+     **/
+    private fun processChanges(forChange: (ItemChange<T, K>) -> SyncError?): List<SyncError> {
+        if (!changesFile.exists()) return ArrayList()
+        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
+        try {
+            changes.load(changesFile, changeType)
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+        val failedChanges = ArrayList<ItemChange<T, K>>()
         for (change in changes) {
-            if (!forChange(change)) {
+            change.belongsTo = this
+            change.error?.change = change
+            val error = forChange(change)
+            if (error != null) {
+                change.error = error
                 failedChanges.add(change)
             }
         }
@@ -262,13 +294,16 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
                 it.appendln(change.gsonTo())
             }
         }
+        return failedChanges.map { it.error!! }
     }
 
     private fun loadChanges() {
         if (!changesFile.exists()) return
-        val changes: ArrayList<ItemChange<T>> = ArrayList()
+        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
         changes.load(changesFile, changeType)
         for (change in changes) {
+            change.belongsTo = this
+            change.error?.change = change
             if (change.old == null) {
                 if (change.new == null) {
                     //clear
@@ -417,7 +452,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
     override fun clear() {
         modifyChangeFile(false) {
-            it.appendln(ItemChange(null, null).gsonTo())
+            it.appendln(ItemChange<T, K>(null, null).gsonTo())
             numChanges = 1
         }
         innerList.clear()

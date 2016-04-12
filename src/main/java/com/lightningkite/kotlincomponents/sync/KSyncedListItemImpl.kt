@@ -2,7 +2,7 @@ package com.lightningkite.kotlincomponents.sync
 
 import android.util.Log
 import com.lightningkite.kotlincomponents.observable.KObservableBase
-import com.lightningkite.kotlincomponents.withEachAsync
+import com.lightningkite.kotlincomponents.withReduceAsync
 import java.util.*
 
 /**
@@ -52,15 +52,27 @@ abstract class KSyncedListItemImpl<THIS : KSyncedListItem<THIS, KEY>, KEY : Any>
         parent?.update(this as THIS)
     }
 
-    override fun sync(onComplete: () -> Unit) {
+    override fun sync(onComplete: (List<SyncError>) -> Unit) {
         Log.i("KSyncedListItemImpl", "Syncing ${syncables.size} syncables.")
         var done = 2
-        val onDone = {
+        var failList = mutableListOf<SyncError>()
+        val onDone = { it: List<SyncError> ->
+            failList.addAll(it)
             done--
             if (done <= 0)
-                onComplete()
+                onComplete(failList)
         }
-        syncables.withEachAsync({ sync(it) }, onDone)
-        lazySyncables.withEachAsync({ value.sync(it) }, onDone)
+        syncables.withReduceAsync(
+                { sync(it) },
+                mutableListOf<SyncError>(),
+                { it: List<SyncError> -> addAll(it) },
+                onDone
+        )
+        lazySyncables.withReduceAsync(
+                { value.sync(it) },
+                mutableListOf<SyncError>(),
+                { it: List<SyncError> -> addAll(it) },
+                onDone
+        )
     }
 }

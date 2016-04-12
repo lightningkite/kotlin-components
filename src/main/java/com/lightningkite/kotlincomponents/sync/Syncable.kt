@@ -9,20 +9,20 @@ import com.lightningkite.kotlincomponents.isNetworkAvailable
 interface Syncable {
     fun loadLocal()
     fun saveLocal()
-    fun sync(onComplete: () -> Unit)
+    fun sync(onComplete: (List<SyncError>) -> Unit)
 
-    fun attemptSync(context: Context, onComplete: () -> Unit) {
+    fun attemptSync(context: Context, onComplete: (List<SyncError>) -> Unit) {
         if (context.isNetworkAvailable()) {
             sync(onComplete)
         }
     }
 
-    fun startup(context: Context, onComplete: () -> Unit) {
+    fun startup(context: Context, onComplete: (List<SyncError>) -> Unit) {
         if (context.isNetworkAvailable()) {
             sync(onComplete)
         } else {
             loadLocal()
-            onComplete()
+            onComplete(listOf())
         }
     }
 }

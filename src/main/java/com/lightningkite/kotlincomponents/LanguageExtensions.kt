@@ -216,6 +216,29 @@ inline fun <T> List<T>.withEachAsync(doTask: T.(() -> Unit) -> Unit, crossinline
     }
 }
 
+inline fun <T, MUTABLE, RESULT> List<T>.withReduceAsync(
+        doTask: T.((RESULT) -> Unit) -> Unit,
+        initialValue: MUTABLE,
+        crossinline combine: MUTABLE.(RESULT) -> Unit,
+        crossinline onAllComplete: (MUTABLE) -> Unit
+) {
+    if (isEmpty()) {
+        onAllComplete(initialValue)
+        return
+    }
+    var total = initialValue
+    var itemsToGo = size
+    for (item in this) {
+        item.doTask {
+            combine(total, it)
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onAllComplete(total)
+            }
+        }
+    }
+}
+
 val EmailRegularExpression: Regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}".toRegex(RegexOption.IGNORE_CASE)
 inline fun String.isEmail(): Boolean {
     return matches(EmailRegularExpression)

@@ -33,7 +33,7 @@ object OkHttpStack : NetStack {
             }
             val response = client.newCall(requestBuilder.build()).execute()
             val responseBody = response.body()
-            val netResponse = object : NetStream(response.code(), responseBody.contentLength(), responseBody.contentType().toKC(), responseBody.byteStream(), request) {
+            val netResponse = object : NetStream(response.code(), responseBody.contentLength(), responseBody.contentType()?.toKC() ?: NetContentType.JSON, responseBody.byteStream(), request) {
                 override fun close() {
                     super.close()
                     responseBody.close()

@@ -1,10 +1,24 @@
 package com.lightningkite.kotlincomponents.networking
 
+import android.graphics.Bitmap
 import com.lightningkite.kotlincomponents.async.doAsync
 
 /**
  * Created by jivie on 3/30/16.
  */
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun NetStack.bitmap(request: NetRequest, minBytes: Long, noinline onResult: (Bitmap?) -> Unit) {
+    doAsync({
+        val stream = stream(request)
+        if (stream.isSuccessful) {
+            stream.bitmapSized(minBytes)
+        } else {
+            null
+        }
+    }, onResult)
+}
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun NetStack.sync(request: NetRequest): NetResponse = stream(request).response()
 

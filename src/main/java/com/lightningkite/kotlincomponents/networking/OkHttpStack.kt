@@ -42,7 +42,7 @@ object OkHttpStack : NetStack {
             return netResponse
 
         } catch (e: Exception) {
-            println(e)
+            e.printStackTrace()
             return NetStream(0, 0, NetContentType.NONE, ByteArrayInputStream(ByteArray(0)), request)
         }
     }
@@ -67,7 +67,7 @@ object OkHttpStack : NetStack {
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun NetContentType.toOkHttp(): MediaType {
+    private inline fun NetContentType.toOkHttp(): MediaType? {
         return MediaType.parse(this.toString())
     }
 

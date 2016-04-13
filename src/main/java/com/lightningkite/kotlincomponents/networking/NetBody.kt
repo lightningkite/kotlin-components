@@ -39,7 +39,7 @@ abstract class NetBody() {
             val buffer = ByteArray(4096)
             while (true) {
                 val read = content.read(buffer)
-                if (read == 0) return
+                if (read <= 0) return
                 stream.write(buffer, 0, read)
             }
         }
@@ -48,9 +48,12 @@ abstract class NetBody() {
     companion object {
         val EMPTY: NetBody = ByteArrayBody(NetContentType.NONE, ByteArray(0))
         fun fromUri(resolver: ContentResolver, uri: Uri): StreamBody {
+            val type = resolver.getType(uri) ?: ""
+            val size = resolver.fileSize(uri)
+            println("type: $type, size: $size")
             return NetBody.StreamBody(
-                    NetContentType(resolver.getType(uri)),
-                    resolver.fileSize(uri),
+                    NetContentType(type),
+                    size,
                     resolver.openInputStream(uri)
             )
         }

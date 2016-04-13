@@ -33,22 +33,20 @@ fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolea
         if (it == null) {
             onResult(false)
         } else {
-            if (isAttachedToWindowCompat()) {
-                var oldBitmap = bitmaps[request.url]
-                if (oldBitmap != null) oldBitmap.recycle()
-                else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                    override fun onViewDetachedFromWindow(v: View?) {
-                        bitmaps[request.url]?.recycle()
-                        bitmaps.remove(request.url)
-                        removeOnAttachStateChangeListener(this)
-                    }
+            bitmaps[request.url] = it
+            imageBitmap = it
+            addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewDetachedFromWindow(v: View?) {
+                    setImageDrawable(null)
+                    bitmaps[request.url]?.recycle()
+                    bitmaps.remove(request.url)
+                    removeOnAttachStateChangeListener(this)
+                }
 
-                    override fun onViewAttachedToWindow(v: View?) {
-                    }
-                })
-                bitmaps[request.url] = it
-                imageBitmap = it
-            }
+                override fun onViewAttachedToWindow(v: View?) {
+                }
+            })
+            onResult(true)
         }
     })
 }
@@ -113,9 +111,9 @@ fun ImageView.imageLoad(url: String, onLoaded: (Boolean) -> Unit = {}) {
 
 fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadState: (ImageLoadState) -> Unit = {}) {
     var oldBitmap = bitmaps[url]
-    var unmakeCalled :AtomicBoolean = AtomicBoolean(false)
+    var unmakeCalled: AtomicBoolean = AtomicBoolean(false)
     val handler = Handler(Looper.getMainLooper())
-    if(oldBitmap != null) {
+    if (oldBitmap != null) {
         this.imageBitmap = oldBitmap
         Timer().schedule(100) {
             handler.post {
@@ -128,8 +126,8 @@ fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadSta
         Networking.async(NetMethod.GET, url) { response ->
             if (!response.isSuccessful) return@async
             val it = response.bitmap()
-            if(it != null) {
-                if(!unmakeCalled.get()) {
+            if (it != null) {
+                if (!unmakeCalled.get()) {
                     bitmaps[url] = it
                     imageBitmap = it
                 }

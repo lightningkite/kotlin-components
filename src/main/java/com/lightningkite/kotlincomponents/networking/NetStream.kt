@@ -60,6 +60,7 @@ open class NetStream(
     val isSuccessful: Boolean get() = code / 100 == 2
 
     fun response(): NetResponse {
+        println("translating to response")
         return NetResponse(code, raw(), request)
     }
 

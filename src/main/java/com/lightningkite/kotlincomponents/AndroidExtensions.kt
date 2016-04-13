@@ -29,26 +29,26 @@ inline fun Int.colorMultiply(value: Double): Int {
     )
 }
 
-inline fun Calendar.modifyTimeThroughPicker(context: Context, crossinline after: (calendar: Calendar) -> Unit) {
-    TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
-        this@modifyTimeThroughPicker.set(Calendar.HOUR_OF_DAY, hourOfDay)
-        this@modifyTimeThroughPicker.set(Calendar.MINUTE, minute)
-        after(this@modifyTimeThroughPicker)
-    }, this.get(Calendar.HOUR_OF_DAY), this.get(Calendar.MINUTE), false).show()
+inline fun Context.timePicker(start: Calendar, crossinline after: (Calendar) -> Unit) {
+    TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+        start.set(Calendar.HOUR_OF_DAY, hourOfDay)
+        start.set(Calendar.MINUTE, minute)
+        after(start)
+    }, start.get(Calendar.HOUR_OF_DAY), start.get(Calendar.MINUTE), false).show()
 }
 
-inline fun Calendar.modifyDateThroughPicker(context: Context, crossinline after: (calendar: Calendar) -> Unit) {
+inline fun Context.datePicker(start: Calendar, crossinline after: (Calendar) -> Unit) {
     DatePickerDialog(
-            context,
+            this,
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-                this@modifyDateThroughPicker.set(Calendar.YEAR, year)
-                this@modifyDateThroughPicker.set(Calendar.MONTH, monthOfYear)
-                this@modifyDateThroughPicker.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                after(this@modifyDateThroughPicker)
+                start.set(Calendar.YEAR, year)
+                start.set(Calendar.MONTH, monthOfYear)
+                start.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                after(start)
             },
-            this.get(Calendar.YEAR),
-            this.get(Calendar.MONTH),
-            this.get(Calendar.DAY_OF_MONTH)
+            start.get(Calendar.YEAR),
+            start.get(Calendar.MONTH),
+            start.get(Calendar.DAY_OF_MONTH)
     ).show()
 }
 

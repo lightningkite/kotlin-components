@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.adapter
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -78,7 +79,8 @@ open class KRecyclerViewAdapter<T>(
     }
 }
 
-object RecyclerViewParamAdder {
+class RecyclerViewParamAdder(val context: Context) {
+
     fun <T : View> T.lparams(
             width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
             height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -93,7 +95,7 @@ object RecyclerViewParamAdder {
 
 inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
-        RecyclerViewParamAdder.makeView(it)
+        RecyclerViewParamAdder(context).makeView(it)
     }
     adapter = newAdapter
     list.onAdd.add { item, position ->
@@ -114,7 +116,7 @@ inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defau
 
 inline fun <T> RecyclerView.makeAdapter(list: List<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
-        RecyclerViewParamAdder.makeView(it)
+        RecyclerViewParamAdder(context).makeView(it)
     }
     adapter = newAdapter
     return newAdapter
@@ -122,7 +124,7 @@ inline fun <T> RecyclerView.makeAdapter(list: List<T>, defaultValue: T, crossinl
 
 inline fun <T> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(listObs.get(), defaultValue) {
-        RecyclerViewParamAdder.makeView(it)
+        RecyclerViewParamAdder(context).makeView(it)
     }
     bind(listObs) {
         newAdapter.list = it

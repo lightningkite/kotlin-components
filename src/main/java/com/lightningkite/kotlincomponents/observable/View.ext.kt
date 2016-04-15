@@ -500,47 +500,6 @@ inline fun EditText.bindDouble(bond: KObservableInterface<Double>, format: Numbe
 }
 
 /**
- * Binds this [EditText] two way to the bond.
- * When the user edits this, the value of the bond will change.
- * When the value of the bond changes, the number here will be updated.
- */
-@Suppress("NOTHING_TO_INLINE")
-inline fun EditText.bindNullableDouble(bond: KObservableInterface<Double?>, format: NumberFormat = NumberFormat.getNumberInstance()) {
-    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-    val originalTextColor = this.textColors.defaultColor
-    var value: Double? = null
-    textChangedListener {
-        onTextChanged { charSequence, start, before, count ->
-
-            value = null
-
-            try {
-                value = format.parse(charSequence.toString()).toDouble()
-            } catch(e: ParseException) {
-                //do nothing.
-            }
-
-            try {
-                value = charSequence.toString().toDouble()
-            } catch(e: NumberFormatException) {
-                //do nothing.
-            }
-
-            textColor = originalTextColor
-            if (bond.get() != value) {
-                bond.set(value)
-            }
-        }
-    }
-    bind(bond) {
-        if (bond.get() != value) {
-            if (bond.get() == null) this.setText("")
-            else this.setText(format.format(bond.get()))
-        }
-    }
-}
-
-/**
  * Binds this [Switch] two way to the bond.
  */
 @Suppress("NOTHING_TO_INLINE")

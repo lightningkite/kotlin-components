@@ -1,5 +1,6 @@
 package com.lightningkite.kotlincomponents.image
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -38,6 +39,9 @@ fun VCActivity.getImageUriFromGallery(onResult: (Uri?) -> Unit) {
     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
 
     this.startIntent(chooserIntent) { code, data ->
+        if (code != Activity.RESULT_OK) {
+            onResult(null); return@startIntent
+        }
         if (data == null) return@startIntent
         val imageUri = data.data
         onResult(imageUri)
@@ -58,11 +62,14 @@ fun VCActivity.getImageUriFromCamera(onResult: (Uri?) -> Unit) {
     folder.mkdir()
 
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    val file = File(folder, "image_" + timeStamp + "_raw.jpg")
+    val file = File.createTempFile(timeStamp, ".jpg", folder)
     val potentialFile: Uri = Uri.fromFile(file)
 
     intent.putExtra(MediaStore.EXTRA_OUTPUT, potentialFile)
     this.startIntent(intent) { code, data ->
+        if (code != Activity.RESULT_OK) {
+            onResult(null); return@startIntent
+        }
         onResult(potentialFile)
     }
 }
@@ -81,6 +88,9 @@ fun VCActivity.getImageFromGallery(maxDimension: Int, onResult: (Bitmap?) -> Uni
     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
 
     this.startIntent(chooserIntent) { code, data ->
+        if (code != Activity.RESULT_OK) {
+            onResult(null); return@startIntent
+        }
         if (data == null) return@startIntent
         val imageUri = data.data
         onResult(getBitmapFromUri(imageUri, maxDimension))
@@ -106,6 +116,9 @@ fun VCActivity.getImageFromCamera(maxDimension: Int, onResult: (Bitmap?) -> Unit
 
     intent.putExtra(MediaStore.EXTRA_OUTPUT, potentialFile)
     this.startIntent(intent) { code, data ->
+        if (code != Activity.RESULT_OK) {
+            onResult(null); return@startIntent
+        }
         onResult(getBitmapFromUri(potentialFile, maxDimension))
     }
 }

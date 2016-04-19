@@ -231,7 +231,9 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
                 }
             } else {
                 Log.e("KSyncedList", "Failed to pull new data.")
-                onComplete(listOf(pullResult.error ?: SyncError("No error data given")))
+                doUiThread {
+                    onComplete(listOf(pullResult.error ?: SyncError("No error data given")))
+                }
             }
         }
     }

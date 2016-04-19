@@ -37,7 +37,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     var buttonStyle: Button.() -> Unit = {}
     var materialStyle: Boolean = true
 
-    val isPassingObs = KObservable(false)
+    val isPassingObs = KObservable(true)
     val errors = HashMap<View, CharSequence?>()
 
     inline fun View.formPadding() {
@@ -136,6 +136,13 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
         return formEditText(hint) {
             bindNullableInt(obs, format)
+            setup()
+        }
+    }
+
+    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindNullableFloat(obs, format)
             setup()
         }
     }

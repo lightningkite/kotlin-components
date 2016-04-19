@@ -133,7 +133,6 @@ fun View.onChildrenRecursive(action: (View) -> Unit) {
     }
 }
 
-@Deprecated("This is useless for most applications.")
 var TextView.html: String get() = throw IllegalAccessException()
     set(value) {
         val newVal = value

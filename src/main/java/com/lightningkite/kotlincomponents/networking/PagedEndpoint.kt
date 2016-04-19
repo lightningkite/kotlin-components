@@ -1,13 +1,12 @@
 package com.lightningkite.kotlincomponents.networking
 
 import com.github.salomonbrys.kotson.typeToken
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import com.lightningkite.kotlincomponents.asStringOptional
 import com.lightningkite.kotlincomponents.gsonFrom
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
+import com.lightningkite.kotlincomponents.runAll
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.util.*
 
@@ -51,6 +50,13 @@ open class PagedEndpoint<T : Any>(
     val isMoreObservable = KObservable(true)
     val firstLoadFinishedObservable = KObservable(false)
 
+
+    val listType: ParameterizedType = object : ParameterizedType {
+        override fun getRawType(): Type? = ArrayList::class.java
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
+    }
+
     init {
         pull()
     }
@@ -71,39 +77,60 @@ open class PagedEndpoint<T : Any>(
         var currentEndpoint = nextEndpoint!!
 
         if (isPaged) {
-            currentEndpoint.get<JsonObject>(onError = onError) { result ->
-                if (currentEndpoint != nextEndpoint) {
-                    pulling = false
-                    return@get
-                }
-                nextEndpoint = null
-                if (result.has("num_pages")) {
-                    val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
-                    if (pageNum > result.get("num_pages").asString.toInt())
-                        nextEndpoint = currentEndpoint.query("page", pageNum)
-                } else if (result.has("next")) {
-                    val nextUrl = result.get("next").asStringOptional
-                    if (nextUrl != null) {
-                        nextEndpoint = currentEndpoint.fromUrl(nextUrl)
-                    }
-                }
-                list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
-                if (nextEndpoint == null) {
-                    isMoreObservable.set(false)
-                }
 
-                firstLoadFinishedObservable.set(true)
-                pulling = false
-            }
         } else {
             //option only exists for rapid prototyping purposes.  Servers often add pagination late.
-            currentEndpoint.get<JsonArray>(onError = onError) { result ->
-                list.addAll(result.map { it.gsonFrom<T>(type)!! })
-
-                firstLoadFinishedObservable.set(true)
-                nextEndpoint = null
-                pulling = false
+            currentEndpoint.async(NetMethod.GET) {
+                if (it.isSuccessful) {
+                    val list = it.string().gsonFrom<ArrayList<T>>(listType)
+                    if (list != null) {
+                        this.list.addAll(list)
+                        firstLoadFinishedObservable.set(true)
+                        nextEndpoint = null
+                        pulling = false
+                    } else {
+                        currentEndpoint.netInterface.onError.runAll(it)
+                    }
+                } else {
+                    currentEndpoint.netInterface.onError.runAll(it)
+                }
             }
         }
+
+        //        if (isPaged) {
+        //            currentEndpoint.get<JsonObject>(onError = onError) { result ->
+        //                if (currentEndpoint != nextEndpoint) {
+        //                    pulling = false
+        //                    return@get
+        //                }
+        //                nextEndpoint = null
+        //                if (result.has("num_pages")) {
+        //                    val pageNum = ((currentEndpoint.queryParams["page"]?.toInt()) ?: 1) + 1
+        //                    if (pageNum > result.get("num_pages").asString.toInt())
+        //                        nextEndpoint = currentEndpoint.query("page", pageNum)
+        //                } else if (result.has("next")) {
+        //                    val nextUrl = result.get("next").asStringOptional
+        //                    if (nextUrl != null) {
+        //                        nextEndpoint = currentEndpoint.fromUrl(nextUrl)
+        //                    }
+        //                }
+        //                list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
+        //                if (nextEndpoint == null) {
+        //                    isMoreObservable.set(false)
+        //                }
+        //
+        //                firstLoadFinishedObservable.set(true)
+        //                pulling = false
+        //            }
+        //        } else {
+        //            //option only exists for rapid prototyping purposes.  Servers often add pagination late.
+        //            currentEndpoint.get<JsonArray>(onError = onError) { result ->
+        //                list.addAll(result.map { it.gsonFrom<T>(type)!! })
+        //
+        //                firstLoadFinishedObservable.set(true)
+        //                nextEndpoint = null
+        //                pulling = false
+        //            }
+        //        }
     }
 }

@@ -302,6 +302,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val changes: ArrayList<ItemChange<T, K>> = ArrayList()
         changes.load(changesFile, changeType)
         for (change in changes) {
+            println(change)
             change.belongsTo = this
             change.error?.change = change
             if (change.old == null) {

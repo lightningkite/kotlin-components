@@ -36,7 +36,7 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     var editTextStyle: EditText.() -> Unit = {}
     var buttonStyle: Button.() -> Unit = {}
 
-    val isPassingObs = KObservable(false)
+    val isPassingObs = KObservable(true)
     val errors = HashMap<View, CharSequence?>()
     fun setError(view: View, error: CharSequence?) {
         errors[view] = error

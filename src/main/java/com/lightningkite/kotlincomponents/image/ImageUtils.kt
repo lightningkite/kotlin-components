@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import com.lightningkite.kotlincomponents.files.getRealPath
+import com.lightningkite.kotlincomponents.files.toImageContentUri
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import java.io.File
 import java.io.FileOutputStream
@@ -70,7 +71,8 @@ fun VCActivity.getImageUriFromCamera(onResult: (Uri?) -> Unit) {
         if (code != Activity.RESULT_OK) {
             onResult(null); return@startIntent
         }
-        onResult(potentialFile)
+        val fixedUri = File((data?.data ?: potentialFile).getRealPath(this)).toImageContentUri(this)
+        onResult(fixedUri)
     }
 }
 

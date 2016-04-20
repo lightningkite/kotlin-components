@@ -48,8 +48,9 @@ abstract class NetBody() {
     companion object {
         val EMPTY: NetBody = ByteArrayBody(NetContentType.NONE, ByteArray(0))
         fun fromUri(resolver: ContentResolver, uri: Uri): StreamBody {
-            val type = resolver.getType(uri) ?: ""
-            val size = resolver.fileSize(uri)
+            val type = resolver.getType(uri) ?: throw IllegalArgumentException()
+            println(type)
+            val size = resolver.fileSize(uri) ?: throw IllegalArgumentException()
             println("type: $type, size: $size")
             return NetBody.StreamBody(
                     NetContentType(type),

@@ -16,6 +16,7 @@ import com.lightningkite.kotlincomponents.observable.KObservableBase
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
+import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.withReduceAsync
 import java.io.BufferedWriter
 import java.io.File
@@ -194,7 +195,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     override fun sync(onComplete: (List<SyncError>) -> Unit) {
         //online sync
         doAsync {
-            val failed = processChanges(syncPush)
+            val failed = pushChanges()
 
             Log.i("KSyncedList", "Pulling new data...")
             val pullResult = syncPull()
@@ -288,12 +289,13 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     /**
      * Does something on all of the changes.  The successful changes are deleted.
      **/
-    private fun processChanges(forChange: (ItemChange<T, K>) -> SyncError?): List<ItemChange<T, K>> {
+    private fun pushChanges(): List<ItemChange<T, K>> {
+        val statusChanges = changes.keys.toHashSet()
         val failedChanges = ArrayList<ItemChange<T, K>>()
         val sortedChanges = changes.values.sortedBy { it.timeStamp }
         for (change in sortedChanges) {
             change.belongsTo = this
-            val error = forChange(change)
+            val error = syncPush(change)
             if (error != null) {
                 change.error = error
                 failedChanges.add(change)
@@ -304,6 +306,14 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             changes[failed.getKey()] = failed
         }
         saveLocal()
+        doUiThread {
+            //send changes for all those who had a status change
+            for (i in innerList.indices) {
+                if (statusChanges.contains(innerList[i].getKey())) {
+                    onChange.runAll(innerList[i], i)
+                }
+            }
+        }
         return failedChanges
     }
 

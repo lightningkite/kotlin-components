@@ -14,6 +14,8 @@ interface Syncable {
     fun attemptSync(context: Context, onComplete: (List<SyncError>) -> Unit) {
         if (context.isNetworkAvailable()) {
             sync(onComplete)
+        } else {
+            saveLocal()
         }
     }
 

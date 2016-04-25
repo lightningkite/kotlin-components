@@ -232,8 +232,9 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
     override fun loadLocal() {
         //local load
+        Log.i("KSyncedList", "Loading local: ${file.path}")
         try {
-            load(file, type)
+            innerList.load(file, type)
 
             if (!changesFile.exists()) return
             changes.clear()
@@ -250,6 +251,10 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             }
 
             applyChangesToData(changesRaw)
+
+            for (item in this) {
+                item.loadLocal()
+            }
         } catch(e: Exception) {
             e.printStackTrace()
         }

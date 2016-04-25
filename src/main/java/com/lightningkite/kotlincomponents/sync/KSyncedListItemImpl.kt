@@ -40,6 +40,7 @@ abstract class KSyncedListItemImpl<THIS : KSyncedListItem<THIS, KEY>, KEY : Any>
     }
 
     override fun loadLocal() {
+        Log.i("KSyncedList", "Loading local: ${getKey()}")
         syncables.forEach { it.loadLocal() }
         lazySyncables.forEach { it.value.loadLocal() }
     }

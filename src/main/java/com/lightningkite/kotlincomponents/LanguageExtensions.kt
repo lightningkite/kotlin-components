@@ -33,6 +33,7 @@ inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T?, cros
     }
 }
 
+@Deprecated("Use the one from the collection package instead.", ReplaceWith("this.random()", "com.lightningkite.kotlincomponents.collection"))
 fun <E> List<E>.random(): E {
     return this[Math.random().times(size).toInt()]
 }

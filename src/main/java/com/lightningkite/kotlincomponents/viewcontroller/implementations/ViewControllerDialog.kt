@@ -10,6 +10,7 @@ import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
  * Allows you to create a dialog using a view controller.
  * Created by jivie on 9/25/15.
  */
+@Deprecated("This uses a standard alert dialog which is deprecated.")
 fun VCActivity.dialog(
         vcMaker: (AlertDialog)->ViewController
 ) {
@@ -25,6 +26,7 @@ fun VCActivity.dialog(
     dialog.show()
 }
 
+@Deprecated("This uses a standard alert dialog which is deprecated.")
 fun VCActivity.dialog(
         stack: VCStack
 ) {

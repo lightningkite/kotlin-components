@@ -20,10 +20,10 @@ interface Syncable {
     }
 
     fun startup(context: Context, onComplete: (List<SyncError>) -> Unit) {
+        loadLocal()
         if (context.isNetworkAvailable()) {
             sync(onComplete)
         } else {
-            loadLocal()
             onComplete(listOf())
         }
     }

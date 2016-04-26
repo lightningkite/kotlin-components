@@ -236,21 +236,24 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         try {
             innerList.load(file, type)
 
-            if (!changesFile.exists()) return
-            changes.clear()
+            println("CHANGE FILE EXISTS: ${changesFile.exists()}")
+            if (changesFile.exists()) {
 
-            val changesRaw: ArrayList<ItemChange<T, K>> = ArrayList()
-            changesRaw.load(changesFile, changeType)
+                changes.clear()
 
-            for (change in changesRaw) {
-                //setup change
-                change.belongsTo = this
+                val changesRaw: ArrayList<ItemChange<T, K>> = ArrayList()
+                changesRaw.load(changesFile, changeType)
 
-                //add to change map
-                changes[change.getKey()] = change
+                for (change in changesRaw) {
+                    //setup change
+                    change.belongsTo = this
+
+                    //add to change map
+                    changes[change.getKey()] = change
+                }
+
+                applyChangesToData(changesRaw)
             }
-
-            applyChangesToData(changesRaw)
 
             for (item in this) {
                 item.loadLocal()
@@ -265,9 +268,12 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             changesFile.parentFile.mkdirs()
             if (!changesFile.exists()) changesFile.createNewFile()
             FileOutputStream(changesFile, false).bufferedWriter().apply {
+                println("SAVING CHANGES: ${changes.size}")
                 for (change in changes.values) {
                     appendln(change.gsonTo())
                 }
+                flush()
+                close()
             }
         } catch(e: Exception) {
             e.printStackTrace()
@@ -324,6 +330,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
 
     private inline fun applyChangesToData(changes: Collection<ItemChange<T, K>>) {
+        println("APPLY CHANGES: ${changes.size}")
         for (change in changes) {
             //apply change to local data
             if (change.old == null) {
@@ -471,6 +478,14 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     }
 
     private inline fun storeChange(change: ItemChange<T, K>) {
+        //send changes for all those who had a status change
+        doUiThread {
+            for (i in innerList.indices) {
+                if (innerList[i].getKey() == change.getKey()) {
+                    onChange.runAll(innerList[i], i)
+                }
+            }
+        }
         val currentChange = changes[change.getKey()]
         if (currentChange == null) {
             changes[change.getKey()] = change

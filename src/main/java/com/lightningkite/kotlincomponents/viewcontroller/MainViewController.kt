@@ -61,40 +61,15 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
 
     abstract fun ViewGroup.makeSubview(activity: VCActivity): View
 
-    fun attachMenu(activity: VCActivity, stack: VCStack, onMenuClickObs: KObservable<() -> Unit>) {
-        bind(alwaysShowBackObs) {
+    fun attach(activity: VCActivity, stack: VCStack, onMenuClickObs: KObservable<(() -> Unit)?> = KObservable(null)) {
+        bind(alwaysShowBackObs, onMenuClickObs) { alwaysShowBack, onMenuClick ->
             toolbar?.apply {
                 if (stack.size > 1 || alwaysShowBack) {
                     setNavigationIcon(backResource)
                     setNavigationOnClickListener { activity.onBackPressed() }
-                } else {
+                } else if (onMenuClick != null) {
                     setNavigationIcon(menuResource)
-                    setNavigationOnClickListener { onMenuClickObs.get()() }
-                }
-                setToolbarTitle(stack.getTitle(resources))
-            }
-        }
-        bind(stack.onSwap, stack.current) {
-            toolbar?.apply {
-                if (stack.size > 1 || alwaysShowBack) {
-                    setNavigationIcon(backResource)
-                    setNavigationOnClickListener { activity.onBackPressed() }
-                } else {
-                    setNavigationIcon(menuResource)
-                    setNavigationOnClickListener { onMenuClickObs.get()() }
-                }
-                setToolbarTitle(stack.getTitle(resources))
-            }
-        }
-        doThisOnBackPressed = { stack.onBackPressed(it) }
-    }
-
-    fun attach(activity: VCActivity, stack: VCStack) {
-        bind(alwaysShowBackObs) {
-            toolbar?.apply {
-                if (stack.size > 1 || alwaysShowBack) {
-                    setNavigationIcon(backResource)
-                    setNavigationOnClickListener { activity.onBackPressed() }
+                    setNavigationOnClickListener { onMenuClick() }
                 } else {
                     navigationIcon = null
                     setNavigationOnClickListener { }
@@ -107,11 +82,13 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
                 if (stack.size > 1 || alwaysShowBack) {
                     setNavigationIcon(backResource)
                     setNavigationOnClickListener { activity.onBackPressed() }
+                } else if (onMenuClickObs.get() != null) {
+                    setNavigationIcon(menuResource)
+                    setNavigationOnClickListener { onMenuClickObs.get()?.invoke() }
                 } else {
                     navigationIcon = null
                     setNavigationOnClickListener { }
                 }
-                setToolbarTitle(stack.getTitle(resources))
             }
         }
         doThisOnBackPressed = { stack.onBackPressed(it) }

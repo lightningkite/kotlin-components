@@ -53,6 +53,11 @@ abstract class KSyncedListItemImpl<THIS : KSyncedListItem<THIS, KEY>, KEY : Any>
         parent?.update(this as THIS)
     }
 
+    override fun deleteLocal() {
+        syncables.forEach { it.deleteLocal() }
+        lazySyncables.forEach { it.value.deleteLocal() }
+    }
+
     override fun sync(onComplete: (List<SyncError>) -> Unit) {
         Log.i("KSyncedListItemImpl", "Syncing ${syncables.size} syncables.")
         var done = 2

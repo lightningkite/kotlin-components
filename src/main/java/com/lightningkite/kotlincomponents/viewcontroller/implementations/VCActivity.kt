@@ -102,7 +102,6 @@ abstract class VCActivity : Activity() {
     val onDestroy = HashSet<()->Unit>()
     override fun onDestroy() {
         vcView.detatch()
-        vcView.unmake()
         onDestroy.runAll()
         super.onDestroy()
     }

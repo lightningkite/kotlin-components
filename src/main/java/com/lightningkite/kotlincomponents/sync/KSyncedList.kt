@@ -280,6 +280,18 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         }
     }
 
+    override fun deleteLocal() {
+        try {
+            file.delete()
+            changesFile.delete()
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+        for (item in innerList) {
+            item.deleteLocal()
+        }
+    }
+
     fun clearFailingChanges() {
         if (!changesFile.exists()) return
         val changes: ArrayList<ItemChange<T, K>> = ArrayList()

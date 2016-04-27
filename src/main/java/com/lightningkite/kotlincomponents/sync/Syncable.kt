@@ -9,6 +9,7 @@ import com.lightningkite.kotlincomponents.isNetworkAvailable
 interface Syncable {
     fun loadLocal()
     fun saveLocal()
+    fun deleteLocal()
     fun sync(onComplete: (List<SyncError>) -> Unit)
 
     fun attemptSync(context: Context, onComplete: (List<SyncError>) -> Unit) {

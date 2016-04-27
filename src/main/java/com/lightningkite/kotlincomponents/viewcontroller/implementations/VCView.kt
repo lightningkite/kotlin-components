@@ -25,12 +25,11 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         swap(newContainer.current, null){}
     }
     fun detatch(){
-        current?.unmake(currentView!!)
-        currentView = null
-        current = null
+        unmake()
         container?.swapListener = null
     }
     fun unmake(){
+        current?.animateOutStart(activity, currentView!!)
         current?.unmake(currentView!!)
         if(currentView != null){
             removeView(currentView)
@@ -55,12 +54,14 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         this.addView(currentView)
         if(old != null && oldView != null){
             if(animation == null){
+                old.animateOutStart(activity, oldView)
                 old.unmake(oldView)
                 removeView(oldView)
                 onFinish()
                 current?.animateInComplete(activity, currentView!!)
             } else {
                 val animateOut = animation.animateOut
+                old.animateOutStart(activity, oldView)
                 oldView.animateOut(this).withEndAction {
                     old.unmake(oldView)
                     removeView(oldView)

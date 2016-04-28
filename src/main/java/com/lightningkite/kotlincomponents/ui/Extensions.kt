@@ -8,6 +8,8 @@ import android.support.design.widget.TabLayout
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import com.lightningkite.kotlincomponents.compatDrawable
 import com.lightningkite.kotlincomponents.versionOn
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCTabs
 
@@ -125,4 +127,20 @@ inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (In
         }
 
     })
+}
+
+inline fun TextView.leftDrawable(resourceId :Int) {
+    setCompoundDrawablesWithIntrinsicBounds(getContext().compatDrawable(resourceId), null, null, null)
+}
+
+inline fun TextView.rightDrawable(resourceId: Int) {
+    setCompoundDrawablesWithIntrinsicBounds(null, null, getContext().compatDrawable(resourceId), null)
+}
+
+inline fun TextView.topDrawable(resourceId: Int) {
+    setCompoundDrawablesWithIntrinsicBounds(null, getContext().compatDrawable(resourceId), null, null)
+}
+
+inline fun TextView.bottomDrawable(resourceId: Int) {
+    setCompoundDrawablesWithIntrinsicBounds(null, null, null, getContext().compatDrawable(resourceId))
 }

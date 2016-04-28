@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import com.lightningkite.kotlincomponents.networking.PagedEndpoint
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
@@ -28,6 +29,8 @@ open class KRecyclerViewAdapter<T>(
             notifyDataSetChanged()
         }
 
+    var onScrollToBottom: (() -> Unit)? = null
+
     override fun getItemCount(): Int = list.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T>? {
@@ -39,7 +42,14 @@ open class KRecyclerViewAdapter<T>(
         return holder
     }
 
-    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) = holder.observable.update()
+    override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
+        if(itemCount > 0 && position + 1 == itemCount) {
+            onScrollToBottom?.invoke()
+        }
+        holder.observable.update()
+    }
+
+
 
     val itemObservables = ArrayList<ItemObservable<T>>()
 
@@ -71,11 +81,7 @@ open class KRecyclerViewAdapter<T>(
     class ViewHolder<T>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
 
     fun update(position: Int) {
-        for (obs in itemObservables) {
-            if (obs.position == position) {
-                obs.update()
-            }
-        }
+        itemObservables[position].update()
     }
 }
 
@@ -131,4 +137,22 @@ inline fun <T> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultVa
     }
     adapter = newAdapter
     return newAdapter
+}
+
+fun RecyclerView.handlePaging(pagedEndpoint: PagedEndpoint<*>, onPulling: () -> Unit = {}) {
+    var morePages = false
+    bind(pagedEndpoint.isMoreObservable) { hasMore ->
+        morePages = hasMore
+    }
+    bind(pagedEndpoint.pullingObservable) {
+        if(it) {
+            onPulling.invoke()
+        }
+    }
+    //Listen for scroll to bottom
+    (adapter as KRecyclerViewAdapter<*>).onScrollToBottom = {
+        if(!pagedEndpoint.pulling && morePages) {
+            pagedEndpoint.pull()
+        }
+    }
 }

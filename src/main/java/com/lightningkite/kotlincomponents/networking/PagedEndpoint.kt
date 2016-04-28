@@ -98,7 +98,7 @@ open class PagedEndpoint<T : Any>(
         } else {
             //option only exists for rapid prototyping purposes.  Servers often add pagination late.
             currentEndpoint.get<JsonArray>(onError = onError) { result ->
-                list.addAll(result.map { it.gsonFrom<T>(type)!! })git
+                list.addAll(result.map { it.gsonFrom<T>(type)!! })
                 firstLoadFinishedObservable.set(true)
                 nextEndpoint = null
                 pulling = false

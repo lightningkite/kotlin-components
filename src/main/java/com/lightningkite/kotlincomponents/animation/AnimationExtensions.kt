@@ -4,7 +4,9 @@ import android.animation.TimeInterpolator
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.view.View
+import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.postDelayed
+import org.jetbrains.anko.wrapContent
 
 /**
  * Various functions to assist with animating things.
@@ -20,17 +22,27 @@ fun View.makeHeightAnimator(
         timeInterpolator: TimeInterpolator = ActionAnimator.defaultInterpolator
 ): (toSize: Float?) -> Unit {
 
+    var nextGoal: Float? = null
+
     val heightAnimator = ActionAnimator(this, startSize, {
-        layoutParams.height = it.toInt()
-        requestLayout()
+        println("$nextGoal vs $it")
+        if (nextGoal == it) {
+            layoutParams.height = wrapContent
+            requestLayout()
+        } else {
+            layoutParams.height = it.toInt()
+            requestLayout()
+        }
     }, Interpolate.float, timeInterpolator)
 
     return { toSize: Float? ->
+        nextGoal = null
         if (toSize == null) {
             this.measure(
-                    View.MeasureSpec.UNSPECIFIED,
-                    View.MeasureSpec.UNSPECIFIED
+                    View.MeasureSpec.makeMeasureSpec((parent as ViewGroup).width, View.MeasureSpec.AT_MOST),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
+            nextGoal = measuredHeight.toFloat()
         }
         val newHeight = toSize ?: measuredHeight.toFloat()
         heightAnimator.animate(newHeight, duration)

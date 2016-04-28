@@ -33,13 +33,14 @@ fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolea
         if (it == null) {
             onResult(false)
         } else {
-            bitmaps[request.url] = it
+            val code = request.url + UUID.randomUUID().toString()
+            bitmaps[code] = it
             imageBitmap = it
             addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
                     setImageDrawable(null)
-                    bitmaps[request.url]?.recycle()
-                    bitmaps.remove(request.url)
+                    bitmaps[code]?.recycle()
+                    bitmaps.remove(code)
                     removeOnAttachStateChangeListener(this)
                 }
 

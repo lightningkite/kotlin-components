@@ -240,6 +240,38 @@ inline fun <T, MUTABLE, RESULT> List<T>.withReduceAsync(
     }
 }
 
+inline fun parallel(tasks: Collection<(() -> Unit) -> Unit>, crossinline onComplete: () -> Unit) {
+    if (tasks.isEmpty()) {
+        onComplete()
+        return
+    }
+    var itemsToGo = tasks.size
+    for (item in tasks) {
+        item {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onComplete()
+            }
+        }
+    }
+}
+
+inline fun parallel(vararg tasks: (() -> Unit) -> Unit, crossinline onComplete: () -> Unit) {
+    if (tasks.isEmpty()) {
+        onComplete()
+        return
+    }
+    var itemsToGo = tasks.size
+    for (item in tasks) {
+        item {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onComplete()
+            }
+        }
+    }
+}
+
 val EmailRegularExpression: Regex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}".toRegex(RegexOption.IGNORE_CASE)
 inline fun String.isEmail(): Boolean {
     return matches(EmailRegularExpression)

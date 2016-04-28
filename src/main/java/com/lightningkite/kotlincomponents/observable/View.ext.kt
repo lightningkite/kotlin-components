@@ -686,6 +686,21 @@ inline fun <T> Spinner.bindList(bond: KObservableInterface<T>, list: List<T>) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T, E> Spinner.bindList(bond: KObservableInterface<T>, list: List<E>, crossinline conversion: (E) -> T) {
+    this.onItemSelectedListener {
+        onItemSelected { adapterView, view, index, id ->
+            bond.set(conversion(list[index]))
+        }
+    }
+    bind(bond) {
+        if (it == null) return@bind
+        val index = list.indexOfFirst { item -> it == conversion(item) }
+        if (index == -1) return@bind
+        setSelection(index)
+    }
+}
+
 /**
  * Binds this [RadioButton] two way to the bond.
  * When the user picks this radio button, [bond] is set to [value]

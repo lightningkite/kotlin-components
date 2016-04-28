@@ -139,15 +139,13 @@ inline fun <T> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultVa
     return newAdapter
 }
 
-fun RecyclerView.handlePaging(pagedEndpoint: PagedEndpoint<*>, kAdapter: KRecyclerViewAdapter<*>, onPulling: () -> Unit = {}) {
+fun RecyclerView.handlePaging(pagedEndpoint: PagedEndpoint<*>, kAdapter: KRecyclerViewAdapter<*>, pullingUpdate: (Boolean) -> Unit = {}) {
     var morePages = false
     bind(pagedEndpoint.isMoreObservable) { hasMore ->
         morePages = hasMore
     }
     bind(pagedEndpoint.pullingObservable) {
-        if(it) {
-            onPulling.invoke()
-        }
+        pullingUpdate.invoke(it)
     }
 
     kAdapter.onScrollToBottom = {

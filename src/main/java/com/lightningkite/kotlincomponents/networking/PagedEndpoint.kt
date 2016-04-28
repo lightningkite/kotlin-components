@@ -88,6 +88,7 @@ open class PagedEndpoint<T : Any>(
                     }
                 }
                 list.addAll(result.getAsJsonArray(listKey).map { it.gsonFrom<T>(type)!! })
+                list.onUpdate.forEach { run(it) }
                 if (nextEndpoint == null) {
                     isMoreObservable.set(false)
                 }
@@ -99,7 +100,7 @@ open class PagedEndpoint<T : Any>(
             //option only exists for rapid prototyping purposes.  Servers often add pagination late.
             currentEndpoint.get<JsonArray>(onError = onError) { result ->
                 list.addAll(result.map { it.gsonFrom<T>(type)!! })
-
+                list.onUpdate.forEach { run(it) }
                 firstLoadFinishedObservable.set(true)
                 nextEndpoint = null
                 pulling = false

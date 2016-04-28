@@ -81,8 +81,6 @@ open class KRecyclerViewAdapter<T>(
     class ViewHolder<T>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
 
     fun update(position: Int) {
-        println("POSITION " + position)
-        println(position)
         itemObservables[position].update()
     }
 }

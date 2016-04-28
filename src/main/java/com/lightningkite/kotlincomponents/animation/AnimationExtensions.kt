@@ -25,7 +25,6 @@ fun View.makeHeightAnimator(
     var nextGoal: Float? = null
 
     val heightAnimator = ActionAnimator(this, startSize, {
-        println("$nextGoal vs $it")
         if (nextGoal == it) {
             layoutParams.height = wrapContent
             requestLayout()

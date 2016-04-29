@@ -5,10 +5,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.networking.PagedEndpoint
-import com.lightningkite.kotlincomponents.observable.KObservable
-import com.lightningkite.kotlincomponents.observable.KObservableInterface
-import com.lightningkite.kotlincomponents.observable.KObservableListInterface
-import com.lightningkite.kotlincomponents.observable.bind
+import com.lightningkite.kotlincomponents.observable.*
 import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
@@ -104,17 +101,17 @@ inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defau
         RecyclerViewParamAdder(context).makeView(it)
     }
     adapter = newAdapter
-    list.onAdd.add { item, position ->
+    listen(list.onAdd) { item , position ->
         adapter.notifyItemInserted(position)
     }
-    list.onRemove.add { item, position ->
+    listen(list.onRemove) { item, position ->
         adapter.notifyItemRemoved(position)
     }
-    list.onChange.add { item, position ->
+    listen(list.onChange) { item, position ->
         //adapter.notifyItemChanged(position)
         newAdapter.update(position)
     }
-    list.onReplace.add { list ->
+    listen(list.onReplace) { list ->
         adapter.notifyDataSetChanged()
     }
     return newAdapter

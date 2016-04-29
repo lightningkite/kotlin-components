@@ -33,6 +33,7 @@ inline fun <T> retry(times: Int, delay: Long, crossinline action: () -> T?, cros
     }
 }
 
+@Deprecated("Use the one from the collection package instead.", ReplaceWith("this.random()", "com.lightningkite.kotlincomponents.collection"))
 fun <E> List<E>.random(): E {
     return this[Math.random().times(size).toInt()]
 }
@@ -234,6 +235,38 @@ inline fun <T, MUTABLE, RESULT> List<T>.withReduceAsync(
             itemsToGo--
             if (itemsToGo <= 0) {
                 onAllComplete(total)
+            }
+        }
+    }
+}
+
+inline fun parallel(tasks: Collection<(() -> Unit) -> Unit>, crossinline onComplete: () -> Unit) {
+    if (tasks.isEmpty()) {
+        onComplete()
+        return
+    }
+    var itemsToGo = tasks.size
+    for (item in tasks) {
+        item {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onComplete()
+            }
+        }
+    }
+}
+
+inline fun parallel(vararg tasks: (() -> Unit) -> Unit, crossinline onComplete: () -> Unit) {
+    if (tasks.isEmpty()) {
+        onComplete()
+        return
+    }
+    var itemsToGo = tasks.size
+    for (item in tasks) {
+        item {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onComplete()
             }
         }
     }

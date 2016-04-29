@@ -1,6 +1,9 @@
 package com.lightningkite.kotlincomponents.networking
 
+import android.content.ContentResolver
+import android.net.Uri
 import com.google.gson.JsonObject
+import com.lightningkite.kotlincomponents.files.fileSize
 import com.lightningkite.kotlincomponents.gsonTo
 import org.json.JSONObject
 import java.io.InputStream
@@ -36,7 +39,7 @@ abstract class NetBody() {
             val buffer = ByteArray(4096)
             while (true) {
                 val read = content.read(buffer)
-                if (read == 0) return
+                if (read <= 0) return
                 stream.write(buffer, 0, read)
             }
         }
@@ -44,6 +47,17 @@ abstract class NetBody() {
 
     companion object {
         val EMPTY: NetBody = ByteArrayBody(NetContentType.NONE, ByteArray(0))
+        fun fromUri(resolver: ContentResolver, uri: Uri): StreamBody {
+            val type = resolver.getType(uri) ?: throw IllegalArgumentException()
+            println(type)
+            val size = resolver.fileSize(uri) ?: throw IllegalArgumentException()
+            println("type: $type, size: $size")
+            return NetBody.StreamBody(
+                    NetContentType(type),
+                    size,
+                    resolver.openInputStream(uri)
+            )
+        }
     }
 }
 

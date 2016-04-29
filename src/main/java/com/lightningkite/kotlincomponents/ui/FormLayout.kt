@@ -35,13 +35,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     var inputLayoutStyle: TextInputLayout.() -> Unit = {}
     var editTextStyle: EditText.() -> Unit = {}
     var buttonStyle: Button.() -> Unit = {}
+    var materialStyle: Boolean = true
 
-    val isPassingObs = KObservable(false)
+    val isPassingObs = KObservable(true)
     val errors = HashMap<View, CharSequence?>()
-    fun setError(view: View, error: CharSequence?) {
-        errors[view] = error
-        isPassingObs.set(!errors.values.any { it != null })
-    }
 
     inline fun View.formPadding() {
         leftPadding = defaultHorizontalPadding
@@ -63,70 +60,98 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }
     }
 
-    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindDouble(obs, format)
+    var View.formError: CharSequence?
+        get() = errors[this]
+        set(value) {
+            errors[this] = value
+            if (this is TextInputLayout) {
+                this.error = value
+            }
+            val parent = this.parent
+            if (parent is TextInputLayout) {
+                parent.error = value
+            }
+            isPassingObs.set(!errors.values.any { it != null })
+        }
+    var View.formErrorResource: Int?
+        get() = throw IllegalAccessException()
+        set(resource) {
+            val value = if (resource != null) resources.getString(resource) else null
+            errors[this] = value
+            if (this is TextInputLayout) {
+                this.error = value
+            }
+            val parent = this.parent
+            if (parent is TextInputLayout) {
+                parent.error = value
+            }
+            isPassingObs.set(!errors.values.any { it != null })
+        }
+
+    inline fun ViewGroup.formEditText(hint: Int, setup: EditText.() -> Unit): View {
+        return if (materialStyle) {
+            textInputLayout {
+                formPadding()
+                hintResource = hint
+                textInputEditText {
+                    editTextStyle()
+                    setup()
+                }
+                inputLayoutStyle()
+            }
+        } else {
+            editText() {
+                hintResource = hint
                 editTextStyle()
                 setup()
+            }.apply {
+                layoutParams = (layoutParams as MarginLayoutParams).apply {
+                    formMargins()
+                }
             }
-            inputLayoutStyle()
         }
     }
 
-    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindFloat(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindDouble(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindInt(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindFloat(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindNullableInt(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindInt(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            minimumHeight = defaultMinimumHeight
-            hintResource = hint
-            textInputEditText {
-                inputType = type
-                bindString(obs)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindNullableInt(obs, format)
+            setup()
+        }
+    }
+
+    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindNullableFloat(obs, format)
+            setup()
+        }
+    }
+
+    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, setup: EditText.() -> Unit): View {
+        return formEditText(hint) {
+            bindString(obs)
+            inputType = type
+            setup()
         }
     }
 
@@ -136,10 +161,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else if (!it.isEmail()) errorResource = notEmailError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else if (!it.isEmail()) notEmailError
+                            else null
                 }
             }
     )
@@ -150,9 +175,9 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else null
                 }
             }
     )
@@ -163,10 +188,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else if (it.length < minLength) errorResource = tooShortError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else if (it.length < minLength) tooShortError
+                            else null
                 }
             }
     )
@@ -177,10 +202,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(password, confirm) { pass, conf ->
-                    if (conf.isEmpty()) errorResource = blankError
-                    else if (pass != conf) errorResource = notMatchingError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (conf.isEmpty()) blankError
+                            else if (pass != conf) notMatchingError
+                            else null
                 }
             }
     )

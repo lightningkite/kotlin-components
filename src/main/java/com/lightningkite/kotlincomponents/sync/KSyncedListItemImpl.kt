@@ -40,6 +40,7 @@ abstract class KSyncedListItemImpl<THIS : KSyncedListItem<THIS, KEY>, KEY : Any>
     }
 
     override fun loadLocal() {
+        Log.i("KSyncedList", "Loading local: ${getKey()}")
         syncables.forEach { it.loadLocal() }
         lazySyncables.forEach { it.value.loadLocal() }
     }
@@ -50,6 +51,11 @@ abstract class KSyncedListItemImpl<THIS : KSyncedListItem<THIS, KEY>, KEY : Any>
         lazySyncables.forEach { it.value.saveLocal() }
         onUpdate.update()
         parent?.update(this as THIS)
+    }
+
+    override fun deleteLocal() {
+        syncables.forEach { it.deleteLocal() }
+        lazySyncables.forEach { it.value.deleteLocal() }
     }
 
     override fun sync(onComplete: (List<SyncError>) -> Unit) {

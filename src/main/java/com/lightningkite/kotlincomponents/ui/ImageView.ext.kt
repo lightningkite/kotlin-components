@@ -5,10 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ImageView
-import com.lightningkite.kotlincomponents.networking.NetEndpoint
-import com.lightningkite.kotlincomponents.networking.NetMethod
-import com.lightningkite.kotlincomponents.networking.Networking
-import com.lightningkite.kotlincomponents.networking.async
+import com.lightningkite.kotlincomponents.async.doAsync
+import com.lightningkite.kotlincomponents.networking.*
 import com.lightningkite.kotlincomponents.viewcontroller.StandardViewController
 import org.jetbrains.anko.imageBitmap
 import java.util.*
@@ -23,6 +21,41 @@ import kotlin.concurrent.schedule
 
 private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
+
+fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolean) -> Unit) {
+    doAsync({
+        val stream = Networking.stream(request)
+        if (stream.isSuccessful) {
+            stream.bitmapSized(minBytes)
+        } else {
+            null
+        }
+    }, {
+        if (it == null) {
+            onResult(false)
+        } else {
+            val code = request.url + UUID.randomUUID().toString()
+            if (!isAttachedToWindow) {
+                it.recycle()
+                return@doAsync
+            }
+            imageBitmap = it
+            addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewDetachedFromWindow(v: View?) {
+                    setImageDrawable(null)
+                    it.recycle()
+                    removeOnAttachStateChangeListener(this)
+                }
+
+                override fun onViewAttachedToWindow(v: View?) {
+                }
+            })
+            onResult(true)
+        }
+    })
+}
+
+@Deprecated("You should use streaming instead.")
 fun ImageView.imageLoad(endpoint: NetEndpoint) {
     endpoint.async(NetMethod.GET) { response ->
         if (!response.isSuccessful) return@async
@@ -51,9 +84,14 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
  * This does not work well when used in a list.  for that use
  * imageLoadInList
  */
-fun ImageView.imageLoad(url: String) {
+@Deprecated("You should use streaming instead.")
+fun ImageView.imageLoad(url: String, onLoaded: (Boolean) -> Unit = {}) {
     Networking.async(NetMethod.GET, url) { response ->
-        if (!response.isSuccessful) return@async
+        if (!response.isSuccessful) {
+            onLoaded(false)
+            return@async
+        }
+        onLoaded(true)
         if (isAttachedToWindowCompat()) {
             var oldBitmap = bitmaps[url]
             if (oldBitmap != null) oldBitmap.recycle()
@@ -77,9 +115,9 @@ fun ImageView.imageLoad(url: String) {
 
 fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadState: (ImageLoadState) -> Unit = {}) {
     var oldBitmap = bitmaps[url]
-    var unmakeCalled :AtomicBoolean = AtomicBoolean(false)
+    var unmakeCalled: AtomicBoolean = AtomicBoolean(false)
     val handler = Handler(Looper.getMainLooper())
-    if(oldBitmap != null) {
+    if (oldBitmap != null) {
         this.imageBitmap = oldBitmap
         Timer().schedule(100) {
             handler.post {
@@ -92,8 +130,8 @@ fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadSta
         Networking.async(NetMethod.GET, url) { response ->
             if (!response.isSuccessful) return@async
             val it = response.bitmap()
-            if(it != null) {
-                if(!unmakeCalled.get()) {
+            if (it != null) {
+                if (!unmakeCalled.get()) {
                     bitmaps[url] = it
                     imageBitmap = it
                 }

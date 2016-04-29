@@ -8,6 +8,8 @@ import com.lightningkite.kotlincomponents.gsonFrom
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
+import com.lightningkite.kotlincomponents.runAll
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.util.*
 
@@ -50,6 +52,13 @@ open class PagedEndpoint<T : Any>(
 
     val isMoreObservable = KObservable(true)
     val firstLoadFinishedObservable = KObservable(false)
+
+
+    val listType: ParameterizedType = object : ParameterizedType {
+        override fun getRawType(): Type? = ArrayList::class.java
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
+    }
 
     init {
         pull()
@@ -99,7 +108,6 @@ open class PagedEndpoint<T : Any>(
             //option only exists for rapid prototyping purposes.  Servers often add pagination late.
             currentEndpoint.get<JsonArray>(onError = onError) { result ->
                 list.addAll(result.map { it.gsonFrom<T>(type)!! })
-
                 firstLoadFinishedObservable.set(true)
                 nextEndpoint = null
                 pulling = false

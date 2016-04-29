@@ -53,7 +53,7 @@ open class AndroidFileMockStack(
                 context,
                 { request -> 200 },
                 { url, args, request ->
-                    var fullPath = "src/main/assets/"
+                    var fullPath = ""
                     fullPath += url.replace(restUrl, "")
                     if (fullPath.endsWith('/')) fullPath = fullPath.substring(0, fullPath.length - 1)
                     fullPath += "."
@@ -62,7 +62,7 @@ open class AndroidFileMockStack(
                     fullPath += ".json"
                     if (fullPath.startsWith('/')) fullPath = fullPath.substring(1)
 
-                    var shortPath = "src/main/assets/"
+                    var shortPath = ""
                     shortPath += url.replace(restUrl, "")
                     if (shortPath.endsWith('/')) shortPath = shortPath.substring(0, shortPath.length - 1)
                     shortPath += "."

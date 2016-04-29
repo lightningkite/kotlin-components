@@ -13,7 +13,10 @@ class KObservableReference<T>(val getterFun: () -> T, val setterFun: (T) -> Unit
 
     override fun get(): T = getterFun()
 
-    override fun set(v: T) = setterFun(v)
+    override fun set(v: T) {
+        setterFun(v)
+        update()
+    }
 
 }
 

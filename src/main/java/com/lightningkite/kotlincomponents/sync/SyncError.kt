@@ -7,7 +7,6 @@ import com.lightningkite.kotlincomponents.networking.NetResponse
  */
 class SyncError(
         var message: String = "?",
-        @Transient var change: ItemChange<*, *>? = null,
         @Transient var response: NetResponse? = null
 ) {
     override fun toString(): String {

@@ -16,6 +16,7 @@ import com.lightningkite.kotlincomponents.observable.KObservableBase
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
+import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.withReduceAsync
 import java.io.BufferedWriter
 import java.io.File
@@ -27,6 +28,30 @@ import java.util.*
 /**
  * Created by jivie on 3/29/16.
  */
+
+inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> defaultSyncPush(
+        endpoint: NetEndpoint,
+        change: ItemChange<T, K>
+): SyncError? {
+    var error: SyncError? = null
+    if (change.isAdd) {
+        Log.i("KSyncedList", "Posting new item: ${change.new!!.gsonTo()}")
+        endpoint.syncPost<T>(change.new) { error = SyncError(it.string(), it); true }?.let {
+            change.new!!.merge(it)
+        }
+    } else if (change.isChange) {
+        Log.i("KSyncedList", "Putting change: ${change.new!!.gsonTo()}")
+        endpoint.sub(change.old!!.getKey().toString()).syncPatch<Unit>(change.new) { error = SyncError(it.string(), it); true }
+    } else if (change.isRemove) {
+        Log.i("KSyncedList", "Deleting item: ${change.old!!.gsonTo()}")
+        endpoint.sub(change.old!!.getKey().toString()).syncDelete<Unit>(null) { error = SyncError(it.string(), it); true }
+    } else if (change.isClear) {
+        Log.i("KSyncedList", "Clearing items.")
+        endpoint.syncDelete<Unit>(null) { error = SyncError(it.string(), it); true }
+    }
+    return error
+}
+
 inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
         noinline getFolder: () -> File,
         noinline getEndpoint: () -> NetEndpoint
@@ -48,34 +73,17 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
                     list = response.gson<ArrayList<T>>(listType)
                     if (list == null) {
                         IllegalArgumentException("Could not parse data: $response").printStackTrace()
-                        result = PullResult(SyncError("Could not parse data.", null, response))
+                        result = PullResult(SyncError("Could not parse data.", response))
                     } else {
                         result = PullResult(list)
                     }
                 } catch(e: Exception) {
                     IllegalArgumentException("Could not parse data: $response", e).printStackTrace()
-                    result = PullResult(SyncError("Could not parse data.", null, response))
+                    result = PullResult(SyncError("Could not parse data.", response))
                 }
                 result
             },
-            syncPush = { change ->
-                val endpoint = getEndpoint()
-                var error: SyncError? = null
-                if (change.isAdd) {
-                    Log.i("KSyncedList", "Posting new item: ${change.new!!.gsonTo()}")
-                    endpoint.syncPost<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isChange) {
-                    Log.i("KSyncedList", "Putting change: ${change.new!!.gsonTo()}")
-                    endpoint.sub(change.old!!.getKey().toString()).syncPatch<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isRemove) {
-                    Log.i("KSyncedList", "Deleting item: ${change.old!!.gsonTo()}")
-                    endpoint.sub(change.old!!.getKey().toString()).syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isClear) {
-                    Log.i("KSyncedList", "Clearing items.")
-                    endpoint.syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
-                }
-                error
-            }
+            syncPush = { change -> defaultSyncPush(getEndpoint(), change) }
     )
 }
 
@@ -93,24 +101,7 @@ inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> KSyncedList(
             typeToken<T>(),
             getFolder,
             customPull,
-            syncPush = { change ->
-                val endpoint = getEndpoint()
-                var error: SyncError? = null
-                if (change.isAdd) {
-                    Log.i("KSyncedList", "Posting new item: ${change.new!!.gsonTo()}")
-                    endpoint.syncPost<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isChange) {
-                    Log.i("KSyncedList", "Putting change: ${change.new!!.gsonTo()}")
-                    endpoint.sub(change.old!!.getKey().toString()).syncPatch<Unit>(change.new) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isRemove) {
-                    Log.i("KSyncedList", "Deleting item: ${change.old!!.gsonTo()}")
-                    endpoint.sub(change.old!!.getKey().toString()).syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
-                } else if (change.isClear) {
-                    Log.i("KSyncedList", "Clearing items.")
-                    endpoint.syncDelete<Unit>(null) { error = SyncError(it.string(), change, it); true }
-                }
-                error
-            }
+            syncPush = { change -> defaultSyncPush(getEndpoint(), change) }
     )
 }
 
@@ -122,12 +113,15 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val innerList: KObservableListInterface<T> = KObservableList()
 ) : KObservableListInterface<T> by innerList, Syncable {
 
+    var pushImmediately: Boolean = true
+
     init {
         innerList.onAdd.add { item, index ->
             item.parent = this
         }
     }
 
+    val changes = HashMap<K?, ItemChange<T, K>>()
     var numChanges = 0
 
     private var folder: File = getFolder()
@@ -201,7 +195,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     override fun sync(onComplete: (List<SyncError>) -> Unit) {
         //online sync
         doAsync {
-            val failed = processChanges(syncPush)
+            val failed = pushChanges()
 
             Log.i("KSyncedList", "Pulling new data...")
             val pullResult = syncPull()
@@ -214,40 +208,88 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
                     } catch(e: Exception) {
                         e.printStackTrace()
                     }
-                    try {
-                        loadChanges()
-                    } catch(e: Exception) {
-                        e.printStackTrace()
-                    }
+                    applyChangesToData(changes.values)
                     this@KSyncedList.withReduceAsync(
                             {
                                 Log.i("KSyncedList", "Syncing child ${getKey()}...")
                                 sync(it)
                             },
-                            ArrayList<SyncError>(failed),
+                            ArrayList<SyncError>().apply {
+                                for (change in failed) add(change.error ?: SyncError())
+                            },
                             { it: List<SyncError> -> addAll(it) },
                             onComplete
                     )
                 }
             } else {
                 Log.e("KSyncedList", "Failed to pull new data.")
-                onComplete(listOf(pullResult.error ?: SyncError("No error data given")))
+                doUiThread {
+                    onComplete(listOf(pullResult.error ?: SyncError("No error data given")))
+                }
             }
         }
     }
 
     override fun loadLocal() {
         //local load
+        Log.i("KSyncedList", "Loading local: ${file.path}")
         try {
-            load(file, type)
-            loadChanges()
+            innerList.load(file, type)
+
+            println("CHANGE FILE EXISTS: ${changesFile.exists()}")
+            if (changesFile.exists()) {
+
+                changes.clear()
+
+                val changesRaw: ArrayList<ItemChange<T, K>> = ArrayList()
+                changesRaw.load(changesFile, changeType)
+
+                for (change in changesRaw) {
+                    //setup change
+                    change.belongsTo = this
+
+                    //add to change map
+                    changes[change.getKey()] = change
+                }
+
+                applyChangesToData(changesRaw)
+            }
+
+            for (item in this) {
+                item.loadLocal()
+            }
         } catch(e: Exception) {
             e.printStackTrace()
         }
     }
 
     override fun saveLocal() {
-        //We don't have to do anything for this, because it saves changes as it goes.
+        try {
+            changesFile.parentFile.mkdirs()
+            if (!changesFile.exists()) changesFile.createNewFile()
+            FileOutputStream(changesFile, false).bufferedWriter().apply {
+                println("SAVING CHANGES: ${changes.size}")
+                for (change in changes.values) {
+                    appendln(change.gsonTo())
+                }
+                flush()
+                close()
+            }
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun deleteLocal() {
+        try {
+            file.delete()
+            changesFile.delete()
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
+        for (item in innerList) {
+            item.deleteLocal()
+        }
     }
 
     fun clearFailingChanges() {
@@ -270,40 +312,39 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     /**
      * Does something on all of the changes.  The successful changes are deleted.
      **/
-    private fun processChanges(forChange: (ItemChange<T, K>) -> SyncError?): List<SyncError> {
-        if (!changesFile.exists()) return ArrayList()
-        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
-        try {
-            changes.load(changesFile, changeType)
-        } catch(e: Exception) {
-            e.printStackTrace()
-        }
+    private fun pushChanges(): List<ItemChange<T, K>> {
+        val statusChanges = changes.keys.toHashSet()
         val failedChanges = ArrayList<ItemChange<T, K>>()
-        for (change in changes) {
+        val sortedChanges = changes.values.sortedBy { it.timeStamp }
+        for (change in sortedChanges) {
             change.belongsTo = this
-            change.error?.change = change
-            val error = forChange(change)
+            val error = syncPush(change)
             if (error != null) {
                 change.error = error
                 failedChanges.add(change)
             }
         }
-        modifyChangeFile(false) {
-            numChanges = failedChanges.size
-            for (change in failedChanges) {
-                it.appendln(change.gsonTo())
+        changes.clear()
+        for (failed in failedChanges) {
+            changes[failed.getKey()] = failed
+        }
+        saveLocal()
+        doUiThread {
+            //send changes for all those who had a status change
+            for (i in innerList.indices) {
+                if (statusChanges.contains(innerList[i].getKey())) {
+                    onChange.runAll(innerList[i], i)
+                }
             }
         }
-        return failedChanges.map { it.error!! }
+        return failedChanges
     }
 
-    private fun loadChanges() {
-        if (!changesFile.exists()) return
-        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
-        changes.load(changesFile, changeType)
+
+    private inline fun applyChangesToData(changes: Collection<ItemChange<T, K>>) {
+        println("APPLY CHANGES: ${changes.size}")
         for (change in changes) {
-            change.belongsTo = this
-            change.error?.change = change
+            //apply change to local data
             if (change.old == null) {
                 if (change.new == null) {
                     //clear
@@ -318,120 +359,83 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
                     val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList.removeAt(index)
-                    } else {
-                        //remove the useless deletion
-                        Log.i("KSyncedList", "Removing useless deletion.")
-                        changes.remove(change)
                     }
                 } else {
                     //change
                     val index = indexOfFirst { change.old!!.getKey() == it.getKey() }
                     if (index != -1) {
                         innerList[index] = change.new!!
-                    } else {
-                        //remove the useless change
-                        Log.i("KSyncedList", "Removing useless change.")
-                        changes.remove(change)
                     }
                 }
             }
         }
-        //write changes
-        changes.save(changesFile)
     }
 
     fun update(item: T) {
         Log.i("KSyncedList", "Updating item ${item.getKey()}")
         val index = this.indexOfFirst { item.getKey() == it.getKey() }
         this[index].merge(item)
-        modifyChangeFile {
-            numChanges++
-            it.appendln(ItemChange(item, item).gsonTo())
-        }
+        addChange(ItemChange(item, item))
     }
 
     fun update(index: Int) {
         val item = this[index]
         Log.i("KSyncedList", "Updating item ${item.getKey()}")
-        modifyChangeFile {
-            numChanges++
-            it.appendln(ItemChange(item, item).gsonTo())
-        }
+        addChange(ItemChange(item, item))
     }
 
     override fun add(element: T): Boolean {
         Log.i("KSyncedList", "Adding item ${element.getKey()}")
         element.parent = this
-        modifyChangeFile {
-            numChanges++
-            it.appendln(ItemChange(null, element).gsonTo())
-        }
+        addChange(ItemChange(null, element))
         return innerList.add(element)
     }
 
     override fun add(index: Int, element: T) {
         Log.i("KSyncedList", "Adding item ${element.getKey()}")
         element.parent = this
-        modifyChangeFile {
-            numChanges++
-            it.appendln(ItemChange(null, element).gsonTo())
-        }
+        addChange(ItemChange(null, element))
         innerList.add(index, element)
     }
 
     override fun addAll(index: Int, elements: Collection<T>): Boolean {
-        modifyChangeFile {
-            for (element in elements) {
-                Log.i("KSyncedList", "Adding item ${element.getKey()}")
-                element.parent = this
-                numChanges++
-                it.appendln(ItemChange(null, element).gsonTo())
-            }
+        for (element in elements) {
+            Log.i("KSyncedList", "Adding item ${element.getKey()}")
+            element.parent = this
         }
+        addChanges(elements.map { ItemChange(null, it) })
         return innerList.addAll(index, elements)
     }
 
     override fun addAll(elements: Collection<T>): Boolean {
-        modifyChangeFile {
-            for (element in elements) {
-                Log.i("KSyncedList", "Adding item ${element.getKey()}")
-                element.parent = this
-                numChanges++
-                it.appendln(ItemChange(null, element).gsonTo())
-            }
+        for (element in elements) {
+            Log.i("KSyncedList", "Adding item ${element.getKey()}")
+            element.parent = this
         }
+        addChanges(elements.map { ItemChange(null, it) })
         return innerList.addAll(elements)
     }
 
     override fun remove(element: T): Boolean {
-        modifyChangeFile {
-            Log.i("KSyncedList", "Removing item ${element.getKey()}")
-            numChanges++
-            element.parent = null
-            it.appendln(ItemChange(element, null).gsonTo())
-        }
+        Log.i("KSyncedList", "Removing item ${element.getKey()}")
+        element.parent = null
+        addChange(ItemChange(element, null))
         return innerList.remove(element)
     }
 
     override fun removeAll(elements: Collection<T>): Boolean {
-        modifyChangeFile {
-            for (element in elements) {
-                Log.i("KSyncedList", "Removing item ${element.getKey()}")
-                numChanges++
-                element.parent = null
-                it.appendln(ItemChange(element, null).gsonTo())
-            }
+        for (element in elements) {
+            Log.i("KSyncedList", "Removing item ${element.getKey()}")
+            element.parent = null
         }
+        addChanges(elements.map { ItemChange(it, null) })
         return innerList.removeAll(elements)
     }
 
     override fun removeAt(index: Int): T {
-        modifyChangeFile {
-            Log.i("KSyncedList", "Removing item ${this[index].getKey()}")
-            numChanges++
-            this[index].parent = null
-            it.appendln(ItemChange(this[index], null).gsonTo())
-        }
+        Log.i("KSyncedList", "Removing item ${this[index].getKey()}")
+        this[index].parent = null
+        addChange(ItemChange(this[index], null))
         return innerList.removeAt(index)
     }
 
@@ -441,21 +445,15 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
     override fun set(index: Int, element: T): T {
         val previous = this[index]
-        modifyChangeFile {
-            Log.i("KSyncedList", "Updating item ${element.getKey()}")
-            element.parent = this
-            numChanges++
-            it.appendln(ItemChange(previous, element).gsonTo())
-        }
+        Log.i("KSyncedList", "Updating item ${element.getKey()}")
+        element.parent = this
+        addChange(ItemChange(previous, element))
         return innerList.set(index, element)
     }
 
     override fun clear() {
-        modifyChangeFile(false) {
-            it.appendln(ItemChange<T, K>(null, null).gsonTo())
-            numChanges = 1
-        }
         innerList.clear()
+        addChange(ItemChange(null, null))
     }
 
     override fun replace(list: List<T>) {
@@ -463,6 +461,75 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         addAll(list)
     }
 
+    private inline fun addChange(change: ItemChange<T, K>) {
+        if (pushImmediately) {
+            doAsync {
+                val error = syncPush(change)
+                if (error != null) {
+                    Log.e("KSyncedList", "Error pushing change: ${error.toString()}")
+                    storeChange(change)
+                    saveLocal()
+                }
+            }
+        } else {
+            storeChange(change)
+            saveLocal()
+        }
+    }
+
+    private inline fun addChanges(changes: List<ItemChange<T, K>>) {
+        if (pushImmediately) {
+            for (change in changes)
+                addChange(change)
+        } else {
+            for (change in changes) {
+                storeChange(change)
+            }
+            saveLocal()
+        }
+    }
+
+    private inline fun storeChange(change: ItemChange<T, K>) {
+        //send changes for all those who had a status change
+        doUiThread {
+            for (i in innerList.indices) {
+                if (innerList[i].getKey() == change.getKey()) {
+                    onChange.runAll(innerList[i], i)
+                }
+            }
+        }
+        val currentChange = changes[change.getKey()]
+        if (currentChange == null) {
+            changes[change.getKey()] = change
+        } else {
+            if (change.isRemove) {
+                if (currentChange.isAdd) {
+                    //removing unpushed addition - just remove it!
+                    changes.remove(change.getKey())
+                } else {
+                    //removal overrides any other change
+                    changes[change.getKey()] = change
+                }
+            } else if (change.isChange) {
+                if (currentChange.isAdd) {
+                    //Transform the new change to an addition and replace the old one.
+                    change.old = null
+                    changes[change.getKey()] = change
+                } else if (currentChange.isRemove) {
+                    //You can't change something after it's been removed!
+                    Log.w("KSyncedList", "Item removed - you can't change it now.")
+                } else if (currentChange.isChange) {
+                    //This change overrides the previous one.
+                    changes[change.getKey()] = change
+                }
+            } else if (change.isAdd) {
+                //You can't add something that's already added!
+                Log.w("KSyncedList", "Item already added.")
+            }
+        }
+    }
+
+    @Deprecated("")
     private inline fun modifyChangeFile(append: Boolean = true, todo: (BufferedWriter) -> Unit) {
         try {
             changesFile.parentFile.mkdirs()

@@ -21,6 +21,7 @@ import kotlin.concurrent.schedule
 
 private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
+
 fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolean) -> Unit) {
     doAsync({
         val stream = Networking.stream(request)
@@ -34,13 +35,15 @@ fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolea
             onResult(false)
         } else {
             val code = request.url + UUID.randomUUID().toString()
-            bitmaps[code] = it
+            if (!isAttachedToWindow) {
+                it.recycle()
+                return@doAsync
+            }
             imageBitmap = it
             addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
                     setImageDrawable(null)
-                    bitmaps[code]?.recycle()
-                    bitmaps.remove(code)
+                    it.recycle()
                     removeOnAttachStateChangeListener(this)
                 }
 

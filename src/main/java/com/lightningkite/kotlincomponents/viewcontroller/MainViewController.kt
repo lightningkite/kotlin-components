@@ -89,6 +89,7 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
                     navigationIcon = null
                     setNavigationOnClickListener { }
                 }
+                setToolbarTitle(stack.getTitle(resources))
             }
         }
         doThisOnBackPressed = { stack.onBackPressed(it) }

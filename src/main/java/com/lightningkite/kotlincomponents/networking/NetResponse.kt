@@ -3,10 +3,7 @@ package com.lightningkite.kotlincomponents.networking
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
+import com.google.gson.*
 import com.lightningkite.kotlincomponents.MyGson
 import com.lightningkite.kotlincomponents.image.BitmapFactory_decodeByteArraySized
 import org.json.JSONObject
@@ -38,6 +35,7 @@ class NetResponse(
 
     fun jsonElement(): JsonElement = JsonParser().parse(string())
     fun jsonObject(): JsonObject = JsonParser().parse(string()) as JsonObject
+    fun jsonArray(): JsonArray = JsonParser().parse(string()) as JsonArray
     fun toJSONObject(): JSONObject {
         try {
             return JSONObject(string())

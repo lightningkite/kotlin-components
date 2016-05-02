@@ -95,7 +95,7 @@ inline fun RecyclerView.horizontalDivider(drawable: Drawable) {
 
 //////////////////////
 
-inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (Int) -> Unit, crossinline tabBuilder: TabLayout.Tab.(Int) -> Unit) {
+inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (Int) -> Unit, crossinline onSelectBeforeChange: (Int) -> Unit, crossinline tabBuilder: TabLayout.Tab.(Int) -> Unit) {
 
     val offset = tabCount
 
@@ -119,10 +119,10 @@ inline fun TabLayout.setUpWithVCTabs(vcTabs: VCTabs, crossinline onReselect: (In
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab) {
-
         }
 
         override fun onTabSelected(tab: TabLayout.Tab) {
+            onSelectBeforeChange(tab.position - offset)
             vcTabs.index = tab.position - offset
         }
 

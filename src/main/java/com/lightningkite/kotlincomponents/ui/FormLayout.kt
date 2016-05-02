@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
+import android.support.design.widget.TextInputEditText
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.Gravity
@@ -32,10 +33,57 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     var defaultHorizontalPadding = dip(16)
     var defaultVerticalPadding = dip(8)
 
-    var inputLayoutStyle: TextInputLayout.() -> Unit = {}
-    var editTextStyle: EditText.() -> Unit = {}
+    var makeField: ViewGroup.(hint: Int, innerViewMaker: ViewGroup.() -> View) -> View = { hint, innerViewMaker ->
+        linearLayout {
+            formPadding()
+            minimumHeight = defaultMinimumHeight
+            gravity = Gravity.CENTER
+
+            textView(hint).lparams(0, wrapContent, 1f)
+
+            innerViewMaker()
+        }
+    }
+
+    var makeTextField: ViewGroup.(hint: Int, editTextSetup: EditText.() -> Unit) -> View = { hint, editTextSetup ->
+        textInputLayout {
+            formPadding()
+            hintResource = hint
+            textInputEditText {
+                editTextSetup()
+            }
+        }
+    }
+
+    inline fun defaultStyle(crossinline styleTextField: EditText.() -> Unit) {
+        makeTextField = { hint, editTextSetup ->
+            editText() {
+                hintResource = hint
+                styleTextField()
+                editTextSetup()
+            }.apply {
+                layoutParams = (layoutParams as MarginLayoutParams).apply {
+                    formMargins()
+                }
+            }
+        }
+    }
+
+    inline fun materialStyle(crossinline editTextStyle: TextInputEditText.() -> Unit, crossinline inputLayoutStyle: TextInputLayout.() -> Unit) {
+        makeTextField = { hint, editTextSetup ->
+            textInputLayout {
+                formPadding()
+                hintResource = hint
+                textInputEditText {
+                    editTextStyle()
+                    editTextSetup()
+                }
+                inputLayoutStyle()
+            }
+        }
+    }
+
     var buttonStyle: Button.() -> Unit = {}
-    var materialStyle: Boolean = true
 
     val isPassingObs = KObservable(true)
     val errors = HashMap<View, CharSequence?>()
@@ -88,67 +136,43 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             isPassingObs.set(!errors.values.any { it != null })
         }
 
-    inline fun ViewGroup.formEditText(hint: Int, setup: EditText.() -> Unit): View {
-        return if (materialStyle) {
-            textInputLayout {
-                formPadding()
-                hintResource = hint
-                textInputEditText {
-                    editTextStyle()
-                    setup()
-                }
-                inputLayoutStyle()
-            }
-        } else {
-            editText() {
-                hintResource = hint
-                editTextStyle()
-                setup()
-            }.apply {
-                layoutParams = (layoutParams as MarginLayoutParams).apply {
-                    formMargins()
-                }
-            }
-        }
-    }
-
-    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindDouble(obs, format)
             setup()
         }
     }
 
-    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindFloat(obs, format)
             setup()
         }
     }
 
-    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindInt(obs, format)
             setup()
         }
     }
 
-    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindNullableInt(obs, format)
             setup()
         }
     }
 
-    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindNullableFloat(obs, format)
             setup()
         }
     }
 
-    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, setup: EditText.() -> Unit): View {
-        return formEditText(hint) {
+    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
             bindString(obs)
             inputType = type
             setup()
@@ -210,6 +234,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             }
     )
 
+    inline fun ViewGroup.specialField(label: Int, noinline maker: ViewGroup.() -> View): View {
+        return makeField(label, maker)
+    }
+
     inline fun ViewGroup.switchLayout(observable: KObservableInterface<Boolean>, label: Int) {
         linearLayout {
             formPadding()
@@ -230,14 +258,26 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }
     }
 
-    inline fun ViewGroup.submit(text: Int, setup: ProgressButton.() -> Unit) = progressButton(text) {
-        button.lparams(matchParent, matchParent) { formMargins() }
-        button.minimumHeight = defaultMinimumHeight
-        button.buttonStyle()
+    inline fun ViewGroup.submit(text: Int, setup: ProgressButton.() -> Unit) = formProgressButton(text) {
         bind(isPassingObs) {
             button.isEnabled = it
         }
         setup()
+    }
+
+    inline fun ViewGroup.formProgressButton(text: Int, setup: ProgressButton.() -> Unit) = progressButton(text) {
+        button.lparams(matchParent, matchParent) { formMargins() }
+        button.minimumHeight = defaultMinimumHeight
+        button.buttonStyle()
+        setup()
+    }
+
+    inline fun _LinearLayout.formButton(text: Int, setup: Button.() -> Unit): Button = button(text) {
+        minimumHeight = defaultMinimumHeight
+        buttonStyle()
+        setup()
+    }.lparams(matchParent, wrapContent) {
+        formMargins()
     }
 }
 

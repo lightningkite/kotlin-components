@@ -1,13 +1,12 @@
 package com.lightningkite.kotlincomponents.networking
 
 import com.github.salomonbrys.kotson.typeToken
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.lightningkite.kotlincomponents.asStringOptional
 import com.lightningkite.kotlincomponents.gsonFrom
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableList
 import com.lightningkite.kotlincomponents.observable.KObservableListInterface
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.util.*
 
@@ -51,6 +50,13 @@ open class PagedEndpoint<T : Any>(
     val isMoreObservable = KObservable(true)
     val firstLoadFinishedObservable = KObservable(false)
 
+
+    val listType: ParameterizedType = object : ParameterizedType {
+        override fun getRawType(): Type? = ArrayList::class.java
+        override fun getOwnerType(): Type? = null
+        override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
+    }
+
     init {
         pull()
     }
@@ -71,10 +77,15 @@ open class PagedEndpoint<T : Any>(
         var currentEndpoint = nextEndpoint!!
 
         if (isPaged) {
-            currentEndpoint.get<JsonObject>(onError = onError) { result ->
+            currentEndpoint.async(NetMethod.GET) { response ->
+                if (!response.isSuccessful) {
+                    onError(response)
+                    return@async
+                }
+                val result = response.jsonObject()
                 if (currentEndpoint != nextEndpoint) {
                     pulling = false
-                    return@get
+                    return@async
                 }
                 nextEndpoint = null
                 if (result.has("num_pages")) {
@@ -97,7 +108,12 @@ open class PagedEndpoint<T : Any>(
             }
         } else {
             //option only exists for rapid prototyping purposes.  Servers often add pagination late.
-            currentEndpoint.get<JsonArray>(onError = onError) { result ->
+            currentEndpoint.async(NetMethod.GET) { response ->
+                if (!response.isSuccessful) {
+                    onError(response)
+                    return@async
+                }
+                val result = response.jsonArray()
                 list.addAll(result.map { it.gsonFrom<T>(type)!! })
                 firstLoadFinishedObservable.set(true)
                 nextEndpoint = null

@@ -23,6 +23,14 @@ fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_LONG, init: Snackba
     snack.show()
 }
 
+fun Snackbar.onDismissed(lambda: (event: Int) -> Unit) {
+    setCallback(object : Snackbar.Callback() {
+        override fun onDismissed(snackbar: Snackbar?, event: Int) {
+            lambda(event)
+        }
+    })
+}
+
 fun Context.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {})
         = getActivity()?.findOptional<View>(android.R.id.content)?.snackbar(text, duration, init)
 

@@ -5,6 +5,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCView
@@ -19,6 +20,8 @@ import java.util.*
 abstract class StandardViewController() : ViewController {
 
     val onMake: ArrayList<(View) -> Unit> = ArrayList()
+    val onAnimateInComplete: ArrayList<(VCActivity, View) -> Unit> = ArrayList()
+    val onAnimateOutStart: ArrayList<(VCActivity, View) -> Unit> = ArrayList()
     val onUnmake: ArrayList<(View) -> Unit> = ArrayList()
     val onDispose: ArrayList<() -> Unit> = ArrayList()
 
@@ -52,50 +55,36 @@ abstract class StandardViewController() : ViewController {
         return item
     }
 
-    inline fun Menu.item(textRes: String, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
-        var menuItem: MenuItem? = null
-        onMake.add {
-            menuItem = add(textRes).apply {
-                setIcon(iconRes)
-                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            }.apply(setup)
-        }
-        onUnmake.add {
-            removeItem((menuItem ?: return@add).itemId)
-        }
-    }
-
-    inline fun Menu.item(textRes: Int, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
-        var menuItem: MenuItem? = null
-        onMake.add {
-            menuItem = add(textRes).apply {
-                setIcon(iconRes)
-                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            }.apply(setup)
-        }
-        onUnmake.add {
-            removeItem((menuItem ?: return@add).itemId)
-        }
-    }
-
     abstract fun makeView(activity: VCActivity): View
     final override fun make(activity: VCActivity): View {
         val view = makeView(activity)
-        onMake.forEach { it(view) }
+        onMake.runAll(view)
         onMake.clear()
         return view
     }
 
     override fun unmake(view: View) {
-        onUnmake.forEach { it(view) }
+        onUnmake.runAll(view)
         onUnmake.clear()
         super.unmake(view)
     }
 
     override fun dispose() {
-        onDispose.forEach { it() }
+        onDispose.runAll()
         onDispose.clear()
         super.dispose()
+    }
+
+    override fun animateInComplete(activity: VCActivity, view: View) {
+        onAnimateInComplete.runAll(activity, view)
+        onAnimateInComplete.clear()
+        super.animateInComplete(activity, view)
+    }
+
+    override fun animateOutStart(activity: VCActivity, view: View) {
+        onAnimateOutStart.runAll(activity, view)
+        onAnimateOutStart.clear()
+        super.animateOutStart(activity, view)
     }
 
     fun <T : Disposable> autoDispose(vc: T): T {
@@ -131,4 +120,30 @@ abstract class StandardViewController() : ViewController {
         return view
     }
 
+
+    inline fun Menu.item(textRes: String, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
+        var menuItem: MenuItem? = null
+        onMake.add {
+            menuItem = add(textRes).apply {
+                setIcon(iconRes)
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            }.apply(setup)
+        }
+        onAnimateOutStart.add { a, v ->
+            removeItem((menuItem ?: return@add).itemId)
+        }
+    }
+
+    inline fun Menu.item(textRes: Int, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
+        var menuItem: MenuItem? = null
+        onMake.add {
+            menuItem = add(textRes).apply {
+                setIcon(iconRes)
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            }.apply(setup)
+        }
+        onAnimateOutStart.add { a, v ->
+            removeItem((menuItem ?: return@add).itemId)
+        }
+    }
 }

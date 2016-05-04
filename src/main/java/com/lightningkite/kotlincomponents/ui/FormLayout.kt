@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.ui
 
 import android.content.Context
+import android.support.design.widget.TextInputEditText
 import android.support.design.widget.TextInputLayout
 import android.text.InputType
 import android.view.Gravity
@@ -32,16 +33,60 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
     var defaultHorizontalPadding = dip(16)
     var defaultVerticalPadding = dip(8)
 
-    var inputLayoutStyle: TextInputLayout.() -> Unit = {}
-    var editTextStyle: EditText.() -> Unit = {}
+    var makeField: ViewGroup.(hint: Int, innerViewMaker: ViewGroup.() -> View) -> View = { hint, innerViewMaker ->
+        linearLayout {
+            formPadding()
+            minimumHeight = defaultMinimumHeight
+            gravity = Gravity.CENTER
+
+            textView(hint).lparams(0, wrapContent, 1f)
+
+            innerViewMaker()
+        }
+    }
+
+    var makeTextField: ViewGroup.(hint: Int, editTextSetup: EditText.() -> Unit) -> View = { hint, editTextSetup ->
+        textInputLayout {
+            formPadding()
+            hintResource = hint
+            textInputEditText {
+                editTextSetup()
+            }
+        }
+    }
+
+    inline fun defaultStyle(crossinline styleTextField: EditText.() -> Unit) {
+        makeTextField = { hint, editTextSetup ->
+            editText() {
+                hintResource = hint
+                styleTextField()
+                editTextSetup()
+            }.apply {
+                layoutParams = (layoutParams as MarginLayoutParams).apply {
+                    formMargins()
+                }
+            }
+        }
+    }
+
+    inline fun materialStyle(crossinline editTextStyle: TextInputEditText.() -> Unit, crossinline inputLayoutStyle: TextInputLayout.() -> Unit) {
+        makeTextField = { hint, editTextSetup ->
+            textInputLayout {
+                formPadding()
+                hintResource = hint
+                textInputEditText {
+                    editTextStyle()
+                    editTextSetup()
+                }
+                inputLayoutStyle()
+            }
+        }
+    }
+
     var buttonStyle: Button.() -> Unit = {}
 
-    val isPassingObs = KObservable(false)
+    val isPassingObs = KObservable(true)
     val errors = HashMap<View, CharSequence?>()
-    fun setError(view: View, error: CharSequence?) {
-        errors[view] = error
-        isPassingObs.set(!errors.values.any { it != null })
-    }
 
     inline fun View.formPadding() {
         leftPadding = defaultHorizontalPadding
@@ -63,83 +108,74 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }
     }
 
-    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindDouble(obs, format)
-                editTextStyle()
-                setup()
+    var View.formError: CharSequence?
+        get() = errors[this]
+        set(value) {
+            errors[this] = value
+            if (this is TextInputLayout) {
+                this.error = value
             }
-            inputLayoutStyle()
+            val parent = this.parent
+            if (parent is TextInputLayout) {
+                parent.error = value
+            }
+            isPassingObs.set(!errors.values.any { it != null })
+        }
+    var View.formErrorResource: Int?
+        get() = throw IllegalAccessException()
+        set(resource) {
+            val value = if (resource != null) resources.getString(resource) else null
+            errors[this] = value
+            if (this is TextInputLayout) {
+                this.error = value
+            }
+            val parent = this.parent
+            if (parent is TextInputLayout) {
+                parent.error = value
+            }
+            isPassingObs.set(!errors.values.any { it != null })
+        }
+
+    inline fun ViewGroup.fieldDouble(obs: KObservableInterface<Double>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindDouble(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindFloat(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldFloat(obs: KObservableInterface<Float>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindFloat(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindInt(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldInt(obs: KObservableInterface<Int>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindInt(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindNullableInt(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldNullableInt(obs: KObservableInterface<Int?>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindNullableInt(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            hintResource = hint
-            textInputEditText {
-                bindNullableFloat(obs, format)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldNullableFloat(obs: KObservableInterface<Float?>, format: NumberFormat, hint: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindNullableFloat(obs, format)
+            setup()
         }
     }
 
-    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, setup: TextInputLayout.() -> Unit): TextInputLayout {
-        return textInputLayout {
-            formPadding()
-            minimumHeight = defaultMinimumHeight
-            hintResource = hint
-            textInputEditText {
-                inputType = type
-                bindString(obs)
-                editTextStyle()
-                setup()
-            }
-            inputLayoutStyle()
+    inline fun ViewGroup.fieldString(obs: KObservableInterface<String>, hint: Int, type: Int, crossinline setup: EditText.() -> Unit): View {
+        return makeTextField(hint) {
+            bindString(obs)
+            inputType = type
+            setup()
         }
     }
 
@@ -149,10 +185,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else if (!it.isEmail()) errorResource = notEmailError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else if (!it.isEmail()) notEmailError
+                            else null
                 }
             }
     )
@@ -163,9 +199,9 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else null
                 }
             }
     )
@@ -176,10 +212,10 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(obs) {
-                    if (it.isEmpty()) errorResource = blankError
-                    else if (it.length < minLength) errorResource = tooShortError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (it.isEmpty()) blankError
+                            else if (it.length < minLength) tooShortError
+                            else null
                 }
             }
     )
@@ -190,13 +226,17 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
             {
                 bind(password, confirm) { pass, conf ->
-                    if (conf.isEmpty()) errorResource = blankError
-                    else if (pass != conf) errorResource = notMatchingError
-                    else error = null
-                    setError(this, error)
+                    formErrorResource =
+                            if (conf.isEmpty()) blankError
+                            else if (pass != conf) notMatchingError
+                            else null
                 }
             }
     )
+
+    inline fun ViewGroup.specialField(label: Int, noinline maker: ViewGroup.() -> View): View {
+        return makeField(label, maker)
+    }
 
     inline fun ViewGroup.switchLayout(observable: KObservableInterface<Boolean>, label: Int) {
         linearLayout {
@@ -218,14 +258,26 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         }
     }
 
-    inline fun ViewGroup.submit(text: Int, setup: ProgressButton.() -> Unit) = progressButton(text) {
-        button.lparams(matchParent, matchParent) { formMargins() }
-        button.minimumHeight = defaultMinimumHeight
-        button.buttonStyle()
+    inline fun ViewGroup.submit(text: Int, setup: ProgressButton.() -> Unit) = formProgressButton(text) {
         bind(isPassingObs) {
             button.isEnabled = it
         }
         setup()
+    }
+
+    inline fun ViewGroup.formProgressButton(text: Int, setup: ProgressButton.() -> Unit) = progressButton(text) {
+        button.lparams(matchParent, matchParent) { formMargins() }
+        button.minimumHeight = defaultMinimumHeight
+        button.buttonStyle()
+        setup()
+    }
+
+    inline fun _LinearLayout.formButton(text: Int, setup: Button.() -> Unit): Button = button(text) {
+        minimumHeight = defaultMinimumHeight
+        buttonStyle()
+        setup()
+    }.lparams(matchParent, wrapContent) {
+        formMargins()
     }
 }
 

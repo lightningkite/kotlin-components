@@ -10,7 +10,7 @@ open class KObservable<T>(
         var value: T
 ) : KObservableInterface<T> {
 
-    val list = ArrayList<(T) -> Unit>()
+    @Transient val list = ArrayList<(T) -> Unit>()
     override val size: Int get() = list.size
     override fun contains(element: (T) -> Unit): Boolean  = list.contains(element)
     override fun containsAll(elements: Collection<(T) -> Unit>): Boolean = list.containsAll(elements)

@@ -9,8 +9,8 @@ import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.bind
 import com.lightningkite.kotlincomponents.ui.elevationCompat
 import com.lightningkite.kotlincomponents.verticalLayout
+import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
-import com.lightningkite.kotlincomponents.viewcontroller.containers.VCTabs
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
 import org.jetbrains.anko.appcompat.v7.actionMenuView
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -24,13 +24,14 @@ import org.jetbrains.anko.wrapContent
  */
 abstract class MainViewController(val backResource: Int, val styleToolbar: Toolbar.() -> Unit) : StandardViewController() {
 
+    var menuResource: Int = 0
     var toolbar: Toolbar? = null
     var actionMenu: ActionMenuView? = null
 
     val alwaysShowBackObs: KObservable<Boolean> = KObservable(false)
     var alwaysShowBack by alwaysShowBackObs
 
-    fun setToolbarTitle(input: String) {
+    open fun setToolbarTitle(input: String) {
         toolbar?.apply {
             val index = input.indexOf('\n')
             if (index == -1) {
@@ -60,12 +61,15 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
 
     abstract fun ViewGroup.makeSubview(activity: VCActivity): View
 
-    fun attach(activity: VCActivity, stack: VCStack) {
-        bind(alwaysShowBackObs) {
+    fun attach(activity: VCActivity, stack: VCStack, onMenuClickObs: KObservable<(() -> Unit)?> = KObservable(null)) {
+        bind(alwaysShowBackObs, onMenuClickObs) { alwaysShowBack, onMenuClick ->
             toolbar?.apply {
                 if (stack.size > 1 || alwaysShowBack) {
                     setNavigationIcon(backResource)
                     setNavigationOnClickListener { activity.onBackPressed() }
+                } else if (onMenuClick != null) {
+                    setNavigationIcon(menuResource)
+                    setNavigationOnClickListener { onMenuClick() }
                 } else {
                     navigationIcon = null
                     setNavigationOnClickListener { }
@@ -78,6 +82,9 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
                 if (stack.size > 1 || alwaysShowBack) {
                     setNavigationIcon(backResource)
                     setNavigationOnClickListener { activity.onBackPressed() }
+                } else if (onMenuClickObs.get() != null) {
+                    setNavigationIcon(menuResource)
+                    setNavigationOnClickListener { onMenuClickObs.get()?.invoke() }
                 } else {
                     navigationIcon = null
                     setNavigationOnClickListener { }
@@ -88,10 +95,10 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
         doThisOnBackPressed = { stack.onBackPressed(it) }
     }
 
-    fun attach(activity: VCActivity, tabs: VCTabs) {
-        bind(tabs.onSwap, tabs.current) {
+    fun attach(activity: VCActivity, container: VCContainer) {
+        bind(container.onSwap, container.current) {
             toolbar?.apply {
-                setToolbarTitle(tabs.getTitle(resources))
+                setToolbarTitle(container.getTitle(resources))
             }
         }
     }

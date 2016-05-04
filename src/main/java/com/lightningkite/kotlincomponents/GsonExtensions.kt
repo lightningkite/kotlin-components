@@ -34,6 +34,10 @@ fun Any.gsonTo(gson: Gson = MyGson.gson): String {
     return gson.toJson(this)
 }
 
+fun Any?.gsonToOptional(gson: Gson = MyGson.gson): String {
+    return if (this == null) "null" else gson.toJson(this)
+}
+
 val JsonElement.asStringOptional: String?
     get() = if (this is JsonPrimitive) asString else null
 val JsonElement.asIntOptional: Int?
@@ -61,6 +65,7 @@ inline fun <reified T : Any> JsonElement.gsonFrom(gson: Gson = MyGson.gson): T? 
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> String.gsonFrom(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
@@ -72,6 +77,7 @@ inline fun <T : Any> String.gsonFrom(type: Class<T>, gson: Gson = MyGson.gson): 
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> JsonElement.gsonFrom(type: Class<T>, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson(this, type)
@@ -83,6 +89,7 @@ inline fun <T : Any> JsonElement.gsonFrom(type: Class<T>, gson: Gson = MyGson.gs
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> String.gsonFrom(type: Type, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson<T>(this, type)
@@ -94,6 +101,7 @@ inline fun <T : Any> String.gsonFrom(type: Type, gson: Gson = MyGson.gson): T? {
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> JsonElement.gsonFrom(type: Type, gson: Gson = MyGson.gson): T? {
     try {
         return gson.fromJson<T>(this, type)
@@ -105,5 +113,6 @@ inline fun <T : Any> JsonElement.gsonFrom(type: Type, gson: Gson = MyGson.gson):
     return null
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun SharedPreferences.Editor.putGson(key: String, value: Any) = putString(key, value.gsonTo())
 inline fun <reified T : Any> SharedPreferences.getGson(key: String) = getString(key, null)?.gsonFrom<T>()

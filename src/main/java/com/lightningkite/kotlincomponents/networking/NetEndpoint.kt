@@ -1,6 +1,5 @@
 package com.lightningkite.kotlincomponents.networking
 
-import android.graphics.Bitmap
 import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
@@ -41,30 +40,28 @@ open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, va
         reset(this@NetEndpoint)
     }
 
-    inline fun <reified T : Any> dealWithResult(response: NetResponse, onError: (NetResponse) -> Boolean): T? {
-        if (response.isSuccessful) {
-            val result = when (T::class.java) {
-                Unit::class.java -> Unit as T
-                Bitmap::class.java -> response.bitmap() as T
-                else -> response.result<T>()
-            }
-            if (result != null) return result
-            else {
-                whenError(response, onError)
-                return null
-            }
-        } else {
-            whenError(response, onError)
-            return null
-        }
+    fun request(
+            method: NetMethod,
+            body: NetBody = NetBody.EMPTY,
+            specialHeaders: Map<String, String> = NetHeader.EMPTY
+    ): NetRequest {
+        val headers = HashMap(netInterface.defaultHeaders)
+        headers.plusAssign(specialHeaders)
+        return NetRequest(method, url, body, headers)
     }
 
-    inline fun whenError(response: NetResponse, onError: (NetResponse) -> Boolean) {
-        if (onError(response)) {
-            netInterface.onError.runAll(response)
-        }
-    }
+    fun async(
+            method: NetMethod,
+            body: NetBody = NetBody.EMPTY,
+            specialHeaders: Map<String, String> = NetHeader.EMPTY,
+            onResult: (NetResponse) -> Unit
+    ) = netInterface.stack.async(request(method, body, specialHeaders), onResult)
 
+    fun sync(
+            method: NetMethod,
+            body: NetBody = NetBody.EMPTY,
+            specialHeaders: Map<String, String> = NetHeader.EMPTY
+    ) = netInterface.stack.sync(request(method, body, specialHeaders))
 
 
     //------------ASYNC---------------
@@ -76,106 +73,115 @@ open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, va
     //            crossinline onResult: (T) -> Unit
     //    ) = request(method, data, specialHeaders, { true }, onResult)
 
-    inline fun <reified T : Any> request(
+    inline fun <reified T : Any> async(
             method: NetMethod,
             data: Any?,
             specialHeaders: Map<String, String> = NetHeader.EMPTY,
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
     ) {
-        println(url)
-        val headers = HashMap(netInterface.defaultHeaders)
-        headers.plusAssign(specialHeaders)
-        netInterface.stack.request(
-                method,
-                url,
-                data?.gsonToNetBody() ?: NetBody.EMPTY,
-                headers
-        ) {
-            val result = dealWithResult<T>(it, onError)
-            if (result != null) onResult(result)
-        }
+        netInterface.stack.autoAsync(request(method, data?.gsonToNetBody() ?: NetBody.EMPTY, specialHeaders), {
+            if (onError(it)) {
+                netInterface.onError.runAll(it)
+            }
+        }, onResult = onResult)
     }
 
     inline fun <reified T : Any> get(
             specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.GET, null, specialHeaders, onError, onResult)
+    ) = async(NetMethod.GET, null, specialHeaders, onError, onResult)
 
     inline fun <reified T : Any> post(
             data: Any?,
             specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.POST, data, specialHeaders, onError, onResult)
+    ) = async(NetMethod.POST, data, specialHeaders, onError, onResult)
 
     inline fun <reified T : Any> put(
             data: Any?,
             specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.PUT, data, specialHeaders, onError, onResult)
+    ) = async(NetMethod.PUT, data, specialHeaders, onError, onResult)
 
     inline fun <reified T : Any> patch(
             data: Any?,
             specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.PATCH, data, specialHeaders, onError, onResult)
+    ) = async(NetMethod.PATCH, data, specialHeaders, onError, onResult)
 
     inline fun <reified T : Any> delete(
             data: Any? = null,
             specialHeaders: Map<String, String> = mapOf(),
             crossinline onError: (NetResponse) -> Boolean,
             crossinline onResult: (T) -> Unit
-    ) = request(NetMethod.DELETE, data, specialHeaders, onError, onResult)
+    ) = async(NetMethod.DELETE, data, specialHeaders, onError, onResult)
 
     //------------SYNC---------------
 
-    inline fun <reified T : Any> syncRequest(method: NetMethod, data: Any?, specialHeaders: Map<String, String> = mapOf()): T? = syncGet(specialHeaders, { true })
-    inline fun <reified T : Any> syncRequest(
+    inline fun <reified T : Any> sync(method: NetMethod, data: Any?, specialHeaders: Map<String, String> = mapOf()): T? = syncGet(specialHeaders, { true })
+    inline fun <reified T : Any> sync(
             method: NetMethod,
             data: Any?,
             specialHeaders: Map<String, String> = mapOf(),
             onError: (NetResponse) -> Boolean
-    ): T? = dealWithResult(
-            netInterface.stack.sync(
-                    method,
-                    url,
-                    data?.gsonToNetBody() ?: NetBody.EMPTY,
-                    netInterface.defaultHeaders + specialHeaders
-            ),
-            onError
-    )
+    ): T? {
+
+        val response = netInterface.stack.sync(
+                method,
+                url,
+                data?.gsonToNetBody() ?: NetBody.EMPTY,
+                netInterface.defaultHeaders + specialHeaders
+        )
+
+        if (response.isSuccessful) {
+            val result = response.auto<T>()
+            if (result != null) {
+                return result
+            } else {
+                if (onError(response)) {
+                    netInterface.onError.runAll(response)
+                }
+            }
+        } else {
+            if (onError(response)) {
+                netInterface.onError.runAll(response)
+            }
+        }
+        return null
+    }
 
     inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = mapOf()): T?
-            = syncRequest(NetMethod.GET, null, specialHeaders)
+            = sync(NetMethod.GET, null, specialHeaders)
 
     inline fun <reified T : Any> syncGet(specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
-            = syncRequest(NetMethod.GET, null, specialHeaders, onError)
+            = sync(NetMethod.GET, null, specialHeaders, onError)
 
     inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
-            = syncRequest(NetMethod.POST, data, specialHeaders)
+            = sync(NetMethod.POST, data, specialHeaders)
 
     inline fun <reified T : Any> syncPost(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
-            = syncRequest(NetMethod.POST, data, specialHeaders, onError)
+            = sync(NetMethod.POST, data, specialHeaders, onError)
 
     inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
-            = syncRequest(NetMethod.PUT, data, specialHeaders)
+            = sync(NetMethod.PUT, data, specialHeaders)
 
     inline fun <reified T : Any> syncPut(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
-            = syncRequest(NetMethod.PUT, data, specialHeaders, onError)
+            = sync(NetMethod.PUT, data, specialHeaders, onError)
 
     inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
-            = syncRequest(NetMethod.PATCH, data, specialHeaders)
+            = sync(NetMethod.PATCH, data, specialHeaders)
 
     inline fun <reified T : Any> syncPatch(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
-            = syncRequest(NetMethod.PATCH, data, specialHeaders, onError)
+            = sync(NetMethod.PATCH, data, specialHeaders, onError)
 
     inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = mapOf()): T?
-            = syncRequest(NetMethod.DELETE, data, specialHeaders)
+            = sync(NetMethod.DELETE, data, specialHeaders)
 
     inline fun <reified T : Any> syncDelete(data: Any?, specialHeaders: Map<String, String> = mapOf(), onError: (NetResponse) -> Boolean): T?
-            = syncRequest(NetMethod.DELETE, data, specialHeaders, onError)
+            = sync(NetMethod.DELETE, data, specialHeaders, onError)
 }

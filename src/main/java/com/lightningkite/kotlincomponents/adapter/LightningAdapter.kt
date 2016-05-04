@@ -8,6 +8,8 @@ import android.widget.Spinner
 import com.lightningkite.kotlincomponents.observable.KObservable
 import com.lightningkite.kotlincomponents.observable.KObservableInterface
 import com.lightningkite.kotlincomponents.observable.bind
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 
 /**
  * Created by josep on 1/24/2016.
@@ -39,6 +41,7 @@ open class LightningAdapter<T>(list: List<T>, val makeView: (ItemObservable<T>) 
             val newView = makeView(newObs)
             newView.tag = newObs
             newObs.index = position
+            newView.layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
             return newView
         } else {
             val obs = convertView.tag as ItemObservable<T>

@@ -109,9 +109,9 @@ class KObservableList<E>(
     override fun lastIndexOf(element: E): Int = collection.lastIndexOf(element)
     override val size: Int get() = collection.size
 
-    fun replace(newItems: List<E>) {
+    override fun replace(list: List<E>) {
         collection.clear()
-        collection.addAll(newItems)
+        collection.addAll(list)
         onReplace.runAll(this)
         onUpdate.runAll(this)
     }

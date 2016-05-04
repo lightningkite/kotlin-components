@@ -76,8 +76,8 @@ inline fun versionOn(version: Int, action: () -> Unit) {
     }
 }
 
-inline fun versionOn(version: Int, action: () -> Unit, otherwise: () -> Unit) {
-    if (Build.VERSION.SDK_INT >= version) {
+inline fun <T> versionOn(version: Int, action: () -> T, otherwise: () -> T): T {
+    return if (Build.VERSION.SDK_INT >= version) {
         action()
     } else {
         otherwise()

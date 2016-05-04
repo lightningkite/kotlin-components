@@ -31,7 +31,7 @@ abstract class MainViewController(val backResource: Int, val styleToolbar: Toolb
     val alwaysShowBackObs: KObservable<Boolean> = KObservable(false)
     var alwaysShowBack by alwaysShowBackObs
 
-    fun setToolbarTitle(input: String) {
+    open fun setToolbarTitle(input: String) {
         toolbar?.apply {
             val index = input.indexOf('\n')
             if (index == -1) {

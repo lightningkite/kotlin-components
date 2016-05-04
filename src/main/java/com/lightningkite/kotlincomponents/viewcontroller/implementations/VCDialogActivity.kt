@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
+import com.lightningkite.kotlincomponents.viewcontroller.ViewController
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
+import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
 import java.util.*
 
 /**
@@ -53,6 +55,10 @@ class VCDialogActivity : VCActivity() {
             myContainerData?.container?.dispose()
         }
     }
+}
+
+inline fun Activity.viewControllerDialog(vcMaker: (VCStack) -> ViewController, noinline layoutParamModifier: WindowManager.LayoutParams.() -> Unit = {}) {
+    viewControllerDialog(VCStack().apply { push(vcMaker(this)) }, layoutParamModifier)
 }
 
 inline fun Activity.viewControllerDialog(container: VCContainer, noinline layoutParamModifier: WindowManager.LayoutParams.() -> Unit = {}) {

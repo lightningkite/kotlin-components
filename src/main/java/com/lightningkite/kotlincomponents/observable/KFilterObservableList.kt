@@ -12,6 +12,10 @@ class KFilterObservableList<E>(
         val full: KObservableListInterface<E>
 ) : KObservableListInterface<E>, Disposable {
 
+    override fun replace(list: List<E>) {
+        throw UnsupportedOperationException()
+    }
+
     val filterObs = KObservable<(E) -> Boolean>({ true })
     var filter by filterObs
 

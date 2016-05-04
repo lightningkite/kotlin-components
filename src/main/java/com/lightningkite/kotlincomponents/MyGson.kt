@@ -1,9 +1,6 @@
 package com.lightningkite.kotlincomponents
 
-import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.*
-import java.lang.reflect.Type
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -32,6 +29,12 @@ object MyGson {
     inline fun <reified T : Any> register(adapter: JsonSerializer<T>) = register(T::class.java, adapter)
     inline fun <reified T : Any> register(adapter: TypeAdapter<T>) = register(T::class.java, adapter)
 
+    private val factories = ArrayList<TypeAdapterFactory>()
+    fun registerFactory(factory: TypeAdapterFactory) {
+        factories.add(factory)
+        update()
+    }
+
     val json: JsonParser = JsonParser()
 
     private var gsonInternal: Gson? = null
@@ -46,6 +49,9 @@ object MyGson {
 
         val builder = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        for (factory in factories) {
+            builder.registerTypeAdapterFactory(factory)
+        }
         for ((type, adapter) in hierarchyAdapters) {
             builder.registerTypeHierarchyAdapter(type, adapter)
         }
@@ -55,21 +61,6 @@ object MyGson {
         val gson = builder.create()
         gsonInternal = gson
         return gson
-    }
-
-    init {
-        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        register(JsonSerializer<Date> { item, type, jsonSerializationContext ->
-            JsonPrimitive(format.format(item) + "+00:00")
-        })
-        register(JsonDeserializer { jsonElement, type, jsonDeserializationContext ->
-            if (jsonElement !is JsonPrimitive) throw IllegalArgumentException()
-            if (!jsonElement.isString) throw IllegalArgumentException()
-            val str = jsonElement.asString
-            val result = format.parse(str.substring(0, str.length - 6))
-
-            result
-        })
     }
 
 }

@@ -33,7 +33,7 @@ class ActionAnimator<T, V>(
 
     private var endValue: V? = null
     private var duration: Long = 0
-    private var delta: Long = 20
+    private var delta: Long = 16
     private var timeElapsed: Long = 0
     private var shouldRun: Boolean = false
 
@@ -48,7 +48,7 @@ class ActionAnimator<T, V>(
     fun animate(
             to: V,
             newDuration: Long,
-            newDelta: Long = 20L
+            newDelta: Long = 16L
     ) {
         stop()
         if (startValue == null) {

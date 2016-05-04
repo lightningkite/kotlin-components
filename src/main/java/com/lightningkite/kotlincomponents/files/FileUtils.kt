@@ -1,6 +1,7 @@
 package com.lightningkite.kotlincomponents.files
 
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -8,11 +9,41 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import java.io.File
 
 /**
  * Functions for dealing with files.
  * Created by jivie on 8/14/15.
  */
+
+fun File.child(name: String): File {
+    return File(this, name)
+}
+
+fun File.toImageContentUri(context: Context): Uri? {
+    val filePath = absolutePath;
+    val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Images.Media._ID),
+            MediaStore.Images.Media.DATA + "=? ",
+            arrayOf(filePath),
+            null
+    )
+    if (cursor != null && cursor.moveToFirst()) {
+        val id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+        cursor.close();
+        return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + id);
+    } else {
+        if (exists()) {
+            val values = ContentValues();
+            values.put(MediaStore.Images.Media.DATA, filePath);
+            return context.getContentResolver().insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        } else {
+            return null;
+        }
+    }
+}
 
 /**
  * Gets the actual path of the [Uri].
@@ -45,7 +76,7 @@ fun Uri.getRealPath(context: Context): String? {
             val split = docId.split(":".toRegex())
             val type = split[0]
 
-            var contentUri: Uri? = null
+            var contentUri: Uri?
             if ("image" == type) {
                 contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             } else if ("video" == type) {

@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
+import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
 import java.util.*
 
 /**
@@ -41,6 +42,11 @@ abstract class VCActivity : Activity() {
 
     fun attach(newContainer: VCContainer) {
         vcView.attach(newContainer)
+        if (newContainer is VCStack) {
+            newContainer.onEmptyListener = {
+                finish()
+            }
+        }
     }
 
     lateinit var vcView: VCView
@@ -96,7 +102,6 @@ abstract class VCActivity : Activity() {
     val onDestroy = HashSet<()->Unit>()
     override fun onDestroy() {
         vcView.detatch()
-        vcView.unmake()
         onDestroy.runAll()
         super.onDestroy()
     }

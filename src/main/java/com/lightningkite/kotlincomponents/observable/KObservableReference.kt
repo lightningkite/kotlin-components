@@ -1,52 +1,23 @@
 package com.lightningkite.kotlincomponents.observable
 
-import java.util.*
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 /**
  * Created by jivie on 2/22/16.
  */
-class KObservableReference<T>(val getter: () -> T, val setter: (T) -> Unit) : KObservableInterface<T> {
-
-    val list = ArrayList<(T) -> Unit>()
-    override val size: Int get() = list.size
-    override fun contains(element: (T) -> Unit): Boolean = list.contains(element)
-    override fun containsAll(elements: Collection<(T) -> Unit>): Boolean = list.containsAll(elements)
-    override fun isEmpty(): Boolean = list.isEmpty()
-    override fun clear() {
-        list.clear()
+class KObservableReference<T>(val getterFun: () -> T, val setterFun: (T) -> Unit) : KObservableBase<T>() {
+    override fun update() {
+        super.update(getterFun())
     }
 
-    override fun iterator(): MutableIterator<(T) -> Unit> = list.iterator()
-    override fun remove(element: (T) -> Unit): Boolean = list.remove(element)
-    override fun removeAll(elements: Collection<(T) -> Unit>): Boolean = list.removeAll(elements)
-    override fun retainAll(elements: Collection<(T) -> Unit>): Boolean = list.retainAll(elements)
-
-    override fun add(element: (T) -> Unit): Boolean {
-        element(getter())
-        return list.add(element)
-    }
-
-    override fun addAll(elements: Collection<(T) -> Unit>): Boolean {
-        val value = getter()
-        elements.forEach { it(value) }
-        return list.addAll(elements)
-    }
-
-    override fun get(): T = getter()
+    override fun get(): T = getterFun()
 
     override fun set(v: T) {
-        setter(v)
+        setterFun(v)
         update()
     }
 
-    override fun update() {
-        val value = getter()
-        for (listener in list) {
-            listener(value)
-        }
-    }
 }
 
 fun <T> KMutableProperty0<T>.toKObservableReference(): KObservableReference<T> {

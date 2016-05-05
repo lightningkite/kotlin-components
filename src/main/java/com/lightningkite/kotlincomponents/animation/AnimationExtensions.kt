@@ -19,13 +19,14 @@ import org.jetbrains.anko.wrapContent
 fun View.makeHeightAnimator(
         duration: Long,
         startSize: Float? = null,
+        popFix: Boolean = false,
         timeInterpolator: TimeInterpolator = ActionAnimator.defaultInterpolator
 ): (toSize: Float?) -> Unit {
 
     var nextGoal: Float? = null
 
     val heightAnimator = ActionAnimator(this, startSize, {
-        if (nextGoal == it) {
+        if (popFix && nextGoal == it) {
             layoutParams.height = wrapContent
             requestLayout()
         } else {

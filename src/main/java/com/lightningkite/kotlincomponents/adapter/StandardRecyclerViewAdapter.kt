@@ -121,7 +121,7 @@ inline fun <T> RecyclerView.adapter(
     return newAdapter
 }
 
-inline fun <T> RecyclerView.makeAdapter(
+inline fun <T> RecyclerView.adapter(
         list: List<T>,
         noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
@@ -130,7 +130,7 @@ inline fun <T> RecyclerView.makeAdapter(
     return newAdapter
 }
 
-inline fun <T> RecyclerView.makeAdapter(
+inline fun <T> RecyclerView.adapter(
         listObs: KObservable<List<T>>,
         noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {

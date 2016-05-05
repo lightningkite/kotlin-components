@@ -2,18 +2,18 @@ package com.lightningkite.kotlincomponents.ui
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import com.lightningkite.kotlincomponents.adapter.KRecyclerViewAdapter
+import org.jetbrains.anko.AnkoContext
+import org.jetbrains.anko.AnkoContextImpl
 import java.util.*
 
 /**
  * Created by josep on 2/11/2016.
  */
 class StickyHeadersItemDecorator<T : Any, K>(
-        val adapter: KRecyclerViewAdapter<T>,
+        val list: List<T>,
         val sort: (T) -> K,
         val makeView: (K) -> View
 ) : RecyclerView.ItemDecoration() {
@@ -28,12 +28,12 @@ class StickyHeadersItemDecorator<T : Any, K>(
     fun viewHasHeaderOver(position: Int): Boolean {
         if(position <= 0) return true
         //if(position == firstPos) return true
-        if(sort(adapter[position]) != sort(adapter[position - 1])) return true
+        if (sort(list[position]) != sort(list[position - 1])) return true
         return false
     }
 
     fun getHeader(parent:RecyclerView, position:Int): View {
-        val sortVal = sort(adapter[position])
+        val sortVal = sort(list[position])
         return viewHeaders[sortVal] ?: {
             val newView = makeView(sortVal)
             newView.measure(
@@ -48,6 +48,9 @@ class StickyHeadersItemDecorator<T : Any, K>(
 
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+
+        if (list.isEmpty()) return
+
         updateFirstPos(parent)
         val left = parent.paddingLeft;
         val right = parent.width - parent.paddingRight;
@@ -59,7 +62,7 @@ class StickyHeadersItemDecorator<T : Any, K>(
             val view = parent.getChildAt(i);
             val holder = parent.getChildViewHolder(view)
             val position = holder.adapterPosition
-            if(position < 0 || position >= adapter.size) continue
+            if (position < 0 || position >= list.size) continue
 
             if(viewHasHeaderOver(position)){
                 val header = getHeader(parent, position)
@@ -87,15 +90,15 @@ class StickyHeadersItemDecorator<T : Any, K>(
         updateFirstPos(parent)
         val holder = parent.getChildViewHolder(view)
         val position = holder.adapterPosition
-        if(position < 0 || position >= adapter.size) return
+        if (position < 0 || position >= list.size) return
         if(viewHasHeaderOver(position)) outRect.top = getHeader(parent, position).measuredHeight
         else outRect.top = 0
     }
 }
 
-fun <T : Any, K> RecyclerView.stickyHeaders(
-        adapter: KRecyclerViewAdapter<T>,
-        sort: (T) -> K,
-        makeView: (K) -> View) {
-    addItemDecoration(StickyHeadersItemDecorator(adapter, sort, makeView))
+inline fun <T : Any, K> RecyclerView.stickyHeaders(
+        list: List<T>,
+        noinline sort: (T) -> K,
+        crossinline makeView: AnkoContext<Unit>.(K) -> Unit) {
+    addItemDecoration(StickyHeadersItemDecorator(list, sort, { AnkoContextImpl<Unit>(context, Unit, false).apply { makeView(it) }.view }))
 }

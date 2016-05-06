@@ -21,8 +21,10 @@ import kotlin.concurrent.schedule
 
 private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
+inline fun ImageView.imageStream(url: String, minBytes: Long, crossinline onResult: (Boolean) -> Unit)
+        = imageStream(NetRequest(NetMethod.GET, url), minBytes, onResult)
 
-fun ImageView.imageStream(request: NetRequest, minBytes: Long, onResult: (Boolean) -> Unit) {
+inline fun ImageView.imageStream(request: NetRequest, minBytes: Long, crossinline onResult: (Boolean) -> Unit) {
     doAsync({
         val stream = Networking.stream(request)
         if (stream.isSuccessful) {

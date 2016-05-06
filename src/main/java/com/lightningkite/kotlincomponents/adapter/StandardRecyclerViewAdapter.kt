@@ -5,29 +5,56 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.networking.PagedEndpoint
-import com.lightningkite.kotlincomponents.observable.KObservable
-import com.lightningkite.kotlincomponents.observable.KObservableInterface
-import com.lightningkite.kotlincomponents.observable.KObservableListInterface
-import com.lightningkite.kotlincomponents.observable.bind
+import com.lightningkite.kotlincomponents.observable.*
 import com.lightningkite.kotlincomponents.runAll
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.AnkoContextImpl
 import java.util.*
 
 /**
+ * An adapter for RecyclerViews intended to be used in all cases.
+ *
  * Created by jivie on 5/4/16.
  */
 class StandardRecyclerViewAdapter<T>(
         val context: Context,
-        list: List<T>,
+        initialList: List<T>,
         val makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(ItemObservable<T>) -> Unit
-) : RecyclerView.Adapter<StandardRecyclerViewAdapter.ViewHolder<T>>(), List<T> by list {
+) : RecyclerView.Adapter<StandardRecyclerViewAdapter.ViewHolder<T>>() {
 
-    var list: List<T> = list
+    var list: List<T> = initialList
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+
+    var previousListenerSet: KObservableListListenerSet<T>? = null
+
+    fun attachAnimations(list: KObservableListInterface<T>) {
+        detatchAnimations()
+        previousListenerSet = KObservableListListenerSet(
+                onAddListener = { item: T, position: Int ->
+                    notifyItemInserted(position)
+                },
+                onRemoveListener = { item: T, position: Int ->
+                    notifyItemRemoved(position)
+                },
+                onChangeListener = { item: T, position: Int ->
+                    //adapter.notifyItemChanged(position)
+                    update(position)
+                },
+                onReplaceListener = { list: KObservableListInterface<T> ->
+                    notifyDataSetChanged()
+                }
+        )
+        list.addListenerSet(previousListenerSet!!)
+    }
+
+    fun detatchAnimations() {
+        if (previousListenerSet != null) {
+            (list as? KObservableListInterface<T>)?.removeListenerSet(previousListenerSet!!)
+        }
+    }
 
     var onScrollToBottom: (() -> Unit)? = null
 
@@ -99,29 +126,6 @@ class StandardRecyclerViewAdapter<T>(
 }
 
 inline fun <T> RecyclerView.adapter(
-        list: KObservableListInterface<T>,
-        noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
-): StandardRecyclerViewAdapter<T> {
-
-    val newAdapter = StandardRecyclerViewAdapter(context, list, makeView)
-    adapter = newAdapter
-    list.onAdd.add { item, position ->
-        adapter.notifyItemInserted(position)
-    }
-    list.onRemove.add { item, position ->
-        adapter.notifyItemRemoved(position)
-    }
-    list.onChange.add { item, position ->
-        //adapter.notifyItemChanged(position)
-        newAdapter.update(position)
-    }
-    list.onReplace.add { list ->
-        adapter.notifyDataSetChanged()
-    }
-    return newAdapter
-}
-
-inline fun <T> RecyclerView.adapter(
         list: List<T>,
         noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
@@ -131,14 +135,48 @@ inline fun <T> RecyclerView.adapter(
 }
 
 inline fun <T> RecyclerView.adapter(
-        listObs: KObservable<List<T>>,
+        list: KObservableListInterface<T>,
+        noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+): StandardRecyclerViewAdapter<T> {
+    val newAdapter = StandardRecyclerViewAdapter(context, list, makeView)
+    adapter = newAdapter
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View?) {
+            newAdapter.attachAnimations(list)
+        }
+
+        override fun onViewDetachedFromWindow(v: View?) {
+            newAdapter.detatchAnimations()
+        }
+
+    })
+    return newAdapter
+}
+
+inline fun <T> RecyclerView.adapterObservable(
+        listObs: KObservableInterface<List<T>>,
         noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
     val newAdapter = StandardRecyclerViewAdapter(context, listObs.get(), makeView)
-    bind(listObs) {
+    listen(listObs) {
         newAdapter.list = it
-        newAdapter.notifyDataSetChanged()
+        if (it is KObservableListInterface<T>) {
+            newAdapter.attachAnimations(it)
+        }
     }
+    addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View?) {
+            val list = listObs.get()
+            if (list is KObservableListInterface<T>) {
+                newAdapter.attachAnimations(list)
+            }
+        }
+
+        override fun onViewDetachedFromWindow(v: View?) {
+            newAdapter.detatchAnimations()
+        }
+
+    })
     adapter = newAdapter
     return newAdapter
 }
@@ -155,6 +193,38 @@ fun RecyclerView.handlePaging(pagedEndpoint: PagedEndpoint<*>, kAdapter: Standar
     kAdapter.onScrollToBottom = {
         if (!pagedEndpoint.pulling && morePages) {
             pagedEndpoint.pull()
+        }
+    }
+}
+
+fun <T : Any> RecyclerView.handlePagingObservable(pagedEndpointObs: KObservableInterface<PagedEndpoint<T>>, kAdapter: StandardRecyclerViewAdapter<*>, pullingUpdate: (Boolean) -> Unit = {}) {
+    var morePages = false
+    bindSub(pagedEndpointObs, { it.isMoreObservable }) { hasMore ->
+        morePages = hasMore
+    }
+    bindSub(pagedEndpointObs, { it.pullingObservable }) {
+        pullingUpdate.invoke(it)
+    }
+
+    kAdapter.onScrollToBottom = {
+        if (!pagedEndpointObs.get().pulling && morePages) {
+            pagedEndpointObs.get().pull()
+        }
+    }
+}
+
+fun <T : Any> RecyclerView.handlePagingOptionalObservable(pagedEndpointObs: KObservableInterface<PagedEndpoint<T>?>, kAdapter: StandardRecyclerViewAdapter<*>, pullingUpdate: (Boolean) -> Unit = {}) {
+    var morePages = false
+    bindSub(pagedEndpointObs, { it?.isMoreObservable ?: KObservable(true) }) { hasMore ->
+        morePages = hasMore
+    }
+    bindSub(pagedEndpointObs, { it?.pullingObservable ?: KObservable(true) }) {
+        pullingUpdate.invoke(it)
+    }
+
+    kAdapter.onScrollToBottom = {
+        if (!(pagedEndpointObs.get()?.pulling ?: true) && morePages) {
+            pagedEndpointObs.get()?.pull()
         }
     }
 }

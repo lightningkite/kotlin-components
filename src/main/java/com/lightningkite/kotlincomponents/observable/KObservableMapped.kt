@@ -78,6 +78,10 @@ inline fun <T, A> KObservableInterface<A>.map(noinline mapper: (A) -> T, noinlin
     return KObservableMapped(this, mapper, reverseMapper)
 }
 
+inline fun <T, A> KObservableInterface<A>.mapReadOnly(noinline mapper: (A) -> T): KObservableMapped<T, A> {
+    return KObservableMapped(this, mapper, { throw IllegalAccessException() })
+}
+
 inline fun <T> KObservableInterface<T?>.notNull(default: T): KObservableMapped<T, T?> {
     return KObservableMapped(this, { it ?: default }, { it })
 }

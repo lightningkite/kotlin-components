@@ -19,7 +19,7 @@ import java.util.*
 var bindings = 0
 
 @Suppress("NOTHING_TO_INLINE")
-inline private fun View.addAttachListener(listener: View.OnAttachStateChangeListener) {
+inline fun View.addAttachListener(listener: View.OnAttachStateChangeListener) {
     if (isAttachedToWindowCompat()) listener.onViewAttachedToWindow(this)
     addOnAttachStateChangeListener(listener)
 }
@@ -78,6 +78,26 @@ fun <A, B> View.listen(observableA: KObservableInterface<A>, observableB: KObser
 
 fun <T> View.bind(observable: KObservableListInterface<T>, item: (KObservableListInterface<T>) -> Unit) {
     bind(observable.onUpdate, item)
+}
+
+inline fun <A, T> View.bindSub(observable: KObservableInterface<A>, crossinline mapper: (A) -> KObservableInterface<T>, noinline action: (T) -> Unit) {
+    val obs = KObservableObservable(mapper(observable.get()))
+    bind(observable) {
+        obs.observable = mapper(it)
+    }
+    bind(obs, action)
+}
+
+fun <T> View.bind(list: KObservableListInterface<T>, listenerSet: KObservableListListenerSet<T>) {
+    addAttachListener(object : View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View?) {
+            list.removeListenerSet(listenerSet)
+        }
+
+        override fun onViewAttachedToWindow(v: View?) {
+            list.addListenerSet(listenerSet)
+        }
+    })
 }
 
 fun <T> View.bind(observable: KObservableInterface<T>, item: (T) -> Unit) {

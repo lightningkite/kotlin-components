@@ -80,8 +80,8 @@ class StandardRecyclerViewAdapter<T>(
     val itemObservables = ArrayList<ItemObservable<T>>()
 
     class ItemObservable<T>(val parent: StandardRecyclerViewAdapter<T>) : ArrayList<(T) -> Unit>(), KObservableInterface<T> {
-        lateinit var viewHolder: ViewHolder<T>
-        val position: Int get() = viewHolder.adapterPosition
+        var viewHolder: ViewHolder<T>? = null
+        val position: Int get() = viewHolder?.adapterPosition ?: 0
 
         override fun get(): T {
             if (position >= 0 && position < parent.list.size) {

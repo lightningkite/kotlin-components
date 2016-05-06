@@ -5,12 +5,12 @@ import java.util.*
 /**
  * Created by jivie on 2/22/16.
  */
-class KObservableMapped<T, A>(val actualObservable: KObservableInterface<A>, val mapper: (A) -> T, val reverseMapper: (T) -> A) : KObservableInterface<T> {
+class KObservableMapped<S, T>(val actualObservable: KObservableInterface<S>, val mapper: (S) -> T, val reverseMapper: (T) -> S) : KObservableInterface<T> {
 
     val actionToWrapper = HashMap<(T) -> Unit, Wrapper>()
 
-    inner class Wrapper(val func: (T) -> Unit) : (A) -> Unit {
-        override fun invoke(p1: A) {
+    inner class Wrapper(val func: (T) -> Unit) : (S) -> Unit {
+        override fun invoke(p1: S) {
             func(mapper(p1))
         }
     }
@@ -74,14 +74,14 @@ class KObservableMapped<T, A>(val actualObservable: KObservableInterface<A>, val
     override fun update() = actualObservable.update()
 }
 
-inline fun <T, A> KObservableInterface<A>.map(noinline mapper: (A) -> T, noinline reverseMapper: (T) -> A): KObservableMapped<T, A> {
+inline fun <S, T> KObservableInterface<S>.mapObservable(noinline mapper: (S) -> T, noinline reverseMapper: (T) -> S): KObservableMapped<S, T> {
     return KObservableMapped(this, mapper, reverseMapper)
 }
 
-inline fun <T, A> KObservableInterface<A>.mapReadOnly(noinline mapper: (A) -> T): KObservableMapped<T, A> {
+inline fun <S, T> KObservableInterface<S>.mapReadOnly(noinline mapper: (S) -> T): KObservableMapped<S, T> {
     return KObservableMapped(this, mapper, { throw IllegalAccessException() })
 }
 
-inline fun <T> KObservableInterface<T?>.notNull(default: T): KObservableMapped<T, T?> {
+inline fun <T> KObservableInterface<T?>.notNull(default: T): KObservableMapped<T?, T> {
     return KObservableMapped(this, { it ?: default }, { it })
 }

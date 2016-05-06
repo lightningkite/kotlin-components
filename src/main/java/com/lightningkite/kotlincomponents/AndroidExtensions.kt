@@ -3,8 +3,12 @@ package com.lightningkite.kotlincomponents
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Build
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.res.ResourcesCompat
 import org.jetbrains.anko.defaultSharedPreferences
 import java.util.*
 
@@ -82,4 +86,20 @@ inline fun <T> versionOn(version: Int, action: () -> T, otherwise: () -> T): T {
     } else {
         otherwise()
     }
+}
+
+fun Context.compatColor(colorResId: Int): Int {
+    return ContextCompat.getColor(this, colorResId)
+}
+
+fun Context.compatDrawable(drawableResId: Int): Drawable {
+    return ContextCompat.getDrawable(this, drawableResId)
+}
+
+fun Resources.compatColor(colorResId: Int): Int {
+    return ResourcesCompat.getColor(this, colorResId, null)
+}
+
+fun Resources.compatDrawable(drawableResId: Int): Drawable? {
+    return ResourcesCompat.getDrawable(this, drawableResId, null)
 }

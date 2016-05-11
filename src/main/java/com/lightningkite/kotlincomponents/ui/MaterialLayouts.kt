@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.view.Gravity
+import android.view.ViewManager
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -38,12 +39,11 @@ inline fun ImageButton.materialStyleAction() {
     backgroundResource = selectableItemBackgroundBorderlessResource
 }
 
-inline fun rowOneLine(
-        context: Context,
+inline fun ViewManager.rowOneLine(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit
 ): LinearLayout {
-    return verticalLayout(context) {
+    return verticalLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
@@ -55,13 +55,12 @@ inline fun rowOneLine(
     }
 }
 
-inline fun rowOneLineRadio(
-        context: Context,
+inline fun ViewManager.rowOneLineRadio(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline radioButtonInit: RadioButton.() -> Unit
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
@@ -82,13 +81,12 @@ inline fun rowOneLineRadio(
     }
 }
 
-inline fun rowTwoLine(
-        context: Context,
+inline fun ViewManager.rowTwoLine(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline subtitle: TextView.() -> Unit
 ): LinearLayout {
-    return verticalLayout(context) {
+    return verticalLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
@@ -104,14 +102,13 @@ inline fun rowTwoLine(
     }
 }
 
-inline fun rowTwoLineDrawableRight(
-        context: Context,
+inline fun ViewManager.rowTwoLineDrawableRight(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline subtitle: TextView.() -> Unit,
         drawable: Drawable
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         verticalLayout {
             backgroundResource = selectableItemBackgroundResource
             minimumHeight = dip(72)
@@ -138,14 +135,13 @@ inline fun rowTwoLineDrawableRight(
     }
 }
 
-inline fun rowTwoLineDrawableLeft(
-        context: Context,
+inline fun ViewManager.rowTwoLineDrawableLeft(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline subtitle: TextView.() -> Unit,
         drawable: Drawable
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         imageView(drawable) {
             padding = dip(8)
             gravity = Gravity.CENTER
@@ -172,15 +168,14 @@ inline fun rowTwoLineDrawableLeft(
     }
 }
 
-inline fun rowTwoLineAction(
-        context: Context,
+inline fun ViewManager.rowTwoLineAction(
         actionIcon: Int,
         crossinline action: () -> Unit,
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline subtitle: TextView.() -> Unit
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
@@ -205,15 +200,14 @@ inline fun rowTwoLineAction(
     }
 }
 
-inline fun rowTwoTwoLine(
-        context: Context,
+inline fun ViewManager.rowTwoTwoLine(
         dark: Boolean = false,
         crossinline title: TextView.() -> Unit,
         crossinline subtitle: TextView.() -> Unit,
         crossinline rightTop: TextView.() -> Unit,
         crossinline rightBottom: TextView.() -> Unit
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)
@@ -243,8 +237,7 @@ inline fun rowTwoTwoLine(
     }
 }
 
-inline fun rowTwoTwoLineAction(
-        context: Context,
+inline fun ViewManager.rowTwoTwoLineAction(
         actionIcon: Int,
         crossinline action: () -> Unit,
         dark: Boolean = false,
@@ -253,7 +246,7 @@ inline fun rowTwoTwoLineAction(
         crossinline rightTop: TextView.() -> Unit,
         crossinline rightBottom: TextView.() -> Unit
 ): LinearLayout {
-    return linearLayout(context) {
+    return linearLayout {
         backgroundResource = selectableItemBackgroundResource
         minimumHeight = dip(72)
         padding = dip(16)

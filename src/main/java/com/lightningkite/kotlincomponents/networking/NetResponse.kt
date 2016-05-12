@@ -79,6 +79,7 @@ class NetResponse(
     inline fun <reified T : Any> auto(): T? {
         return when (T::class.java) {
             Unit::class.java -> Unit as T
+            String::class.java -> string() as T
             Bitmap::class.java -> bitmap() as T
             else -> gson<T>()
         }

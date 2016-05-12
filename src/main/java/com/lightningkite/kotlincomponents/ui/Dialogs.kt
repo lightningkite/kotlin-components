@@ -3,8 +3,7 @@ package com.lightningkite.kotlincomponents.ui
 import android.app.Activity
 import android.text.InputType
 import android.widget.EditText
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.editText
+import org.jetbrains.anko.*
 
 /**
  * Creates a dialog with an input text field on it.
@@ -14,8 +13,13 @@ fun Activity.inputDialog(message: Int, title: Int, inputType: Int = InputType.TY
     alert(message, title) {
         var input: EditText? = null
         customView {
-            input = editText {
-                this.inputType = inputType
+            frameLayout {
+                input = editText {
+                    this.inputType = inputType
+                }.lparams(matchParent, wrapContent) {
+                    leftMargin = dip(20)
+                    rightMargin = dip(20)
+                }
             }
         }
         positiveButton {

@@ -21,14 +21,18 @@ import kotlin.concurrent.schedule
 
 private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 
-inline fun ImageView.imageStream(url: String, minBytes: Long, crossinline onResult: (Boolean) -> Unit)
+inline fun ImageView.imageStream(url: String, minBytes: Long? = null, crossinline onResult: (Boolean) -> Unit)
         = imageStream(NetRequest(NetMethod.GET, url), minBytes, onResult)
 
-inline fun ImageView.imageStream(request: NetRequest, minBytes: Long, crossinline onResult: (Boolean) -> Unit) {
+inline fun ImageView.imageStream(request: NetRequest, minBytes: Long? = null, crossinline onResult: (Boolean) -> Unit) {
     doAsync({
         val stream = Networking.stream(request)
         if (stream.isSuccessful) {
-            stream.bitmapSized(minBytes)
+            if (minBytes != null) {
+                stream.bitmapSized(minBytes)
+            } else {
+                stream.bitmap()
+            }
         } else {
             null
         }
@@ -37,7 +41,7 @@ inline fun ImageView.imageStream(request: NetRequest, minBytes: Long, crossinlin
             onResult(false)
         } else {
             val code = request.url + UUID.randomUUID().toString()
-            if (!isAttachedToWindow) {
+            if (!isAttachedToWindowCompat()) {
                 it.recycle()
                 return@doAsync
             }
@@ -62,7 +66,7 @@ fun ImageView.imageLoad(endpoint: NetEndpoint) {
     endpoint.async(NetMethod.GET) { response ->
         if (!response.isSuccessful) return@async
         if (isAttachedToWindowCompat()) {
-            var oldBitmap = bitmaps[endpoint.url]
+            val oldBitmap = bitmaps[endpoint.url]
             if (oldBitmap != null) oldBitmap.recycle()
             else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
@@ -95,7 +99,7 @@ fun ImageView.imageLoad(url: String, onLoaded: (Boolean) -> Unit = {}) {
         }
         onLoaded(true)
         if (isAttachedToWindowCompat()) {
-            var oldBitmap = bitmaps[url]
+            val oldBitmap = bitmaps[url]
             if (oldBitmap != null) oldBitmap.recycle()
             else addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
@@ -116,8 +120,8 @@ fun ImageView.imageLoad(url: String, onLoaded: (Boolean) -> Unit = {}) {
 }
 
 fun ImageView.imageLoadInList(url: String, vc: StandardViewController, onLoadState: (ImageLoadState) -> Unit = {}) {
-    var oldBitmap = bitmaps[url]
-    var unmakeCalled: AtomicBoolean = AtomicBoolean(false)
+    val oldBitmap = bitmaps[url]
+    val unmakeCalled: AtomicBoolean = AtomicBoolean(false)
     val handler = Handler(Looper.getMainLooper())
     if (oldBitmap != null) {
         this.imageBitmap = oldBitmap

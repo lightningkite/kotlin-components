@@ -120,29 +120,33 @@ abstract class StandardViewController() : ViewController {
         return view
     }
 
-
+    @Deprecated("Please use text resources.  It's better anyways.")
     inline fun Menu.item(textRes: String, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
         var menuItem: MenuItem? = null
         onMake.add {
+            println("adding menu item $textRes")
             menuItem = add(textRes).apply {
                 setIcon(iconRes)
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             }.apply(setup)
         }
         onAnimateOutStart.add { a, v ->
+            println("removing menu item $textRes")
             removeItem((menuItem ?: return@add).itemId)
         }
     }
 
-    inline fun Menu.item(textRes: Int, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
+    inline fun Menu.item(textRes: Int, iconRes: Int, groupId: Int = 0, id: Int = textRes + iconRes, order: Int = Menu.CATEGORY_CONTAINER or (textRes and 0xFFFF), crossinline setup: MenuItem.() -> Unit) {
         var menuItem: MenuItem? = null
         onMake.add {
-            menuItem = add(textRes).apply {
+            println("adding menu item $textRes")
+            menuItem = add(groupId, id, order, textRes).apply {
                 setIcon(iconRes)
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             }.apply(setup)
         }
         onAnimateOutStart.add { a, v ->
+            println("removing menu item $textRes")
             removeItem((menuItem ?: return@add).itemId)
         }
     }

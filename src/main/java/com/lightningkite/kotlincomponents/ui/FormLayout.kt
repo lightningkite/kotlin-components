@@ -112,11 +112,11 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         get() = errors[this]
         set(value) {
             errors[this] = value
-            if (this is TextInputLayout) {
+            if (this is TextInputLayout && this.editText!!.text.isNotEmpty()) {
                 this.error = value
             }
             val parent = this.parent
-            if (parent is TextInputLayout) {
+            if (parent is TextInputLayout && parent.editText!!.text.isNotEmpty()) {
                 parent.error = value
             }
             isPassingObs.set(!errors.values.any { it != null })
@@ -126,11 +126,11 @@ class FormLayout(ctx: Context) : _LinearLayout(ctx) {
         set(resource) {
             val value = if (resource != null) resources.getString(resource) else null
             errors[this] = value
-            if (this is TextInputLayout) {
+            if (this is TextInputLayout && this.editText!!.text.isNotEmpty()) {
                 this.error = value
             }
             val parent = this.parent
-            if (parent is TextInputLayout) {
+            if (parent is TextInputLayout && parent.editText!!.text.isNotEmpty()) {
                 parent.error = value
             }
             isPassingObs.set(!errors.values.any { it != null })

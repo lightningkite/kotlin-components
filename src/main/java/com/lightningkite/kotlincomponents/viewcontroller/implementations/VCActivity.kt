@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.lightningkite.kotlincomponents.animation.AnimationSet
 import com.lightningkite.kotlincomponents.runAll
+import com.lightningkite.kotlincomponents.versionOn
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCStack
 import java.util.*
@@ -123,11 +124,13 @@ abstract class VCActivity : Activity() {
 
             ActivityCompat.requestPermissions(this, ungranted.toTypedArray(), generated)
 
+        } else {
+            onResult(emptyMap())
         }
     }
 
     /**
-     * Requests a single permissiona and returns whether it was granted or not.
+     * Requests a single permissions and returns whether it was granted or not.
      */
     fun requestPermission(permission: String, onResult: (Boolean) -> Unit) {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -144,14 +147,16 @@ abstract class VCActivity : Activity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        versionOn(23) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        val map = HashMap<String, Int>()
-        for (i in permissions.indices) {
-            map[permissions[i]] = grantResults[i]
+            val map = HashMap<String, Int>()
+            for (i in permissions.indices) {
+                map[permissions[i]] = grantResults[i]
+            }
+            requestReturns[requestCode]?.invoke(map)
+
+            requestReturns.remove(requestCode)
         }
-        requestReturns[requestCode]?.invoke(map)
-
-        requestReturns.remove(requestCode)
     }
 }

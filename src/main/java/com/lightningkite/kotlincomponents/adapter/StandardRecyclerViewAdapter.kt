@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.networking.PagedEndpoint
 import com.lightningkite.kotlincomponents.observable.*
 import com.lightningkite.kotlincomponents.runAll
-import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.AnkoContextImpl
 import java.util.*
 
@@ -19,7 +18,7 @@ import java.util.*
 class StandardRecyclerViewAdapter<T>(
         val context: Context,
         initialList: List<T>,
-        val makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(ItemObservable<T>) -> Unit
+        val makeView: SRVAContext<T>.(ItemObservable<T>) -> Unit
 ) : RecyclerView.Adapter<StandardRecyclerViewAdapter.ViewHolder<T>>() {
 
     var list: List<T> = initialList
@@ -125,18 +124,30 @@ class StandardRecyclerViewAdapter<T>(
     }
 }
 
+@Deprecated("Use standardAdapter() instead.", ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter"))
 inline fun <T> RecyclerView.adapter(
         list: List<T>,
-        noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+): StandardRecyclerViewAdapter<T> = standardAdapter(list, makeView)
+
+inline fun <T> RecyclerView.standardAdapter(
+        list: List<T>,
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
     val newAdapter = StandardRecyclerViewAdapter(context, list, makeView)
     adapter = newAdapter
     return newAdapter
 }
 
+@Deprecated("Use standardAdapter() instead.", ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter"))
 inline fun <T> RecyclerView.adapter(
         list: KObservableListInterface<T>,
-        noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+): StandardRecyclerViewAdapter<T> = standardAdapter(list, makeView)
+
+inline fun <T> RecyclerView.standardAdapter(
+        list: KObservableListInterface<T>,
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
     val newAdapter = StandardRecyclerViewAdapter(context, list, makeView)
     adapter = newAdapter
@@ -153,9 +164,15 @@ inline fun <T> RecyclerView.adapter(
     return newAdapter
 }
 
+@Deprecated("Use standardAdapter() instead.", ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter"))
 inline fun <T> RecyclerView.adapterObservable(
         listObs: KObservableInterface<List<T>>,
-        noinline makeView: AnkoContext<StandardRecyclerViewAdapter<T>>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
+): StandardRecyclerViewAdapter<T> = standardAdapterObservable(listObs, makeView)
+
+inline fun <T> RecyclerView.standardAdapterObservable(
+        listObs: KObservableInterface<List<T>>,
+        noinline makeView: StandardRecyclerViewAdapter.SRVAContext<T>.(StandardRecyclerViewAdapter.ItemObservable<T>) -> Unit
 ): StandardRecyclerViewAdapter<T> {
     val newAdapter = StandardRecyclerViewAdapter(context, listObs.get(), makeView)
     listen(listObs) {

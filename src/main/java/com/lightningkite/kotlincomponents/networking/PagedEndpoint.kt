@@ -74,7 +74,7 @@ open class PagedEndpoint<T : Any>(
         if (pulling) return
         if (nextEndpoint == null) return
         pulling = true
-        var currentEndpoint = nextEndpoint!!
+        val currentEndpoint = nextEndpoint!!
 
         if (isPaged) {
             currentEndpoint.async(NetMethod.GET) { response ->

@@ -100,6 +100,10 @@ class RecyclerViewParamAdder(val context: Context) {
     }
 }
 
+@Deprecated(
+        "This has been replaced with StandardAdapter which is both more stable and easier to use.  Auto-replace will require tweaking.",
+        ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter")
+)
 inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
         RecyclerViewParamAdder(context).makeView(it)
@@ -121,6 +125,10 @@ inline fun <T> RecyclerView.makeAdapter(list: KObservableListInterface<T>, defau
     return newAdapter
 }
 
+@Deprecated(
+        "This has been replaced with StandardAdapter which is both more stable and easier to use.  Auto-replace will require tweaking, as view should be created using the Anko context now.",
+        ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter")
+)
 inline fun <T> RecyclerView.makeAdapter(list: List<T>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(list, defaultValue) {
         RecyclerViewParamAdder(context).makeView(it)
@@ -129,6 +137,10 @@ inline fun <T> RecyclerView.makeAdapter(list: List<T>, defaultValue: T, crossinl
     return newAdapter
 }
 
+@Deprecated(
+        "This has been replaced with StandardAdapter which is both more stable and easier to use.  Auto-replace will require tweaking, as view should be created using the Anko context now.",
+        ReplaceWith("standardAdapter(list, makeView)", "com.lightningkite.kotlincomponents.adapter.standardAdapter")
+)
 inline fun <T> RecyclerView.makeAdapter(listObs: KObservable<List<T>>, defaultValue: T, crossinline makeView: RecyclerViewParamAdder.(KRecyclerViewAdapter.ItemObservable<T>) -> View): KRecyclerViewAdapter<T> {
     val newAdapter = KRecyclerViewAdapter(listObs.get(), defaultValue) {
         RecyclerViewParamAdder(context).makeView(it)

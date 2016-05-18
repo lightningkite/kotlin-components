@@ -83,11 +83,10 @@ library.  Use is simple and doesn't require an extra file:
     //Anko, makes a vertical recycler view.  A RecyclerView is the modern equivalent of a ListView.
     verticalRecyclerView() {
     
-        //This wonderful shortcut function sets up the adapter using a list of items, a default item
-        //to display when their are errors, and a lambda which takes an observable of an item and 
-        //returns a free-floating view.
-        makeAdapter(items, "") { obs ->
-            TextView(activity).apply {
+        //This wonderful shortcut function sets up the adapter using a list of items and a lambda 
+        //which takes an observable of an item and makes a view using standard Anko.
+        standardAdapter(items) { obs ->
+            textView {
                 bindString(obs)
                 gravity = Gravity.CENTER
                 textSize = 18f

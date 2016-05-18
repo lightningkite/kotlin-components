@@ -34,8 +34,13 @@ open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, va
     fun queryOptional(key: String, value: Any?) = if (value != null) NetEndpoint(netInterface, preQueryUrl, queryParams + (key to value.toString())) else this
 
 
+    @Deprecated("This does not belong here and also uses the old PagedEndpoint.")
     inline fun <reified T : Any> paged(listKey: String = "results"): PagedEndpoint<T> = PagedEndpoint(this)
+
+    @Deprecated("This does not belong here and also uses the old PagedEndpoint.")
     inline fun <reified T : Any> paged(listKey: String = "results", noinline onError: (NetResponse) -> Boolean): PagedEndpoint<T> = PagedEndpoint(this, onError = onError)
+
+    @Deprecated("This does not belong here and also uses the old PagedEndpoint.")
     inline fun <reified T : Any> paged(current: PagedEndpoint<T>, noinline onError: (NetResponse) -> Boolean): PagedEndpoint<T> = current.apply {
         reset(this@NetEndpoint)
     }

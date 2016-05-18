@@ -31,7 +31,7 @@ import java.util.*
 
 inline fun <reified T : KSyncedListItem<T, K>, reified K : Any> defaultSyncPush(
         endpoint: NetEndpoint,
-        change: ItemChange<T, K>
+        change: KSyncedItemListChange<T, K>
 ): SyncError? {
     var error: SyncError? = null
     if (change.isAdd) {
@@ -109,7 +109,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val type: Type,
         val getFolder: () -> File,
         val syncPull: () -> PullResult<T>,
-        val syncPush: (ItemChange<T, K>) -> SyncError?,
+        val syncPush: (KSyncedItemListChange<T, K>) -> SyncError?,
         val innerList: KObservableListInterface<T> = KObservableList()
 ) : KObservableListInterface<T> by innerList, Syncable {
 
@@ -121,7 +121,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         }
     }
 
-    val changes = HashMap<K?, ItemChange<T, K>>()
+    val changes = HashMap<K?, KSyncedItemListChange<T, K>>()
     var numChanges = 0
 
     private var folder: File = getFolder()
@@ -146,7 +146,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     }
 
     private val changeType: ParameterizedType = object : ParameterizedType {
-        override fun getRawType(): Type? = ItemChange::class.java
+        override fun getRawType(): Type? = KSyncedItemListChange::class.java
         override fun getOwnerType(): Type? = null
         override fun getActualTypeArguments(): Array<out Type>? = arrayOf(type)
     }
@@ -241,7 +241,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
                 changes.clear()
 
-                val changesRaw: ArrayList<ItemChange<T, K>> = ArrayList()
+                val changesRaw: ArrayList<KSyncedItemListChange<T, K>> = ArrayList()
                 changesRaw.load(changesFile, changeType)
 
                 for (change in changesRaw) {
@@ -294,7 +294,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
 
     fun clearFailingChanges() {
         if (!changesFile.exists()) return
-        val changes: ArrayList<ItemChange<T, K>> = ArrayList()
+        val changes: ArrayList<KSyncedItemListChange<T, K>> = ArrayList()
         try {
             changes.load(changesFile, changeType)
         } catch(e: Exception) {
@@ -312,9 +312,9 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     /**
      * Does something on all of the changes.  The successful changes are deleted.
      **/
-    private fun pushChanges(): List<ItemChange<T, K>> {
+    private fun pushChanges(): List<KSyncedItemListChange<T, K>> {
         val statusChanges = changes.keys.toHashSet()
-        val failedChanges = ArrayList<ItemChange<T, K>>()
+        val failedChanges = ArrayList<KSyncedItemListChange<T, K>>()
         val sortedChanges = changes.values.sortedBy { it.timeStamp }
         for (change in sortedChanges) {
             change.belongsTo = this
@@ -341,7 +341,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
     }
 
 
-    private inline fun applyChangesToData(changes: Collection<ItemChange<T, K>>) {
+    private inline fun applyChangesToData(changes: Collection<KSyncedItemListChange<T, K>>) {
         println("APPLY CHANGES: ${changes.size}")
         for (change in changes) {
             //apply change to local data
@@ -375,26 +375,26 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         Log.i("KSyncedList", "Updating item ${item.getKey()}")
         val index = this.indexOfFirst { item.getKey() == it.getKey() }
         this[index].merge(item)
-        addChange(ItemChange(item, item))
+        addChange(KSyncedItemListChange(item, item))
     }
 
     fun update(index: Int) {
         val item = this[index]
         Log.i("KSyncedList", "Updating item ${item.getKey()}")
-        addChange(ItemChange(item, item))
+        addChange(KSyncedItemListChange(item, item))
     }
 
     override fun add(element: T): Boolean {
         Log.i("KSyncedList", "Adding item ${element.getKey()}")
         element.parent = this
-        addChange(ItemChange(null, element))
+        addChange(KSyncedItemListChange(null, element))
         return innerList.add(element)
     }
 
     override fun add(index: Int, element: T) {
         Log.i("KSyncedList", "Adding item ${element.getKey()}")
         element.parent = this
-        addChange(ItemChange(null, element))
+        addChange(KSyncedItemListChange(null, element))
         innerList.add(index, element)
     }
 
@@ -403,7 +403,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             Log.i("KSyncedList", "Adding item ${element.getKey()}")
             element.parent = this
         }
-        addChanges(elements.map { ItemChange(null, it) })
+        addChanges(elements.map { KSyncedItemListChange(null, it) })
         return innerList.addAll(index, elements)
     }
 
@@ -412,14 +412,14 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             Log.i("KSyncedList", "Adding item ${element.getKey()}")
             element.parent = this
         }
-        addChanges(elements.map { ItemChange(null, it) })
+        addChanges(elements.map { KSyncedItemListChange(null, it) })
         return innerList.addAll(elements)
     }
 
     override fun remove(element: T): Boolean {
         Log.i("KSyncedList", "Removing item ${element.getKey()}")
         element.parent = null
-        addChange(ItemChange(element, null))
+        addChange(KSyncedItemListChange(element, null))
         return innerList.remove(element)
     }
 
@@ -428,14 +428,14 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
             Log.i("KSyncedList", "Removing item ${element.getKey()}")
             element.parent = null
         }
-        addChanges(elements.map { ItemChange(it, null) })
+        addChanges(elements.map { KSyncedItemListChange(it, null) })
         return innerList.removeAll(elements)
     }
 
     override fun removeAt(index: Int): T {
         Log.i("KSyncedList", "Removing item ${this[index].getKey()}")
         this[index].parent = null
-        addChange(ItemChange(this[index], null))
+        addChange(KSyncedItemListChange(this[index], null))
         return innerList.removeAt(index)
     }
 
@@ -447,13 +447,13 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         val previous = this[index]
         Log.i("KSyncedList", "Updating item ${element.getKey()}")
         element.parent = this
-        addChange(ItemChange(previous, element))
+        addChange(KSyncedItemListChange(previous, element))
         return innerList.set(index, element)
     }
 
     override fun clear() {
         innerList.clear()
-        addChange(ItemChange(null, null))
+        addChange(KSyncedItemListChange(null, null))
     }
 
     override fun replace(list: List<T>) {
@@ -461,7 +461,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         addAll(list)
     }
 
-    private inline fun addChange(change: ItemChange<T, K>) {
+    private inline fun addChange(change: KSyncedItemListChange<T, K>) {
         if (pushImmediately) {
             doAsync {
                 val error = syncPush(change)
@@ -477,7 +477,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         }
     }
 
-    private inline fun addChanges(changes: List<ItemChange<T, K>>) {
+    private inline fun addChanges(changes: List<KSyncedItemListChange<T, K>>) {
         if (pushImmediately) {
             for (change in changes)
                 addChange(change)
@@ -489,7 +489,7 @@ open class KSyncedList<T : KSyncedListItem<T, K>, K : Any>(
         }
     }
 
-    private inline fun storeChange(change: ItemChange<T, K>) {
+    private inline fun storeChange(change: KSyncedItemListChange<T, K>) {
         //send changes for all those who had a status change
         doUiThread {
             for (i in innerList.indices) {

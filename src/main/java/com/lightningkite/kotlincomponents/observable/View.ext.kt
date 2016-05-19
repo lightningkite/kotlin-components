@@ -538,6 +538,26 @@ inline fun Switch.bind(bond: KObservableInterface<Boolean>) {
     }
 }
 
+/**
+ * Binds this [Switch] two way to the bond.
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Switch.bindBoolean(bond: KObservableInterface<Boolean>, crossinline onChange: (Boolean) -> Unit) {
+    this.onCheckedChange {
+        buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
+        Unit
+        if (isChecked != bond.get()) {
+            bond.set(isChecked)
+            onChange(isChecked)
+        }
+    }
+    bind(bond) {
+        if (isChecked != bond.get()) {
+            isChecked = bond.get()
+        }
+    }
+}
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {

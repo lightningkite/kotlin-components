@@ -10,9 +10,7 @@ import com.google.gson.JsonParser
 import com.lightningkite.kotlincomponents.MyGson
 import com.lightningkite.kotlincomponents.toByteArray
 import org.json.JSONObject
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-import java.io.InputStreamReader
+import java.io.*
 import java.lang.reflect.Type
 
 /**
@@ -88,6 +86,25 @@ open class NetStream(
         } catch(e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    fun download(destination: File) {
+        readStream { stream ->
+            val fos = FileOutputStream(destination.absolutePath)
+            try {
+                val data = ByteArray(1024)
+                var total: Long = 0
+                while (true) {
+                    val count = stream.read(data)
+                    if (count == -1) break
+                    total += count.toLong()
+                    fos.write(data, 0, count)
+                }
+                fos.flush()
+            } finally {
+                fos.close()
+            }
         }
     }
 

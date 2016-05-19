@@ -1,14 +1,18 @@
 package com.lightningkite.kotlincomponents.ui
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import com.lightningkite.kotlincomponents.async.doAsync
+import com.lightningkite.kotlincomponents.image.getBitmapFromUri
 import com.lightningkite.kotlincomponents.networking.*
 import com.lightningkite.kotlincomponents.viewcontroller.StandardViewController
 import org.jetbrains.anko.imageBitmap
+import java.io.File
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.schedule
@@ -50,6 +54,45 @@ inline fun ImageView.imageStream(request: NetRequest, minBytes: Long? = null, cr
                 override fun onViewDetachedFromWindow(v: View?) {
                     setImageDrawable(null)
                     it.recycle()
+                    removeOnAttachStateChangeListener(this)
+                }
+
+                override fun onViewAttachedToWindow(v: View?) {
+                }
+            })
+            onResult(true)
+        }
+    })
+}
+
+fun ImageView.imageStreamExif(context: Context, request: NetRequest, maxDimension: Int = Int.MAX_VALUE, onResult: (Boolean) -> Unit) {
+    val tempFile = File.createTempFile("image", "jpg", context.cacheDir)
+    doAsync({
+        val stream = Networking.stream(request)
+        if (stream.isSuccessful) {
+            stream.download(tempFile)
+            context.getBitmapFromUri(Uri.fromFile(tempFile), maxDimension)
+        } else {
+            null
+        }
+    }, {
+        if (it == null) {
+            onResult(false)
+        } else {
+            val code = request.url + UUID.randomUUID().toString()
+            if (!isAttachedToWindowCompat()) {
+                it.recycle()
+                return@doAsync
+            }
+            imageBitmap = it
+            addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewDetachedFromWindow(v: View?) {
+                    setImageDrawable(null)
+                    it.recycle()
+                    try {
+                        tempFile.delete()
+                    } catch(e: Exception) {/*Squish*/
+                    }
                     removeOnAttachStateChangeListener(this)
                 }
 

@@ -30,22 +30,37 @@ import java.util.*
  * Pops up a dialog for getting an image from the gallery, returning it in [onResult].
  */
 fun VCActivity.getImageUriFromGallery(onResult: (Uri?) -> Unit) {
-    val getIntent = Intent(Intent.ACTION_GET_CONTENT)
-    getIntent.type = "image/*"
+    try {
+        val getIntent = Intent(Intent.ACTION_GET_CONTENT)
+        getIntent.type = "image/*"
 
-    val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-    pickIntent.type = "image/*"
+        val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickIntent.type = "image/*"
 
-    val chooserIntent = Intent.createChooser(getIntent, "Select Image")
-    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
+        val chooserIntent = Intent.createChooser(getIntent, "Select Image")
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
 
-    this.startIntent(chooserIntent) { code, data ->
-        if (code != Activity.RESULT_OK) {
-            onResult(null); return@startIntent
+        this.startIntent(chooserIntent) { code, data ->
+            try {
+                if (code != Activity.RESULT_OK) {
+                    //cancelled
+                    onResult(null)
+                    return@startIntent
+                }
+                if (data == null) {
+                    onResult(null)
+                    return@startIntent
+                }
+                val imageUri = data.data
+                onResult(imageUri)
+            } catch(e: Exception) {
+                e.printStackTrace()
+                onResult(null)
+            }
         }
-        if (data == null) return@startIntent
-        val imageUri = data.data
-        onResult(imageUri)
+    } catch(e: Exception) {
+        e.printStackTrace()
+        onResult(null)
     }
 }
 
@@ -53,26 +68,37 @@ fun VCActivity.getImageUriFromGallery(onResult: (Uri?) -> Unit) {
  * Opens the camera to take a picture, returning it in [onResult].
  */
 fun VCActivity.getImageUriFromCamera(onResult: (Uri?) -> Unit) {
-    val folder = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    if (folder == null) {
-        onResult(null)
-        return;
-    }
-
-    folder.mkdir()
-
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    val file = File.createTempFile(timeStamp, ".jpg", folder)
-    val potentialFile: Uri = Uri.fromFile(file)
-
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, potentialFile)
-    this.startIntent(intent) { code, data ->
-        if (code != Activity.RESULT_OK) {
-            onResult(null); return@startIntent
+    try {
+        val folder = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (folder == null) {
+            onResult(null)
+            return;
         }
-        val fixedUri = File((data?.data ?: potentialFile).getRealPath(this)).toImageContentUri(this)
-        onResult(fixedUri)
+
+        folder.mkdir()
+
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val file = File.createTempFile(timeStamp, ".jpg", folder)
+        val potentialFile: Uri = Uri.fromFile(file)
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, potentialFile)
+        this.startIntent(intent) { code, data ->
+            try {
+                if (code != Activity.RESULT_OK) {
+                    onResult(null)
+                    return@startIntent
+                }
+                val fixedUri = File((data?.data ?: potentialFile).getRealPath(this)).toImageContentUri(this)
+                onResult(fixedUri)
+            } catch(e: Exception) {
+                e.printStackTrace()
+                onResult(null)
+            }
+        }
+    } catch(e: Exception) {
+        e.printStackTrace()
+        onResult(null)
     }
 }
 

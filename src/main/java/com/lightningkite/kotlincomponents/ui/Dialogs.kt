@@ -55,47 +55,49 @@ fun Activity.standardDialog(
         message: String,
         dismissOnClickOutside: Boolean = true,
         buttons: List<Pair<String, (VCStack) -> Unit>>,
-        content: ViewGroup.() -> View
+        content: ViewGroup.(VCStack) -> View
 ) {
     return dialog(dismissOnClickOutside, layoutParamModifier = { width = matchParent }) { ui, vcStack ->
-        ui.verticalLayout {
-            //title
-            textView(title) {
-                styleTitle()
-                if (title.isNullOrEmpty()) {
-                    visibility = View.GONE
-                }
-            }.lparams(matchParent, wrapContent) {
-                standardMargins(context)
-                topMargin = dip(16)
-            }
-
-            //message
-            textView(message) {
-                styleMessage()
-            }.lparams(matchParent, wrapContent) {
-                standardMargins(context)
-            }
-
-            //custom content
-            content().lparams(matchParent, wrapContent) {
-                standardMargins(context)
-            }
-
-            //buttons
-            linearLayout {
-                gravity = Gravity.END
-                for ((buttonName, action) in buttons) {
-                    button(buttonName) {
-                        styleNormal()
-                        onClick {
-                            action(vcStack)
-                        }
-                    }.lparams(wrapContent, wrapContent) {
-                        standardMargins(context)
+        ui.scrollView {
+            verticalLayout {
+                //title
+                textView(title) {
+                    styleTitle()
+                    if (title.isNullOrEmpty()) {
+                        visibility = View.GONE
                     }
+                }.lparams(matchParent, wrapContent) {
+                    standardMargins(context)
+                    topMargin = dip(16)
                 }
-            }.lparams(matchParent, wrapContent)
+
+                //message
+                textView(message) {
+                    styleMessage()
+                }.lparams(matchParent, wrapContent) {
+                    standardMargins(context)
+                }
+
+                //custom content
+                content(vcStack).lparams(matchParent, wrapContent) {
+                    standardMargins(context)
+                }
+
+                //buttons
+                linearLayout {
+                    gravity = Gravity.END
+                    for ((buttonName, action) in buttons) {
+                        button(buttonName) {
+                            styleNormal()
+                            onClick {
+                                action(vcStack)
+                            }
+                        }.lparams(wrapContent, wrapContent) {
+                            standardMargins(context)
+                        }
+                    }
+                }.lparams(matchParent, wrapContent)
+            }
         }
     }
 }

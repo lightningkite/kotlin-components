@@ -23,7 +23,9 @@ import kotlin.concurrent.schedule
  *
  */
 
-private val bitmaps: MutableMap<String, Bitmap> = HashMap()
+
+val ImageView_previousBitmap: MutableMap<ImageView, Bitmap> = HashMap()
+val ImageView_previousListener: MutableMap<ImageView, View.OnAttachStateChangeListener> = HashMap()
 
 inline fun ImageView.imageStream(url: String, minBytes: Long? = null, crossinline onResult: (Boolean) -> Unit)
         = imageStream(NetRequest(NetMethod.GET, url), minBytes, onResult)
@@ -44,22 +46,32 @@ inline fun ImageView.imageStream(request: NetRequest, minBytes: Long? = null, cr
         if (it == null) {
             onResult(false)
         } else {
-            val code = request.url + UUID.randomUUID().toString()
             if (!isAttachedToWindowCompat()) {
                 it.recycle()
                 return@doAsync
             }
+
             imageBitmap = it
-            addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            val newListener = object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
                     setImageDrawable(null)
                     it.recycle()
+                    ImageView_previousBitmap.remove(this@imageStream)
                     removeOnAttachStateChangeListener(this)
                 }
 
                 override fun onViewAttachedToWindow(v: View?) {
                 }
-            })
+            }
+
+            ImageView_previousBitmap[this]?.recycle()
+            ImageView_previousBitmap[this] = it
+            if (ImageView_previousListener[this] != null) {
+                removeOnAttachStateChangeListener(ImageView_previousListener[this])
+            }
+            ImageView_previousListener[this] = newListener
+            addOnAttachStateChangeListener(ImageView_previousListener[this])
+
             onResult(true)
         }
     })
@@ -79,31 +91,50 @@ fun ImageView.imageStreamExif(context: Context, request: NetRequest, maxDimensio
         if (it == null) {
             onResult(false)
         } else {
-            val code = request.url + UUID.randomUUID().toString()
             if (!isAttachedToWindowCompat()) {
                 it.recycle()
+                try {
+                    tempFile.delete()
+                } catch(e: Exception) {/*Squish*/
+                }
                 return@doAsync
             }
+
             imageBitmap = it
-            addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            val newListener = object : View.OnAttachStateChangeListener {
                 override fun onViewDetachedFromWindow(v: View?) {
                     setImageDrawable(null)
                     it.recycle()
+                    ImageView_previousBitmap.remove(this@imageStreamExif)
+                    removeOnAttachStateChangeListener(this)
                     try {
                         tempFile.delete()
                     } catch(e: Exception) {/*Squish*/
                     }
-                    removeOnAttachStateChangeListener(this)
                 }
 
                 override fun onViewAttachedToWindow(v: View?) {
                 }
-            })
+            }
+
+            ImageView_previousBitmap[this]?.recycle()
+            ImageView_previousBitmap[this] = it
+            if (ImageView_previousListener[this] != null) {
+                removeOnAttachStateChangeListener(ImageView_previousListener[this])
+                try {
+                    tempFile.delete()
+                } catch(e: Exception) {/*Squish*/
+                }
+            }
+            ImageView_previousListener[this] = newListener
+            addOnAttachStateChangeListener(ImageView_previousListener[this])
+
             onResult(true)
         }
     })
 }
 
+private val bitmaps: MutableMap<String, Bitmap> = HashMap()
 @Deprecated("You should use streaming instead.")
 fun ImageView.imageLoad(endpoint: NetEndpoint) {
     endpoint.async(NetMethod.GET) { response ->

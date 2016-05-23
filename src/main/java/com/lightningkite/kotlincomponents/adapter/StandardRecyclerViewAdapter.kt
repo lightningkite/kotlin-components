@@ -106,7 +106,7 @@ class StandardRecyclerViewAdapter<T>(
     class ViewHolder<T>(val itemView: View, val observable: ItemObservable<T>) : RecyclerView.ViewHolder(itemView)
 
     fun update(position: Int) {
-        itemObservables[position].update()
+        itemObservables.find { it.position == position }?.update()
     }
 
     class SRVAContext<T>(adapter: StandardRecyclerViewAdapter<T>, context: Context) : AnkoContextImpl<StandardRecyclerViewAdapter<T>>(context, adapter, false) {

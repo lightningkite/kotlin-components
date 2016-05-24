@@ -3,6 +3,7 @@ package com.lightningkite.kotlincomponents.observable
 import com.lightningkite.kotlincomponents.Disposable
 import com.lightningkite.kotlincomponents.collection.addSorted
 import com.lightningkite.kotlincomponents.collection.map
+import com.lightningkite.kotlincomponents.runAll
 import java.util.*
 
 /**
@@ -36,24 +37,32 @@ class KObservableListSorted<E>(sourceInit: KObservableListInterface<E>, sorter: 
                         if (indexList[i] >= index)
                             indexList[i]++
                     }
-                    indexList.addSorted(index, indexCompare)
+                    val sortedIndex = indexList.addSorted(index, indexCompare)
+                    onAdd.runAll(item, sortedIndex)
                 },
                 onRemoveListener = { item, index ->
-                    indexList.remove(index)
+                    val sortedIndex = indexList.indexOf(index)
+                    indexList.removeAt(sortedIndex)
                     for (i in indexList.indices) {
                         if (indexList[i] >= index)
                             indexList[i]--
                     }
+                    onRemove.runAll(item, sortedIndex)
                 },
                 onChangeListener = { item, index ->
-                    indexList.remove(index)
-                    indexList.addSorted(index, indexCompare)
+                    val removeSortedIndex = indexList.indexOf(index)
+                    indexList.removeAt(removeSortedIndex)
+                    onRemove.runAll(item, removeSortedIndex)
+
+                    val addSortedIndex = indexList.addSorted(index, indexCompare)
+                    onChange.runAll(item, addSortedIndex)
                 },
                 onReplaceListener = {
                     indexList.clear()
                     it.forEachIndexed { index, item ->
                         indexList.addSorted(index, indexCompare)
                     }
+                    onReplace.runAll(this)
                 }
         )
         source.addListenerSet(listenerSet!!)
@@ -95,12 +104,19 @@ class KObservableListSorted<E>(sourceInit: KObservableListInterface<E>, sorter: 
             input(element, indexList.indexOf(index))
         }
     }
-    override val onAdd: MutableSet<(E, Int) -> Unit> get() = source.onAdd.map(listenerMapper)
-    override val onRemove: MutableSet<(E, Int) -> Unit> get() = source.onRemove.map(listenerMapper)
-    override val onChange: MutableSet<(E, Int) -> Unit> get() = source.onChange.map(listenerMapper)
 
-    override val onUpdate = sourceInit.onUpdate.mapObservable<KObservableListInterface<E>, KObservableListInterface<E>>({ it -> this }, { throw IllegalAccessException() })
-    override val onReplace: MutableSet<(KObservableListInterface<E>) -> Unit> get() = source.onReplace.map({ input -> { input(this) } })
+    override val onAdd = HashSet<(E, Int) -> Unit>()
+    override val onChange = HashSet<(E, Int) -> Unit>()
+    override val onUpdate = KObservableReference<KObservableListInterface<E>>({ this }, { replace(it) })
+    override val onReplace = HashSet<(KObservableListInterface<E>) -> Unit>()
+    override val onRemove = HashSet<(E, Int) -> Unit>()
+
+//    override val onAdd: MutableSet<(E, Int) -> Unit> get() = source.onAdd.map(listenerMapper)
+//    override val onRemove: MutableSet<(E, Int) -> Unit> get() = source.onRemove.map(listenerMapper)
+//    override val onChange: MutableSet<(E, Int) -> Unit> get() = source.onChange.map(listenerMapper)
+//
+//    override val onUpdate = sourceInit.onUpdate.mapObservable<KObservableListInterface<E>, KObservableListInterface<E>>({ it -> this }, { throw IllegalAccessException() })
+//    override val onReplace: MutableSet<(KObservableListInterface<E>) -> Unit> get() = source.onReplace.map({ input -> { input(this) } })
 
 }
 

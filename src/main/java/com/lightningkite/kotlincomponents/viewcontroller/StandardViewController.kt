@@ -94,7 +94,14 @@ abstract class StandardViewController() : ViewController {
 
     inline fun ViewGroup.viewContainer(container: VCContainer): VCView {
         val vcview = VCView(context as VCActivity)
+        vcview.wholeViewAnimatingIn = true
         vcview.attach(container)
+        onAnimateInComplete.add { activity, view ->
+            vcview.animateInComplete(activity, view)
+        }
+        onAnimateOutStart.add { activity, view ->
+            vcview.animateOutStart(activity, view)
+        }
         onUnmake.add {
             vcview.detatch()
         }
@@ -104,7 +111,14 @@ abstract class StandardViewController() : ViewController {
 
     inline fun ViewGroup.viewContainer(container: VCContainer, init: VCView.() -> Unit): VCView {
         val vcview = VCView(context as VCActivity)
+        vcview.wholeViewAnimatingIn = true
         vcview.attach(container)
+        onAnimateInComplete.add { activity, view ->
+            vcview.animateInComplete(activity, view)
+        }
+        onAnimateOutStart.add { activity, view ->
+            vcview.animateOutStart(activity, view)
+        }
         onUnmake.add {
             vcview.detatch()
         }

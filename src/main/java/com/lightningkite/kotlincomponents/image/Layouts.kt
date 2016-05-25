@@ -7,9 +7,9 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import com.lightningkite.kotlincomponents.R
 import com.lightningkite.kotlincomponents.animation.transitionView
 import com.lightningkite.kotlincomponents.asStringOptional
-import com.lightningkite.kotlincomponents.networking.NetMethod
 import com.lightningkite.kotlincomponents.networking.NetRequest
 import com.lightningkite.kotlincomponents.networking.Networking
 import com.lightningkite.kotlincomponents.networking.async
@@ -26,19 +26,17 @@ import org.jetbrains.anko.*
  * Created by jivie on 5/25/16.
  */
 
-inline fun ViewGroup.layoutImageUpload(
+fun ViewGroup.layoutImageUpload(
         activity: VCActivity,
         urlObs: KObservableInterface<String?>,
         noImageResource: Int,
         brokenImageResource: Int,
-        downloadRequest: NetRequest = NetRequest(NetMethod.GET, ""),
-        noinline uploadRequest: (Uri) -> NetRequest,
-        uploadCameraStringResource: Int,
-        uploadGalleryStringResource: Int,
-        crossinline onUploadError: () -> Unit
+        downloadRequest: NetRequest,
+        uploadingObs: KObservable<Boolean>,
+        uploadRequest: (Uri) -> NetRequest,
+        onUploadError: () -> Unit
 ): View {
     val loadingObs = KObservable(false)
-    val uploadingObs = KObservable(false)
     return transitionView {
         padding = dip(8)
         imageView {
@@ -70,19 +68,19 @@ inline fun ViewGroup.layoutImageUpload(
         onClick {
             activity.selector(
                     null,
-                    uploadCameraStringResource to {
+                    R.string.camera to {
                         activity.requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                             activity.getImageUriFromCamera() {
                                 println(it)
-                                if (it != null) uploadImage(context, uploadRequest(it), urlObs, loadingObs, onUploadError)
+                                if (it != null) uploadImage(context, uploadRequest(it), urlObs, uploadingObs, onUploadError)
                             }
                         }
                     },
-                    uploadGalleryStringResource to {
+                    R.string.gallery to {
                         activity.requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE) {
                             activity.getImageUriFromGallery() {
                                 println(it)
-                                if (it != null) uploadImage(context, uploadRequest(it), urlObs, loadingObs, onUploadError)
+                                if (it != null) uploadImage(context, uploadRequest(it), urlObs, uploadingObs, onUploadError)
                             }
                         }
                     }
@@ -97,13 +95,15 @@ inline fun uploadImage(
         context: Context,
         request: NetRequest,
         urlObs: KObservableInterface<String?>,
-        loadingObs: KObservableInterface<Boolean>,
+        uploading: KObservableInterface<Boolean>,
         crossinline onError: () -> Unit
 ) {
-    loadingObs.set(true)
+    println("uploading")
+    uploading.set(true)
     try {
         Networking.async(request) {
-            loadingObs.set(false)
+            println("upload complete")
+            uploading.set(false)
             try {
                 if (it.isSuccessful) {
                     val newUrl = it.jsonObject().get("url")?.asStringOptional
@@ -112,17 +112,20 @@ inline fun uploadImage(
                         urlObs.set(newUrl)
                     }
                 } else {
-                    Log.e("image.Layouts", "failed. ${it.string()}")
+                    Log.e("image.Layouts", "failed. ${it.code}: ${it.string()}")
                     onError()
                 }
             } catch(e: Exception) {
+                println("upload failed")
+                uploading.set(false)
                 e.printStackTrace()
                 onError()
             }
         }
     } catch(e: Exception) {
+        println("upload failed")
+        uploading.set(false)
         e.printStackTrace()
         onError()
-        loadingObs.set(false)
     }
 }

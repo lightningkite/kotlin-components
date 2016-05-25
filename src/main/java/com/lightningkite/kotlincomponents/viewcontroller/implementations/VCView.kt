@@ -18,6 +18,9 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
 
     open val defaultAnimation: AnimationSet? = AnimationSet.fade
 
+    var wholeViewAnimatingIn: Boolean = false
+    var killViewAnimateOutCalled: Boolean = false
+
     var container:VCContainer? = null
     fun attach(newContainer: VCContainer){
         container = newContainer
@@ -29,7 +32,10 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
         container?.swapListener = null
     }
     fun unmake(){
-        current?.animateOutStart(activity, currentView!!)
+        if (!killViewAnimateOutCalled) {
+            current?.animateOutStart(activity, currentView!!)
+            killViewAnimateOutCalled = true
+        }
         current?.unmake(currentView!!)
         if(currentView != null){
             removeView(currentView)
@@ -73,10 +79,19 @@ open class VCView(val activity: VCActivity): FrameLayout(activity){
                 }.start()
             }
         } else {
-            current?.animateInComplete(activity, currentView!!)
+            if (!wholeViewAnimatingIn) {
+                current?.animateInComplete(activity, currentView!!)
+            }
         }
+        killViewAnimateOutCalled = false
     }
 
+    fun animateInComplete(activity: VCActivity, view: View) {
+        current?.animateInComplete(activity, currentView!!)
+    }
 
-
+    fun animateOutStart(activity: VCActivity, view: View) {
+        killViewAnimateOutCalled = true
+        current?.animateOutStart(activity, currentView!!)
+    }
 }

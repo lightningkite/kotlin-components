@@ -65,6 +65,15 @@ class ActionAnimator<T, V>(
         }
     }
 
+    fun jump(
+            to: V
+    ) {
+        stop()
+        startValue = to
+        weak.get()?.action(to)
+        onComplete.runAll()
+    }
+
     /**
      * Immediately cancels the current animation.
      */

@@ -8,7 +8,7 @@ import java.util.*
  * Allows you to observe the changes to a list.
  * Created by josep on 9/7/2015.
  */
-class KFilterObservableList<E>(
+class KObservableListFiltered<E>(
         val full: KObservableListInterface<E>
 ) : KObservableListInterface<E>, Disposable {
 
@@ -127,7 +127,7 @@ class KFilterObservableList<E>(
 
     override val onAdd = HashSet<(E, Int) -> Unit>()
     override val onChange = HashSet<(E, Int) -> Unit>()
-    override val onUpdate = KObservableReference<KObservableListInterface<E>>({ this@KFilterObservableList }, { throw IllegalAccessException() })
+    override val onUpdate = KObservableReference<KObservableListInterface<E>>({ this@KObservableListFiltered }, { throw IllegalAccessException() })
     override val onReplace = HashSet<(KObservableListInterface<E>) -> Unit>()
     override val onRemove = HashSet<(E, Int) -> Unit>()
 

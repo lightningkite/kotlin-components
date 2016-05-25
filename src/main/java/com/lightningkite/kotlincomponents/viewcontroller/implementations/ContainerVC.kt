@@ -15,7 +15,9 @@ open class ContainerVC(val container: VCContainer, val disposeContainer: Boolean
     var vcView:VCView? = null
 
     override fun make(activity: VCActivity): View {
-        vcView = VCView(activity)
+        vcView = VCView(activity).apply {
+            wholeViewAnimatingIn = true
+        }
         vcView!!.attach(container)
         return vcView!!
     }
@@ -24,6 +26,16 @@ open class ContainerVC(val container: VCContainer, val disposeContainer: Boolean
         vcView?.detatch()
         vcView?.unmake()
         super.unmake(view)
+    }
+
+    override fun animateInComplete(activity: VCActivity, view: View) {
+        vcView?.animateInComplete(activity, view)
+        super.animateInComplete(activity, view)
+    }
+
+    override fun animateOutStart(activity: VCActivity, view: View) {
+        vcView?.animateOutStart(activity, view)
+        super.animateOutStart(activity, view)
     }
 
     override fun dispose() {

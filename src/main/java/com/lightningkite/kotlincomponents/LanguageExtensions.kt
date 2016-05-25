@@ -217,6 +217,22 @@ inline fun <T> List<T>.withEachAsync(doTask: T.(() -> Unit) -> Unit, crossinline
     }
 }
 
+inline fun List<(() -> Unit) -> Unit>.doAsync(crossinline onAllComplete: () -> Unit) {
+    if (isEmpty()) {
+        onAllComplete()
+        return
+    }
+    var itemsToGo = size
+    for (action in this) {
+        action {
+            itemsToGo--
+            if (itemsToGo <= 0) {
+                onAllComplete()
+            }
+        }
+    }
+}
+
 inline fun <T, MUTABLE, RESULT> List<T>.withReduceAsync(
         doTask: T.((RESULT) -> Unit) -> Unit,
         initialValue: MUTABLE,

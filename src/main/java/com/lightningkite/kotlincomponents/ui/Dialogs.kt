@@ -2,6 +2,7 @@ package com.lightningkite.kotlincomponents.ui
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import android.text.InputType
 import android.view.Gravity
@@ -45,6 +46,13 @@ private inline fun Button.styleDestructive() {
     textSize = 16f
     textColor = Color.RED
     setAllCaps(true)
+}
+
+object StandardDialog {
+    fun okButton(resources: Resources, action: () -> Unit = {}): Pair<String, (VCStack) -> Unit> =
+            resources.getString(android.R.string.ok) to { it: VCStack -> action(); it.pop() }
+
+    fun cancelButton(resources: Resources): Pair<String, (VCStack) -> Unit> = resources.getString(android.R.string.cancel) to { it: VCStack -> it.pop() }
 }
 
 /**

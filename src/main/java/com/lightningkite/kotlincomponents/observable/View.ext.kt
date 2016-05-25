@@ -542,7 +542,7 @@ inline fun Switch.bind(bond: KObservableInterface<Boolean>) {
  * Binds this [Switch] two way to the bond.
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun Switch.bindBoolean(bond: KObservableInterface<Boolean>, crossinline onChange: (Boolean) -> Unit) {
+inline fun CompoundButton.bindBoolean(bond: KObservableInterface<Boolean>, crossinline onChange: (Boolean) -> Unit) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         Unit
@@ -559,7 +559,7 @@ inline fun Switch.bindBoolean(bond: KObservableInterface<Boolean>, crossinline o
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
+inline fun CompoundButton.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         if (isChecked != bond.get()[index]) {
@@ -576,7 +576,7 @@ inline fun Switch.bindArray(bond: KObservableInterface<Array<Boolean>>, index: I
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun CheckBox.bindBoolean(bond: KObservableInterface<Boolean>) {
+inline fun CompoundButton.bindBoolean(bond: KObservableInterface<Boolean>) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         if (isChecked != bond.get()) {
@@ -591,8 +591,7 @@ inline fun CheckBox.bindBoolean(bond: KObservableInterface<Boolean>) {
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index: Int) {
+inline fun CompoundButton.bindList(bond: KObservableInterface<MutableList<Boolean>>, index: Int) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
         if (isChecked != bond.get()[index]) {
@@ -608,23 +607,7 @@ inline fun CheckBox.bindArray(bond: KObservableInterface<Array<Boolean>>, index:
     }
 }
 
-inline fun CheckBox.bindList(bond: KObservableInterface<MutableList<Boolean>>, index: Int) {
-    this.onCheckedChange {
-        buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
-        if (isChecked != bond.get()[index]) {
-            bond.get()[index] = isChecked
-            bond.update()
-        }
-    }
-    bind(bond) {
-        val value = bond.get()[index]
-        if (isChecked != value) {
-            isChecked = value;
-        }
-    }
-}
-
-inline fun <T> CheckBox.bindList(list: KObservableList<T>, item: T) {
+inline fun <T> CompoundButton.bindList(list: KObservableList<T>, item: T) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
 
@@ -645,7 +628,7 @@ inline fun <T> CheckBox.bindList(list: KObservableList<T>, item: T) {
     }
 }
 
-inline fun <T> CheckBox.bindList(list: KObservableList<T>, item: T, crossinline matches: (T, T) -> Boolean) {
+inline fun <T> CompoundButton.bindList(list: KObservableList<T>, item: T, crossinline matches: (T, T) -> Boolean) {
     this.onCheckedChange {
         buttonView: android.widget.CompoundButton?, isChecked: Boolean ->
 

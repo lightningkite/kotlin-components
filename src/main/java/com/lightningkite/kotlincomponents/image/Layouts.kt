@@ -98,11 +98,9 @@ inline fun uploadImage(
         uploading: KObservableInterface<Boolean>,
         crossinline onError: () -> Unit
 ) {
-    println("uploading")
     uploading.set(true)
     try {
         Networking.async(request) {
-            println("upload complete")
             uploading.set(false)
             try {
                 if (it.isSuccessful) {
@@ -116,14 +114,12 @@ inline fun uploadImage(
                     onError()
                 }
             } catch(e: Exception) {
-                println("upload failed")
                 uploading.set(false)
                 e.printStackTrace()
                 onError()
             }
         }
     } catch(e: Exception) {
-        println("upload failed")
         uploading.set(false)
         e.printStackTrace()
         onError()

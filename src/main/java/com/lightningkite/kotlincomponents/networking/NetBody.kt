@@ -27,6 +27,10 @@ abstract class NetBody() {
         override fun write(stream: OutputStream) {
             stream.write(content)
         }
+
+        override fun toString(): String {
+            return content.toString(Charsets.UTF_8)
+        }
     }
 
     class StreamBody(
@@ -42,6 +46,10 @@ abstract class NetBody() {
                 if (read <= 0) return
                 stream.write(buffer, 0, read)
             }
+        }
+
+        override fun toString(): String {
+            return "StreamBody(length=$length)"
         }
     }
 

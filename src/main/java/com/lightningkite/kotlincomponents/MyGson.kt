@@ -1,6 +1,8 @@
 package com.lightningkite.kotlincomponents
 
 import com.google.gson.*
+import com.lightningkite.kotlincomponents.observable.KObservable
+import java.lang.reflect.ParameterizedType
 import java.util.*
 
 /**
@@ -63,4 +65,14 @@ object MyGson {
         return gson
     }
 
+    init {
+        register<KObservable<*>>(JsonSerializer { t, type, context ->
+            context.serialize(t.value)
+        })
+        register<KObservable<*>>(JsonDeserializer { element, type, context ->
+            if (type !is ParameterizedType) throw IllegalArgumentException()
+            val innerType = type.actualTypeArguments[0]
+            KObservable<Any>(context.deserialize(element, innerType)) as KObservable<*>
+        })
+    }
 }

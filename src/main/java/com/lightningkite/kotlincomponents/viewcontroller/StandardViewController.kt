@@ -120,6 +120,16 @@ abstract class StandardViewController() : ViewController {
         return view
     }
 
+    fun ViewGroup.standardViewController(controller: StandardViewController, init: View.() -> Unit): View {
+        val view = controller.make(context as VCActivity)
+        addView(view)
+        view.init()
+        onUnmake.add {
+            controller.onUnmake.runAll(view)
+        }
+        return view;
+    }
+
     @Deprecated("Please use text resources.  It's better anyways.")
     inline fun Menu.item(textRes: String, iconRes: Int, crossinline setup: MenuItem.() -> Unit) {
         var menuItem: MenuItem? = null

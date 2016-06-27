@@ -5,6 +5,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
+import com.lightningkite.kotlincomponents.onDetached
 import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
@@ -117,17 +118,10 @@ abstract class StandardViewController() : ViewController {
         val view = controller.make(context as VCActivity)
         addView(view)
         view.init()
-        return view
-    }
-
-    fun ViewGroup.standardViewController(controller: StandardViewController, init: View.() -> Unit): View {
-        val view = controller.make(context as VCActivity)
-        addView(view)
-        view.init()
         onUnmake.add {
-            controller.onUnmake.runAll(view)
+            controller.unmake(view)
         }
-        return view;
+        return view
     }
 
     @Deprecated("Please use text resources.  It's better anyways.")

@@ -5,7 +5,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.lightningkite.kotlincomponents.Disposable
-import com.lightningkite.kotlincomponents.onDetached
 import com.lightningkite.kotlincomponents.runAll
 import com.lightningkite.kotlincomponents.viewcontroller.containers.VCContainer
 import com.lightningkite.kotlincomponents.viewcontroller.implementations.VCActivity
@@ -114,7 +113,7 @@ abstract class StandardViewController() : ViewController {
         return vcview
     }
 
-    inline fun ViewGroup.viewController(controller: ViewController, init: View.() -> Unit): View {
+    fun ViewGroup.viewController(controller: ViewController, init: View.() -> Unit): View {
         val view = controller.make(context as VCActivity)
         addView(view)
         view.init()

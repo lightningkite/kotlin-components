@@ -7,20 +7,26 @@ import com.lightningkite.kotlincomponents.getActivity
 import org.jetbrains.anko.findOptional
 
 /**
+ *
  * Created by josep on 3/3/2016.
+ *
  */
 
 
 fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
-    val snack = Snackbar.make(this, text, duration)
-    snack.init()
-    snack.show()
+    try {
+        val snack = Snackbar.make(this, text, duration)
+        snack.init()
+        snack.show()
+    } catch (ex: NullPointerException) {/*ignore*/}
 }
 
 fun View.snackbar(text: Int, duration: Int = Snackbar.LENGTH_LONG, init: Snackbar.() -> Unit = {}) {
-    val snack = Snackbar.make(this, text, duration)
-    snack.init()
-    snack.show()
+    try {
+        val snack = Snackbar.make(this, text, duration)
+        snack.init()
+        snack.show()
+    } catch (ex: NullPointerException) {/*ignore*/}
 }
 
 fun Snackbar.onDismissed(lambda: (event: Int) -> Unit) {

@@ -1,4 +1,14 @@
-# kotlin-components-starter
+# kotlin-components
+
+### This framework has been split into multiple different packages, and this package is deprecated.  See:
+
+- kotlin-core
+- kotlin-anko
+- kotlin-observable
+- kotlin-networking (not necessarily recommended)
+- kotlin-anko-observable
+- kotlin-anko-networking
+- kotlin-anko-full
 
 A framework for making Android apps, designed with a different scheme in mind than most.
 

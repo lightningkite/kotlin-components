@@ -6,7 +6,11 @@ import java.util.*
 /**
  * Created by jivie on 2/26/16.
  */
-open class NetEndpoint(val netInterface: NetInterface = NetInterface.default, val preQueryUrl: String, val queryParams: Map<String, String> = mapOf()) {
+open class NetEndpoint(
+        val netInterface: NetInterface = NetInterface.default,
+        val preQueryUrl: String,
+        val queryParams: Map<String, String> = mapOf()
+) {
 
     companion object {
         fun fromUrl(url: String, netInterface: NetInterface = NetInterface.default): NetEndpoint {
